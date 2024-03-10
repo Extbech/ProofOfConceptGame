@@ -38,10 +38,12 @@ fn setup(
         },
         Player,
     ));
+    let tile1: Handle<Image> = asset_server.load("environment/backgrounddetailed1.png");
+    let tile2: Handle<Image> = asset_server.load("environment/backgrounddetailed2.png");
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Mesh::from(Rectangle::default())).into(),
         transform: Transform::default().with_scale(Vec3::new(4000., 4000., 1.)),
-        material: materials.add(ColorMaterial::from(Color::PURPLE)),
+        material: materials.add(ColorMaterial::from(tile1)),
         ..default()
     });
     app_window_config(window);
