@@ -1,10 +1,12 @@
 mod map;
 mod player;
 mod projectiles;
+
 use bevy::{
     diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
     prelude::*, window::PrimaryWindow,
 };
+use player::{Player, PlayerBundle};
 use projectiles::{projectile_movement, ProjectileBundle};
 
 fn main() {
@@ -27,7 +29,7 @@ fn main() {
 struct MyGameCamera;
 
 /// normalized vector pointing in some direction. Is always nonzero
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Clone, Copy, Deref, DerefMut)]
 pub struct Direction {
     v: Vec2,
 }
@@ -48,30 +50,8 @@ impl Default for Direction {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct Speed(f32);
-
-#[derive(Component)]
-struct Player;
-
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    marker: Player,
-    dir: Direction,
-    sprite: SpriteBundle,
-    speed: Speed
-}
-
-impl PlayerBundle {
-    fn new(sprite: SpriteBundle) -> Self {
-        PlayerBundle {
-            marker: Player,
-            dir: default(),
-            sprite,
-            speed: Speed(5.)
-        }
-    }
-}
 
 fn setup(
     mut commands: Commands,
@@ -100,8 +80,8 @@ fn sync_player_and_camera_pos(
 ) {
     let player = player.single();
     let mut cam = cam.single_mut();
-    cam.translation.y = player.translation.y;
     cam.translation.x = player.translation.x;
+    cam.translation.y = player.translation.y;
 }
 
 fn keyboard_input(
@@ -111,15 +91,14 @@ fn keyboard_input(
     mut player: Query<(&mut Transform, &mut Direction, &Speed), With<Player>>,
     diagnostics: Res<DiagnosticsStore>,
 ) {
-    let (mut player_trans, mut player_dir, player_speed) = player.single_mut();
+    let (mut player_trans, mut player_dir, &player_speed) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
     let keyboard_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
     
     let keyboard_dir = Vec2::new(keyboard_dir_x, keyboard_dir_y).normalize_or_zero();
     const BOUND: f32 = 1900.;
-    player_position.x = (player_position.x + player_speed.0 * keyboard_dir.x).clamp(-BOUND, BOUND);
-    player_position.y = (player_position.y + player_speed.0 * keyboard_dir.y).clamp(-BOUND, BOUND);
+    (player_position.x, player_position.y) = (player_position.xy() + *player_speed * keyboard_dir).clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND)).into();
     *player_dir = Direction::try_new(keyboard_dir.x, keyboard_dir.y).unwrap_or(*player_dir);
     if keys.pressed(KeyCode::KeyJ) {
         commands.spawn(ProjectileBundle::new(
