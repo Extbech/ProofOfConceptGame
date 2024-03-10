@@ -24,9 +24,9 @@ impl ProjectileBundle {
     }
 }
 
-pub fn projectile_movement(mut q: Query<(&Direction, &mut Transform, &MovementSpeed), With<Projectile>>) {
+pub fn projectile_movement(time: Res<Time>, mut q: Query<(&Direction, &mut Transform, &MovementSpeed), With<Projectile>>) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
-        (pos.x, pos.y) =  (Vec2::new(pos.x, pos.y) + *speed * dir.v).into();
+        (pos.x, pos.y) =  (Vec2::new(pos.x, pos.y) + *speed * time.delta_seconds() * dir.v).into();
     }
 }
