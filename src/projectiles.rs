@@ -1,5 +1,5 @@
-use crate::Direction;
-use bevy::{asset::io::memory::Dir, prelude::*};
+use crate::{Direction, Speed};
+use bevy::prelude::*;
 
 /// Projectiles are entities that move in a straight line at a fixed speed
 #[derive(Component)]
@@ -10,23 +10,24 @@ pub struct ProjectileBundle {
     marker: Projectile,
     dir: Direction,
     sprite: SpriteBundle,
+    speed: Speed
 }
 
 impl ProjectileBundle {
-    pub fn new(sprite: SpriteBundle, dir: Direction) -> Self {
+    pub fn new(sprite: SpriteBundle, dir: Direction, speed: Speed) -> Self {
         ProjectileBundle {
             marker: Projectile,
             dir,
             sprite,
+            speed
         }
     }
 }
 
-pub fn projectile_movement(mut q: Query<(&Direction, &mut Transform), With<Projectile>>) {
-    for (dir, mut tran) in &mut q {
-        const SPEED: f32 = 5.0;
+pub fn projectile_movement(mut q: Query<(&Direction, &mut Transform, &Speed), With<Projectile>>) {
+    for (dir, mut tran, speed) in &mut q {
         let pos = &mut tran.translation;
-        pos.x += SPEED * dir.v.x;
-        pos.y += SPEED * dir.v.y;
+        pos.x += speed.0 * dir.v.x;
+        pos.y += speed.0 * dir.v.y;
     }
 }

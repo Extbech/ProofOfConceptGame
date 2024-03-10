@@ -26,9 +26,6 @@ fn main() {
 #[derive(Component)]
 struct MyGameCamera;
 
-#[derive(Component)]
-struct Player;
-
 /// normalized vector pointing in some direction. Is always nonzero
 #[derive(Component, Clone, Copy)]
 pub struct Direction {
@@ -51,11 +48,18 @@ impl Default for Direction {
     }
 }
 
+#[derive(Component)]
+struct Speed(f32);
+
+#[derive(Component)]
+struct Player;
+
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
     dir: Direction,
     sprite: SpriteBundle,
+    speed: Speed
 }
 
 impl PlayerBundle {
@@ -64,6 +68,7 @@ impl PlayerBundle {
             marker: Player,
             dir: default(),
             sprite,
+            speed: Speed(5.)
         }
     }
 }
@@ -103,19 +108,18 @@ fn keyboard_input(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Direction), With<Player>>,
+    mut player: Query<(&mut Transform, &mut Direction, &Speed), With<Player>>,
     diagnostics: Res<DiagnosticsStore>,
 ) {
-    let (mut player_trans, mut player_dir) = player.single_mut();
+    let (mut player_trans, mut player_dir, player_speed) = player.single_mut();
     let player_position = &mut player_trans.translation;
-    const SPEED: f32 = 5.;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
     let keyboard_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
     
     let keyboard_dir = Vec2::new(keyboard_dir_x, keyboard_dir_y).normalize_or_zero();
     const BOUND: f32 = 1900.;
-    player_position.x = (player_position.x + SPEED * keyboard_dir.x).clamp(-BOUND, BOUND);
-    player_position.y = (player_position.y + SPEED * keyboard_dir.y).clamp(-BOUND, BOUND);
+    player_position.x = (player_position.x + player_speed.0 * keyboard_dir.x).clamp(-BOUND, BOUND);
+    player_position.y = (player_position.y + player_speed.0 * keyboard_dir.y).clamp(-BOUND, BOUND);
     *player_dir = Direction::try_new(keyboard_dir.x, keyboard_dir.y).unwrap_or(*player_dir);
     if keys.pressed(KeyCode::KeyJ) {
         commands.spawn(ProjectileBundle::new(
@@ -125,6 +129,7 @@ fn keyboard_input(
                 ..default()
             },
             *player_dir,
+            Speed(5.)
         ));
     }
     // try to get a "smoothed" FPS value from Bevy
