@@ -1,8 +1,8 @@
-use bevy::{input::ButtonInput, prelude::*};
+use bevy::{input::ButtonInput, prelude::*, sprite::MaterialMesh2dBundle, window::PrimaryWindow};
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_systems(Startup, setup)
         .add_systems(Update, keyboard_input)
         .add_systems(Update, sync_player_and_camera_pos)
@@ -15,25 +15,36 @@ struct MyGameCamera;
 #[derive(Component)]
 struct Player;
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    window: Query<&mut Window, With<PrimaryWindow>>,
+) {
     commands.spawn((
-        Camera2dBundle {
-            transform: Transform::from_xyz(0., 0., 1000.).with_scale(Vec3::new(2., 2., 1.)),
-            ..default()
+        {
+            let mut cam = Camera2dBundle::default();
+            cam.transform = cam.transform.with_scale(Vec3::new(3., 3., 1.));
+            cam
         },
         MyGameCamera,
     ));
     commands.spawn((
         SpriteBundle {
+            transform: Transform::from_xyz(0., 0., 1.),
             texture: asset_server.load("models/sprite1.png"),
             ..default()
         },
         Player,
     ));
-    commands.spawn(SpriteBundle {
-        texture: asset_server.load("models/sprite1.png"),
+    commands.spawn(MaterialMesh2dBundle {
+        mesh: meshes.add(Mesh::from(Rectangle::default())).into(),
+        transform: Transform::default().with_scale(Vec3::new(4000., 4000., 1.)),
+        material: materials.add(ColorMaterial::from(Color::PURPLE)),
         ..default()
     });
+    app_window_config(window);
 }
 
 fn sync_player_and_camera_pos(
@@ -50,16 +61,22 @@ fn keyboard_input(
     keys: Res<ButtonInput<KeyCode>>,
     mut player: Query<&mut Transform, With<Player>>,
 ) {
-    if keys.pressed(KeyCode::KeyW) {
-        player.single_mut().translation.y -= 5.0;
+    let player_position = &mut player.single_mut().translation;
+    if keys.pressed(KeyCode::KeyW) && player_position.y < 1900. {
+        player_position.y += 5.0;
     }
-    if keys.pressed(KeyCode::KeyS) {
-        player.single_mut().translation.y += 5.0;
+    if keys.pressed(KeyCode::KeyS) && player_position.y > -1900. {
+        player_position.y -= 5.0;
     }
-    if keys.pressed(KeyCode::KeyD) {
-        player.single_mut().translation.x -= 5.0;
+    if keys.pressed(KeyCode::KeyD) && player_position.x < 1900. {
+        player_position.x += 5.0;
     }
-    if keys.pressed(KeyCode::KeyA) {
-        player.single_mut().translation.x += 5.0;
+    if keys.pressed(KeyCode::KeyA) && player_position.x > -1900. {
+        player_position.x -= 5.0;
     }
+}
+
+fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
+    let mut curr_window = window.single_mut();
+    curr_window.title = "Vampire Survivors Copy Cat".to_string();
 }
