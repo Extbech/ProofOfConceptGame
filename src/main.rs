@@ -1,3 +1,4 @@
+mod enemy;
 mod map;
 mod player;
 mod projectiles;
@@ -20,6 +21,7 @@ fn main() {
                 projectile_movement,
             ),
         )
+        .add_systems(Update, enemy::update_enemies)
         .run();
 }
 
@@ -134,12 +136,12 @@ fn keyboard_input(
         ));
     }
     // try to get a "smoothed" FPS value from Bevy
-    if let Some(value) = diagnostics
+    /* if let Some(value) = diagnostics
         .get(&FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|fps| fps.smoothed())
     {
         println!("fps: {}", value);
-    }
+    } */
 }
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {

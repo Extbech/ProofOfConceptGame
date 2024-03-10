@@ -1,5 +1,5 @@
 use crate::Direction;
-use bevy::{asset::io::memory::Dir, prelude::*};
+use bevy::prelude::*;
 
 /// Projectiles are entities that move in a straight line at a fixed speed
 #[derive(Component)]
