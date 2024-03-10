@@ -1,4 +1,4 @@
-use crate::{Direction, Speed};
+use crate::{Direction, MovementSpeed};
 use bevy::prelude::*;
 
 /// Projectiles are entities that move in a straight line at a fixed speed
@@ -10,11 +10,11 @@ pub struct ProjectileBundle {
     marker: Projectile,
     dir: Direction,
     sprite: SpriteBundle,
-    speed: Speed
+    speed: MovementSpeed
 }
 
 impl ProjectileBundle {
-    pub fn new(sprite: SpriteBundle, dir: Direction, speed: Speed) -> Self {
+    pub fn new(sprite: SpriteBundle, dir: Direction, speed: MovementSpeed) -> Self {
         ProjectileBundle {
             marker: Projectile,
             dir,
@@ -24,7 +24,7 @@ impl ProjectileBundle {
     }
 }
 
-pub fn projectile_movement(mut q: Query<(&Direction, &mut Transform, &Speed), With<Projectile>>) {
+pub fn projectile_movement(mut q: Query<(&Direction, &mut Transform, &MovementSpeed), With<Projectile>>) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
         (pos.x, pos.y) =  (Vec2::new(pos.x, pos.y) + *speed * dir.v).into();

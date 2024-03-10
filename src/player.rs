@@ -1,15 +1,23 @@
 use bevy::prelude::*;
-use crate::{Speed, Direction};
+use crate::{MovementSpeed, Direction};
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component, Deref, Clone, Copy)]
+pub struct ProjectileSpeed(f32);
+
+#[derive(Component, Deref, Clone, Copy)]
+pub struct AttackSpeed(f32);
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
     dir: Direction,
     sprite: SpriteBundle,
-    speed: Speed
+    speed: MovementSpeed,
+    projectile_speed: ProjectileSpeed,
+    attack_speed: AttackSpeed,
 }
 
 impl PlayerBundle {
@@ -18,7 +26,9 @@ impl PlayerBundle {
             marker: Player,
             dir: default(),
             sprite,
-            speed: Speed(5.)
+            speed: MovementSpeed(5.),
+            projectile_speed: ProjectileSpeed(5.),
+            attack_speed: AttackSpeed(5.)
         }
     }
 }

@@ -6,7 +6,7 @@ use bevy::{
     diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
     prelude::*, window::PrimaryWindow,
 };
-use player::{Player, PlayerBundle};
+use player::{Player, PlayerBundle, ProjectileSpeed};
 use projectiles::{projectile_movement, ProjectileBundle};
 
 fn main() {
@@ -51,7 +51,7 @@ impl Default for Direction {
 }
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-struct Speed(f32);
+struct MovementSpeed(f32);
 
 fn setup(
     mut commands: Commands,
@@ -88,10 +88,10 @@ fn keyboard_input(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Direction, &Speed), With<Player>>,
+    mut player: Query<(&mut Transform, &mut Direction, &MovementSpeed, &ProjectileSpeed), With<Player>>,
     diagnostics: Res<DiagnosticsStore>,
 ) {
-    let (mut player_trans, mut player_dir, &player_speed) = player.single_mut();
+    let (mut player_trans, mut player_dir, &player_speed, &projectile_speed) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
     let keyboard_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
@@ -108,7 +108,7 @@ fn keyboard_input(
                 ..default()
             },
             *player_dir,
-            Speed(5.)
+            MovementSpeed(*projectile_speed)
         ));
     }
     // try to get a "smoothed" FPS value from Bevy
