@@ -89,7 +89,7 @@ fn setup(
     ));
     commands.spawn(PlayerBundle::new(SpriteBundle {
         transform: Transform::from_xyz(0., 0., 1.),
-        texture: asset_server.load("models/sprite1.png"),
+        texture: asset_server.load("models/hero.png"),
         ..default()
     }));
     app_window_config(window);
@@ -127,7 +127,7 @@ fn keyboard_input(
         commands.spawn(ProjectileBundle::new(
             SpriteBundle {
                 transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-                texture: asset_server.load("models/sprite1.png"),
+                texture: asset_server.load("models/hero.png"),
                 ..default()
             },
             *player_dir,
