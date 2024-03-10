@@ -1,13 +1,24 @@
 mod projectiles;
 
+use bevy::{
+    diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
+    prelude::*, sprite::MaterialMesh2dBundle, window::PrimaryWindow,
+};
 use projectiles::{projectile_movement, ProjectileBundle};
-use bevy::{input::ButtonInput, prelude::*, sprite::MaterialMesh2dBundle, window::PrimaryWindow};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_systems(Startup, setup)
-        .add_systems(Update, (keyboard_input, sync_player_and_camera_pos, projectile_movement))
+        .add_systems(
+            Update,
+            (
+                keyboard_input,
+                sync_player_and_camera_pos,
+                projectile_movement,
+            ),
+        )
         .run();
 }
 
@@ -41,7 +52,7 @@ fn setup(
         Player,
     ));
     let tile1: Handle<Image> = asset_server.load("environment/backgrounddetailed1.png");
-    let tile2: Handle<Image> = asset_server.load("environment/backgrounddetailed2.png");
+    let _tile2: Handle<Image> = asset_server.load("environment/backgrounddetailed2.png");
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Mesh::from(Rectangle::default())).into(),
         transform: Transform::default().with_scale(Vec3::new(4000., 4000., 1.)),
@@ -66,21 +77,34 @@ fn keyboard_input(
     asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<KeyCode>>,
     mut player: Query<&mut Transform, With<Player>>,
+    diagnostics: Res<DiagnosticsStore>,
 ) {
+    // try to get a "smoothed" FPS value from Bevy
+    if let Some(value) = diagnostics
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|fps| fps.smoothed())
+    {
+        println!("fps: {}", value);
+    }
+
     const SPEED: f32 = 5.;
-    let player_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
-    let player_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
+    let player_dir_x = if keys.pressed(KeyCode::KeyA) { 0. } else { 1. }
+        - if keys.pressed(KeyCode::KeyD) { 0. } else { 1. };
+    let player_dir_y = if keys.pressed(KeyCode::KeyS) { 0. } else { 1. }
+        - if keys.pressed(KeyCode::KeyW) { 0. } else { 1. };
     let player_position = &mut player.single_mut().translation;
     const BOUND: f32 = 1900.;
     player_position.x = (player_position.x + SPEED * player_dir_x).clamp(-BOUND, BOUND);
     player_position.y = (player_position.y + SPEED * player_dir_y).clamp(-BOUND, BOUND);
     if keys.pressed(KeyCode::KeyJ) {
-        commands.spawn(ProjectileBundle::new(SpriteBundle {
-            transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-            texture: asset_server.load("models/sprite1.png"),
-            ..default()
-        },
-    Vec2::new(player_dir_x, player_dir_y)));
+        commands.spawn(ProjectileBundle::new(
+            SpriteBundle {
+                transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
+                texture: asset_server.load("models/sprite1.png"),
+                ..default()
+            },
+            Vec2::new(player_dir_x, player_dir_y),
+        ));
     }
 }
 
