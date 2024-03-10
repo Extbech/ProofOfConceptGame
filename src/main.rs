@@ -1,13 +1,24 @@
 mod projectiles;
 
+use bevy::{
+    diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
+    prelude::*, sprite::MaterialMesh2dBundle, window::PrimaryWindow,
+};
 use projectiles::{projectile_movement, ProjectileBundle};
-use bevy::{input::ButtonInput, prelude::*, sprite::MaterialMesh2dBundle, window::PrimaryWindow};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_systems(Startup, setup)
-        .add_systems(Update, (keyboard_input, sync_player_and_camera_pos, projectile_movement))
+        .add_systems(
+            Update,
+            (
+                keyboard_input,
+                sync_player_and_camera_pos,
+                projectile_movement,
+            ),
+        )
         .run();
 }
 
@@ -72,10 +83,12 @@ fn setup(
             ..default()
         }
     ));
+    let tile1: Handle<Image> = asset_server.load("environment/backgrounddetailed1.png");
+    let _tile2: Handle<Image> = asset_server.load("environment/backgrounddetailed2.png");
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Mesh::from(Rectangle::default())).into(),
         transform: Transform::default().with_scale(Vec3::new(4000., 4000., 1.)),
-        material: materials.add(ColorMaterial::from(Color::PURPLE)),
+        material: materials.add(ColorMaterial::from(tile1)),
         ..default()
     });
     app_window_config(window);
@@ -96,6 +109,7 @@ fn keyboard_input(
     asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<KeyCode>>,
     mut player: Query<(&mut Transform, &mut Direction), With<Player>>,
+    diagnostics: Res<DiagnosticsStore>,
 ) {
     let (mut player_trans, mut player_dir) = player.single_mut();
     const SPEED: f32 = 5.;
@@ -113,6 +127,13 @@ fn keyboard_input(
             ..default()
         },
     *player_dir));
+    }
+    // try to get a "smoothed" FPS value from Bevy
+    if let Some(value) = diagnostics
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|fps| fps.smoothed())
+    {
+        println!("fps: {}", value);
     }
 }
 
