@@ -33,10 +33,6 @@ struct Player;
 pub struct Direction{v: Vec2}
 
 impl Direction {
-    fn new(x: f32, y: f32) -> Self {
-        Direction{v: Vec2::new(x, y).try_normalize().unwrap_or(default())}
-    }
-
     fn try_new(x: f32, y: f32) -> Option<Self> {
         Some(Direction{v: Vec2::new(x, y).try_normalize()?})
     }
@@ -112,14 +108,16 @@ fn keyboard_input(
     diagnostics: Res<DiagnosticsStore>,
 ) {
     let (mut player_trans, mut player_dir) = player.single_mut();
-    const SPEED: f32 = 5.;
-    let player_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
-    let player_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
     let player_position = &mut player_trans.translation;
+    const SPEED: f32 = 5.;
+    let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) {0.} else {1.} - if keys.pressed(KeyCode::KeyD) {0.} else {1.};
+    let keyboard_dir_y = if keys.pressed(KeyCode::KeyS) {0.} else {1.} - if keys.pressed(KeyCode::KeyW) {0.} else {1.};
+    
+    let keyboard_dir = Vec2::new(keyboard_dir_x, keyboard_dir_y).normalize_or_zero();
     const BOUND: f32 = 1900.;
-    player_position.x = (player_position.x + SPEED * player_dir_x).clamp(-BOUND, BOUND);
-    player_position.y = (player_position.y + SPEED * player_dir_y).clamp(-BOUND, BOUND);
-    *player_dir = Direction::try_new(player_dir_x, player_dir_y).unwrap_or(*player_dir);
+    player_position.x = (player_position.x + SPEED * keyboard_dir.x).clamp(-BOUND, BOUND);
+    player_position.y = (player_position.y + SPEED * keyboard_dir.y).clamp(-BOUND, BOUND);
+    *player_dir = Direction::try_new(keyboard_dir.x, keyboard_dir.y).unwrap_or(*player_dir);
     if keys.pressed(KeyCode::KeyJ) {
         commands.spawn(ProjectileBundle::new(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
