@@ -1,4 +1,4 @@
-use crate::Player;
+use crate::{MovementSpeed, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -7,26 +7,31 @@ pub struct Enemy;
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
-    pub marker: Enemy,
-    pub sprite: SpriteBundle,
+    marker: Enemy,
+    speed: MovementSpeed,
+    sprite: SpriteBundle,
 }
 
 impl EnemyBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
             marker: Enemy,
+            speed: MovementSpeed(100.),
             sprite,
         }
     }
 }
 
 pub fn update_enemies(
-    commands: Commands,
-    asset_server: Res<AssetServer>,
-    query: Query<&mut Transform, With<Player>>,
+    q_pl: Query<&Transform, With<Player>>,
+    mut q_enmy: Query<(&mut Transform, &MovementSpeed), (With<Enemy>, Without<Player>)>,
     time: Res<Time>,
 ) {
-    todo!()
+    let player_position = q_pl.single().translation.xy();
+    for (mut enmy_trans, &speed) in &mut q_enmy {
+        let enemy_pos = enmy_trans.translation.xy();
+        enmy_trans.translation = (enemy_pos - (enemy_pos - player_position).normalize_or_zero() * time.delta_seconds() * *speed).extend(enmy_trans.translation.z);
+    }
 }
 
 pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
@@ -41,7 +46,7 @@ pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
 pub fn spawn_enemies(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    query: Query<&mut Transform, With<Player>>,
+    query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
 ) {
     let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");

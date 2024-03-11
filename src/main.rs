@@ -8,7 +8,7 @@ use bevy::{
 };
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::spawn_enemies;
+use enemy::{spawn_enemies, update_enemies};
 use player::{
     tick_cooldown, AttackCooldown, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
 };
@@ -29,6 +29,7 @@ fn main() {
                 projectile_movement,
                 tick_cooldown,
                 spawn_enemies,
+                update_enemies
             ),
         )
         .run();
