@@ -1,8 +1,5 @@
-use crate::{
-    projectiles::{Projectile, ProjectileBundle},
-    Player,
-};
-use crate::{MovementSpeed, Player};
+use crate::MovementSpeed;
+use crate::{projectiles::Projectile, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
 
