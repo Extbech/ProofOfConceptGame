@@ -2,39 +2,55 @@ use crate::{
     projectiles::{Projectile, ProjectileBundle},
     Player,
 };
+use crate::{MovementSpeed, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
+
+#[derive(Resource, Deref, DerefMut)]
+pub struct SpawnRate(f32);
+
+#[derive(Resource, Default, Deref, DerefMut)]
+pub struct SpawnCoolDown(f32);
+
+pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
 
 #[derive(Component)]
 pub struct Enemy;
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
-    pub marker: Enemy,
-    pub sprite: SpriteBundle,
+    marker: Enemy,
+    speed: MovementSpeed,
+    sprite: SpriteBundle,
 }
 
 impl EnemyBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
             marker: Enemy,
+            speed: MovementSpeed(100.),
             sprite,
         }
     }
 }
 
 pub fn update_enemies(
-    commands: Commands,
-    asset_server: Res<AssetServer>,
-    query: Query<&mut Transform, With<Player>>,
+    q_pl: Query<&Transform, With<Player>>,
+    mut q_enmy: Query<(&mut Transform, &MovementSpeed), (With<Enemy>, Without<Player>)>,
     time: Res<Time>,
 ) {
-    todo!()
+    let player_position = q_pl.single().translation.xy();
+    for (mut enmy_trans, &speed) in &mut q_enmy {
+        let enemy_pos = enmy_trans.translation.xy();
+        enmy_trans.translation = (enemy_pos
+            - (enemy_pos - player_position).normalize_or_zero() * time.delta_seconds() * *speed)
+            .extend(enmy_trans.translation.z);
+    }
 }
 
 pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
     // x: 100, y: 200
-    let angle: f32 = rand::thread_rng().gen_range(0.0..360.0);
+    let angle: f32 = rand::thread_rng().gen_range(0.0..(2. * std::f32::consts::PI));
     let r = 1000.0;
     let x = r * angle.sin();
     let y = r * angle.cos();
@@ -44,21 +60,33 @@ pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
 pub fn spawn_enemies(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    query: Query<&mut Transform, With<Player>>,
+    query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
+    spawnrate: Res<SpawnRate>,
+    mut spawncooldown: ResMut<SpawnCoolDown>,
 ) {
-    let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
-    let player = query.single().translation;
-    let enemy_position = generate_random_starting_position(player.xy());
-    commands.spawn(EnemyBundle::new(SpriteBundle {
-        transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
-        texture: enemy_sprite,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(75., 100.)),
-            ..Default::default()
-        },
-        ..default()
-    }));
+    if **spawncooldown <= 0. {
+        let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
+        let player = query.single().translation;
+        let enemy_position = generate_random_starting_position(player.xy());
+        commands.spawn(EnemyBundle::new(SpriteBundle {
+            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
+            texture: enemy_sprite,
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(75., 100.)),
+                ..Default::default()
+            },
+            ..default()
+        }));
+        **spawncooldown += **spawnrate;
+    }
+}
+
+/// system for decreasing the cooldown timer of enemy spawns
+pub fn tick_spawn_timer(time: Res<Time>, mut cd: ResMut<SpawnCoolDown>) {
+    if 0. < **cd {
+        **cd -= time.delta_seconds();
+    }
 }
 
 pub fn handle_enemy_collision(

@@ -2,13 +2,13 @@ mod enemy;
 mod map;
 mod player;
 mod projectiles;
-use bevy::{
-    diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
-    prelude::*, window::PrimaryWindow,
-};
+use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::{handle_enemy_collision, spawn_enemies};
+use enemy::{
+    handle_enemy_collision, spawn_enemies, tick_spawn_timer, update_enemies, SpawnCoolDown,
+    DEFAULT_SPAWN_RATE,
+};
 use player::{
     tick_cooldown, AttackCooldown, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
 };
@@ -17,7 +17,6 @@ use projectiles::{projectile_movement, ProjectileBundle};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(TilemapPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, (setup, map::setup_map))
@@ -28,8 +27,10 @@ fn main() {
                 sync_player_and_camera_pos,
                 projectile_movement,
                 tick_cooldown,
+                tick_spawn_timer,
                 spawn_enemies,
                 handle_enemy_collision,
+                update_enemies,
             ),
         )
         .run();
@@ -85,6 +86,8 @@ fn setup(
         },
         ..default()
     }));
+    commands.insert_resource(DEFAULT_SPAWN_RATE);
+    commands.init_resource::<SpawnCoolDown>();
     app_window_config(window);
 }
 
@@ -114,7 +117,6 @@ fn keyboard_input(
         ),
         With<Player>,
     >,
-    diagnostics: Res<DiagnosticsStore>,
 ) {
     let (
         mut player_trans,
