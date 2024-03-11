@@ -2,13 +2,13 @@ mod enemy;
 mod map;
 mod player;
 mod projectiles;
-use bevy::{
-    input::ButtonInput,
-    prelude::*, window::PrimaryWindow,
-};
+use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::{spawn_enemies, tick_spawn_timer, update_enemies, SpawnCoolDown, DEFAULT_SPAWN_RATE};
+use enemy::{
+    handle_enemy_collision, spawn_enemies, tick_spawn_timer, update_enemies, SpawnCoolDown,
+    DEFAULT_SPAWN_RATE,
+};
 use player::{
     tick_cooldown, AttackCooldown, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
 };
@@ -29,7 +29,8 @@ fn main() {
                 tick_cooldown,
                 tick_spawn_timer,
                 spawn_enemies,
-                update_enemies
+                handle_enemy_collision,
+                update_enemies,
             ),
         )
         .run();
@@ -142,7 +143,11 @@ fn keyboard_input(
         commands.spawn(ProjectileBundle::new(
             SpriteBundle {
                 transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-                texture: asset_server.load("models/hero.png"),
+                texture: asset_server.load("models/bullet.png"),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(25., 25.)),
+                    ..Default::default()
+                },
                 ..default()
             },
             *player_dir,
