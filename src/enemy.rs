@@ -32,7 +32,7 @@ pub fn update_enemies(
 pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
     // x: 100, y: 200
     let angle: f32 = rand::thread_rng().gen_range(0.0..360.0);
-    let r = 100.0;
+    let r = 1000.0;
     let x = r * angle.sin();
     let y = r * angle.cos();
     Vec2::new(pos.x + x, pos.y + y)
@@ -44,15 +44,16 @@ pub fn spawn_enemies(
     query: Query<&mut Transform, With<Player>>,
     _time: Res<Time>,
 ) {
-    let enemy_sprite: Handle<Image> = asset_server.load("models/hero.png");
+    let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
     let player = query.single().translation;
     let enemy_position = generate_random_starting_position(player.xy());
-    commands.spawn(
-        EnemyBundle::new(SpriteBundle {
-            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
-            texture: enemy_sprite,
-            visibility: Visibility::Visible,
-            ..default()
-        })
-    );
+    commands.spawn(EnemyBundle::new(SpriteBundle {
+        transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
+        texture: enemy_sprite,
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(75., 100.)),
+            ..Default::default()
+        },
+        ..default()
+    }));
 }

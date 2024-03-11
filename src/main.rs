@@ -76,8 +76,12 @@ fn setup(
         MyGameCamera,
     ));
     commands.spawn(PlayerBundle::new(SpriteBundle {
-        transform: Transform::from_xyz(0., 0., 1.).with_scale(Vec3::new(0.3, 0.3, 1.)),
+        transform: Transform::from_xyz(0., 0., 1.),
         texture: asset_server.load("models/hero.png"),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(75., 100.)),
+            ..Default::default()
+        },
         ..default()
     }));
     app_window_config(window);
