@@ -44,7 +44,7 @@ pub fn update_enemies(
 
 pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
     // x: 100, y: 200
-    let angle: f32 = rand::thread_rng().gen_range(0.0..360.0);
+    let angle: f32 = rand::thread_rng().gen_range(0.0..(2.*std::f32::consts::PI));
     let r = 1000.0;
     let x = r * angle.sin();
     let y = r * angle.cos();
