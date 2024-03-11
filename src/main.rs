@@ -28,7 +28,7 @@ fn main() {
                 tick_cooldown,
             ),
         )
-        .add_systems(Update, enemy::update_enemies)
+        .add_systems(Update, enemy::spawn_enemies)
         .run();
 }
 
