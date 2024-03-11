@@ -2,6 +2,14 @@ use crate::{MovementSpeed, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
 
+#[derive(Resource, Deref, DerefMut)]
+pub struct SpawnRate(f32);
+
+#[derive(Resource, Default, Deref, DerefMut)]
+pub struct SpawnCoolDown(f32);
+
+pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
+
 #[derive(Component)]
 pub struct Enemy;
 
@@ -48,17 +56,29 @@ pub fn spawn_enemies(
     asset_server: Res<AssetServer>,
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
+    spawnrate: Res<SpawnRate>,
+    mut spawncooldown: ResMut<SpawnCoolDown>
 ) {
-    let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
-    let player = query.single().translation;
-    let enemy_position = generate_random_starting_position(player.xy());
-    commands.spawn(EnemyBundle::new(SpriteBundle {
-        transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
-        texture: enemy_sprite,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(75., 100.)),
-            ..Default::default()
-        },
-        ..default()
-    }));
+    if **spawncooldown <= 0. {
+        let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
+        let player = query.single().translation;
+        let enemy_position = generate_random_starting_position(player.xy());
+        commands.spawn(EnemyBundle::new(SpriteBundle {
+            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
+            texture: enemy_sprite,
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(75., 100.)),
+                ..Default::default()
+            },
+            ..default()
+        }));
+        **spawncooldown += **spawnrate;
+    }
+}
+
+/// system for decreasing the cooldown timer of enemy spawns
+pub fn tick_spawn_timer(time: Res<Time>, mut cd: ResMut<SpawnCoolDown>) {
+    if 0. < **cd {
+        **cd -= time.delta_seconds();
+    }
 }
