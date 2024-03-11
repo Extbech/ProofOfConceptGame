@@ -48,12 +48,12 @@ pub fn spawn_enemies(
     let enemy_sprite: Handle<Image> = asset_server.load("models/hero.png");
     let player = query.single().translation;
     let enemy_position = generate_random_starting_position(player.xy());
-    commands.spawn({
+    commands.spawn(
         EnemyBundle::new(SpriteBundle {
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.)
                 .with_scale(Vec3::new(1., 1., 1.)),
             texture: enemy_sprite,
             ..default()
-        });
-    });
+        })
+    );
 }
