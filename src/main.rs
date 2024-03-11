@@ -8,7 +8,7 @@ use bevy::{
 };
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::spawn_enemies;
+use enemy::{handle_enemy_collision, spawn_enemies};
 use player::{
     tick_cooldown, AttackCooldown, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
 };
@@ -29,6 +29,7 @@ fn main() {
                 projectile_movement,
                 tick_cooldown,
                 spawn_enemies,
+                handle_enemy_collision,
             ),
         )
         .run();
@@ -140,7 +141,11 @@ fn keyboard_input(
         commands.spawn(ProjectileBundle::new(
             SpriteBundle {
                 transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-                texture: asset_server.load("models/hero.png"),
+                texture: asset_server.load("models/bullet.png"),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(25., 25.)),
+                    ..Default::default()
+                },
                 ..default()
             },
             *player_dir,

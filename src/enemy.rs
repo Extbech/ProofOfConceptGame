@@ -1,4 +1,7 @@
-use crate::Player;
+use crate::{
+    projectiles::{Projectile, ProjectileBundle},
+    Player,
+};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -56,4 +59,31 @@ pub fn spawn_enemies(
         },
         ..default()
     }));
+}
+
+pub fn handle_enemy_collision(
+    mut commands: Commands,
+    projectiles_query: Query<&Transform, With<Projectile>>,
+    mut enemy_query: Query<(&Transform, Entity), With<Enemy>>,
+) {
+    for projectile_transform in projectiles_query.iter() {
+        for (enemy_transform, entity) in enemy_query.iter_mut() {
+            if is_collision(
+                projectile_transform.translation,
+                enemy_transform.translation,
+                50.,
+                10.,
+            ) {
+                commands.entity(entity).despawn();
+            }
+        }
+    }
+}
+
+fn is_collision(obj1: Vec3, obj2: Vec3, obj1_radius: f32, obj2_radius: f32) -> bool {
+    let diff = (obj1.xy() - obj2.xy()).length();
+    if diff < obj1_radius + obj2_radius {
+        return true;
+    }
+    false
 }
