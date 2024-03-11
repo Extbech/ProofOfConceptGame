@@ -154,6 +154,10 @@ fn keyboard_input(
             MovementSpeed(*projectile_speed),
         ));
         **attack_cooldown += *maxcd;
+        commands.spawn(AudioBundle {
+            source: asset_server.load("sounds/effects/pew-laser.wav"),
+            settings: PlaybackSettings::ONCE,
+        });
     }
     // try to get a "smoothed" FPS value from Bevy
     //if let Some(value) = diagnostics
