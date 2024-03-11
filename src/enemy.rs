@@ -1,4 +1,3 @@
-use crate::Direction;
 use crate::Player;
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -13,7 +12,7 @@ pub struct EnemyBundle {
 }
 
 impl EnemyBundle {
-    fn new(sprite: SpriteBundle) -> Self {
+    pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
             marker: Enemy,
             sprite,
@@ -27,10 +26,10 @@ pub fn update_enemies(
     query: Query<&mut Transform, With<Player>>,
     time: Res<Time>,
 ) {
-    spawn_enemies(commands, asset_server, query, time);
+    todo!()
 }
 
-fn generate_random_starting_position(pos: Vec2) -> Vec2 {
+pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
     // x: 100, y: 200
     let angle: f32 = rand::thread_rng().gen_range(0.0..360.0);
     let r = 100.0;
@@ -50,9 +49,9 @@ pub fn spawn_enemies(
     let enemy_position = generate_random_starting_position(player.xy());
     commands.spawn({
         EnemyBundle::new(SpriteBundle {
-            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.)
-                .with_scale(Vec3::new(1., 1., 1.)),
+            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
             texture: enemy_sprite,
+            visibility: Visibility::Visible,
             ..default()
         });
     });

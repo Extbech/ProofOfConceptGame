@@ -2,12 +2,13 @@ mod enemy;
 mod map;
 mod player;
 mod projectiles;
-
 use bevy::{
     diagnostic::DiagnosticsStore, diagnostic::FrameTimeDiagnosticsPlugin, input::ButtonInput,
     prelude::*, window::PrimaryWindow,
 };
 use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use enemy::spawn_enemies;
 use player::{
     tick_cooldown, AttackCooldown, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
 };
@@ -18,6 +19,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(TilemapPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, (setup, map::setup_map))
         .add_systems(
             Update,
@@ -26,9 +28,9 @@ fn main() {
                 sync_player_and_camera_pos,
                 projectile_movement,
                 tick_cooldown,
+                spawn_enemies,
             ),
         )
-        .add_systems(Update, enemy::spawn_enemies)
         .run();
 }
 
