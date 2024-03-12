@@ -1,3 +1,4 @@
+use crate::player::Damage;
 use crate::MovementSpeed;
 use crate::{projectiles::Projectile, Player};
 use bevy::prelude::*;
@@ -11,12 +12,16 @@ pub struct SpawnCoolDown(f32);
 
 pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
 
+#[derive(Component, Deref, DerefMut)]
+pub struct Health(f32);
+
 #[derive(Component)]
 pub struct Enemy;
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
     marker: Enemy,
+    health: Health,
     speed: MovementSpeed,
     sprite: SpriteBundle,
 }
@@ -25,6 +30,7 @@ impl EnemyBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
             marker: Enemy,
+            health: Health(2.),
             speed: MovementSpeed(100.),
             sprite,
         }
@@ -87,19 +93,18 @@ pub fn tick_spawn_timer(time: Res<Time>, mut cd: ResMut<SpawnCoolDown>) {
 }
 
 pub fn handle_enemy_collision(
-    mut commands: Commands,
-    projectiles_query: Query<&Transform, With<Projectile>>,
-    mut enemy_query: Query<(&Transform, Entity), With<Enemy>>,
+    projectiles_query: Query<(&Transform, &Damage), With<Projectile>>,
+    mut enemy_query: Query<(&Transform, &mut Health), With<Enemy>>,
 ) {
-    for projectile_transform in projectiles_query.iter() {
-        for (enemy_transform, entity) in enemy_query.iter_mut() {
+    for (projectile_transform, damage) in projectiles_query.iter() {
+        for (enemy_transform, mut health) in enemy_query.iter_mut() {
             if is_collision(
                 projectile_transform.translation,
                 enemy_transform.translation,
                 50.,
                 10.,
             ) {
-                commands.entity(entity).despawn();
+                **health -= **damage;
             }
         }
     }
