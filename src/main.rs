@@ -1,4 +1,5 @@
 mod enemy;
+mod loot;
 mod map;
 mod player;
 mod projectiles;
@@ -81,7 +82,7 @@ fn setup(
         transform: Transform::from_xyz(0., 0., 1.),
         texture: asset_server.load("models/hero.png"),
         sprite: Sprite {
-            custom_size: Some(Vec2::new(75., 100.)),
+            custom_size: Some(Vec2::new(100., 100.)),
             ..Default::default()
         },
         ..default()

@@ -1,3 +1,4 @@
+use crate::loot::spawn_loot;
 use crate::player::Damage;
 use crate::MovementSpeed;
 use crate::{projectiles::Projectile, Player};
@@ -76,7 +77,7 @@ pub fn spawn_enemies(
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
             texture: enemy_sprite,
             sprite: Sprite {
-                custom_size: Some(Vec2::new(75., 100.)),
+                custom_size: Some(Vec2::new(100., 100.)),
                 ..Default::default()
             },
             ..default()
@@ -93,6 +94,8 @@ pub fn tick_spawn_timer(time: Res<Time>, mut cd: ResMut<SpawnCoolDown>) {
 }
 
 pub fn handle_enemy_collision(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
     projectiles_query: Query<(&Transform, &Damage), With<Projectile>>,
     mut enemy_query: Query<(&Transform, &mut Health), With<Enemy>>,
 ) {
@@ -104,6 +107,7 @@ pub fn handle_enemy_collision(
                 50.,
                 10.,
             ) {
+                spawn_loot(&mut commands, &asset_server, enemy_transform.translation);
                 **health -= **damage;
             }
         }
