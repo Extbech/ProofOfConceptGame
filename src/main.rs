@@ -10,9 +10,9 @@ use enemy::{
     DEFAULT_SPAWN_RATE,
 };
 use player::{
-    tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed
+    tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed, Range
 };
-use projectiles::{projectile_movement, ProjectileBundle};
+use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 
 fn main() {
     App::new()
@@ -114,7 +114,8 @@ fn keyboard_input(
             &ProjectileSpeed,
             &mut AttackCooldown,
             &MaxAttackCooldown,
-            &Damage
+            &Damage,
+            &Range
         ),
         With<Player>,
     >,
@@ -126,7 +127,8 @@ fn keyboard_input(
         &projectile_speed,
         mut attack_cooldown,
         &maxcd,
-        &damage
+        &damage,
+        &range
     ) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) { 0. } else { 1. }
@@ -155,6 +157,7 @@ fn keyboard_input(
             *player_dir,
             MovementSpeed(*projectile_speed),
             damage,
+            RemDistance(*range)
         ));
         **attack_cooldown += *maxcd;
         commands.spawn(AudioBundle {
