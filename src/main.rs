@@ -3,6 +3,7 @@ mod loot;
 mod map;
 mod player;
 mod projectiles;
+
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -15,6 +16,7 @@ use player::{
 };
 use projectiles::{projectile_movement, ProjectileBundle};
 
+use loot::check_for_dead_enemies;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -32,6 +34,7 @@ fn main() {
                 spawn_enemies,
                 handle_enemy_collision,
                 update_enemies,
+                check_for_dead_enemies,
             ),
         )
         .run();
