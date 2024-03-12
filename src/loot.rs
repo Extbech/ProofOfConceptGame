@@ -1,7 +1,10 @@
-use crate::enemy::{Enemy, Health};
+use crate::{
+    enemy::{Enemy, Health},
+    GameRng,
+};
 use bevy::prelude::*;
 use rand::prelude::*;
-use rand_distr::StandardNormal;
+
 #[derive(Component)]
 pub struct Loot;
 
@@ -39,11 +42,13 @@ pub fn check_for_dead_enemies(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     query: Query<(&Transform, Entity, &Health), With<Enemy>>,
+    mut rng: ResMut<GameRng>,
 ) {
     for (transform, entity, health) in query.iter() {
         if **health <= 0.0 {
             commands.entity(entity).despawn();
-            if rand::thread_rng().sample::<f64, _>(StandardNormal) < 0.3 {
+            // 1/5 -> 20%
+            if rng.gen_range(0u16..3) == 0 as u16 {
                 spawn_loot(&mut commands, &asset_server, transform.translation);
             }
         }
