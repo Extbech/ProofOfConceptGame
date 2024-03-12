@@ -1,4 +1,4 @@
-use crate::{Direction, MovementSpeed};
+use crate::{player::Damage, Direction, MovementSpeed};
 use bevy::prelude::*;
 
 /// Projectiles are entities that move in a straight line at a fixed speed
@@ -11,15 +11,17 @@ pub struct ProjectileBundle {
     dir: Direction,
     sprite: SpriteBundle,
     speed: MovementSpeed,
+    damage: Damage
 }
 
 impl ProjectileBundle {
-    pub fn new(sprite: SpriteBundle, dir: Direction, speed: MovementSpeed) -> Self {
+    pub fn new(sprite: SpriteBundle, dir: Direction, speed: MovementSpeed, damage: Damage) -> Self {
         ProjectileBundle {
             marker: Projectile,
             dir,
             sprite,
             speed,
+            damage
         }
     }
 }
