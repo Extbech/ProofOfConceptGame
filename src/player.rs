@@ -16,16 +16,25 @@ pub struct AttackCooldown(f32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(f32);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct Range(f32);
+
+#[derive(Bundle)]
+pub struct ProjectileStatBundle {
+    damage: Damage,
+    projectile_speed: ProjectileSpeed,
+    range: Range
+}
+
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
     dir: Direction,
     sprite: SpriteBundle,
     speed: MovementSpeed,
-    damage: Damage,
-    projectile_speed: ProjectileSpeed,
     attack_speed: MaxAttackCooldown,
-    attack_cooldown: AttackCooldown
+    attack_cooldown: AttackCooldown,
+    projectile_stats: ProjectileStatBundle
 }
 
 impl PlayerBundle {
@@ -35,10 +44,13 @@ impl PlayerBundle {
             dir: default(),
             sprite,
             speed: MovementSpeed(300.),
-            damage: Damage(1.0),
-            projectile_speed: ProjectileSpeed(450.),
             attack_speed: MaxAttackCooldown(0.5),
-            attack_cooldown: AttackCooldown(0.)
+            attack_cooldown: AttackCooldown(0.),
+            projectile_stats: ProjectileStatBundle {
+                damage: Damage(1.0),
+                projectile_speed: ProjectileSpeed(450.),
+                range: Range(500.)
+            }
         }
     }
 }

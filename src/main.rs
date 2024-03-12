@@ -12,9 +12,10 @@ use enemy::{
     DEFAULT_SPAWN_RATE,
 };
 use player::{
-    tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed,
+    tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed, Range
 };
-use projectiles::{projectile_movement, ProjectileBundle};
+use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
+use rand::{rngs::SmallRng, SeedableRng};
 
 use loot::check_for_dead_enemies;
 fn main() {
@@ -65,6 +66,9 @@ impl Default for Direction {
     }
 }
 
+#[derive(Resource, Deref, DerefMut)]
+struct GameRng(SmallRng);
+
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
@@ -91,6 +95,7 @@ fn setup(
         ..default()
     }));
     commands.insert_resource(DEFAULT_SPAWN_RATE);
+    commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.init_resource::<SpawnCoolDown>();
     app_window_config(window);
 }
@@ -119,6 +124,7 @@ fn keyboard_input(
             &mut AttackCooldown,
             &MaxAttackCooldown,
             &Damage,
+            &Range
         ),
         With<Player>,
     >,
@@ -131,6 +137,7 @@ fn keyboard_input(
         mut attack_cooldown,
         &maxcd,
         &damage,
+        &range
     ) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) { 0. } else { 1. }
@@ -159,6 +166,7 @@ fn keyboard_input(
             *player_dir,
             MovementSpeed(*projectile_speed),
             damage,
+            RemDistance(*range)
         ));
         **attack_cooldown += *maxcd;
         commands.spawn(AudioBundle {

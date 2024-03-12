@@ -1,5 +1,5 @@
 use crate::player::Damage;
-use crate::MovementSpeed;
+use crate::{MovementSpeed, GameRng};
 use crate::{projectiles::Projectile, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -51,9 +51,9 @@ pub fn update_enemies(
     }
 }
 
-pub fn generate_random_starting_position(pos: Vec2) -> Vec2 {
+pub fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
     // x: 100, y: 200
-    let angle: f32 = rand::thread_rng().gen_range(0.0..(2. * std::f32::consts::PI));
+    let angle: f32 = rng.gen_range(0.0..(2. * std::f32::consts::PI));
     let r = 1000.0;
     let x = r * angle.sin();
     let y = r * angle.cos();
@@ -67,11 +67,12 @@ pub fn spawn_enemies(
     _time: Res<Time>,
     spawnrate: Res<SpawnRate>,
     mut spawncooldown: ResMut<SpawnCoolDown>,
+    mut rng: ResMut<GameRng>
 ) {
     if **spawncooldown <= 0. {
         let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
         let player = query.single().translation;
-        let enemy_position = generate_random_starting_position(player.xy());
+        let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(EnemyBundle::new(SpriteBundle {
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
             texture: enemy_sprite,
