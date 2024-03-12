@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.13.0", features = ["wav"]}
-rand = "0.8.5"
+rand = { version = "0.8.5", features = ["small_rng"] }
 bevy_ecs_tilemap = { git = "https://github.com/rparrett/bevy_ecs_tilemap", branch = "bevy13" }
 bevy-inspector-egui = "0.23.4"
 

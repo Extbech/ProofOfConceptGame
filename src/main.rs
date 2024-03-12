@@ -14,6 +14,7 @@ use player::{
     tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed, Range
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
+use rand::{rngs::SmallRng, SeedableRng};
 
 fn main() {
     App::new()
@@ -62,6 +63,9 @@ impl Default for Direction {
     }
 }
 
+#[derive(Resource, Deref, DerefMut)]
+struct GameRng(SmallRng);
+
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
@@ -88,6 +92,7 @@ fn setup(
         ..default()
     }));
     commands.insert_resource(DEFAULT_SPAWN_RATE);
+    commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.init_resource::<SpawnCoolDown>();
     app_window_config(window);
 }
