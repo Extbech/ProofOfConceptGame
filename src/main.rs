@@ -18,7 +18,7 @@ use player::{
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
-use loot::check_for_dead_enemies;
+use loot::{animate_sprite, check_for_dead_enemies};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -37,6 +37,7 @@ fn main() {
                 handle_enemy_collision,
                 update_enemies,
                 check_for_dead_enemies,
+                animate_sprite,
             ),
         )
         .run();
