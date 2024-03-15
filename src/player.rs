@@ -1,6 +1,6 @@
 use crate::{Direction, MovementSpeed};
 use bevy::prelude::*;
-use crate::{cooldown::Cooldown, Direction, MovementSpeed};
+use crate::cooldown::Cooldown;
 
 #[derive(Component)]
 pub struct Player;
