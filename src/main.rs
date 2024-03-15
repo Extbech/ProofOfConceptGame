@@ -5,12 +5,13 @@ mod player;
 mod projectiles;
 mod cooldown;
 
+use std::time::Duration;
+
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use enemy::{
-    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown,
-    DEFAULT_SPAWN_RATE,
+    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate
 };
 use player::{
     spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range
@@ -83,7 +84,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
         },
         MyGameCamera,
     ));
-    commands.insert_resource(DEFAULT_SPAWN_RATE);
+    commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.insert_resource(SpawnCooldown(default()));
     app_window_config(window);

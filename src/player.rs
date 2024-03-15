@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::cooldown::Cooldown;
 use crate::{Direction, MovementSpeed};
 use bevy::prelude::*;
@@ -10,7 +12,7 @@ pub struct Player;
 pub struct ProjectileSpeed(f32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct MaxAttackCooldown(f32);
+pub struct MaxAttackCooldown(Duration);
 
 #[derive(Component, Deref, DerefMut, Clone)]
 pub struct AttackCooldown(Cooldown);
@@ -55,7 +57,7 @@ impl PlayerBundle {
             sprite,
             speed: MovementSpeed(300.),
             attack_cooldown: AttackCooldown(default()),
-            max_attack_cooldown: MaxAttackCooldown(0.5),
+            max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
                 damage: Damage(1.0),
                 projectile_speed: ProjectileSpeed(450.),
