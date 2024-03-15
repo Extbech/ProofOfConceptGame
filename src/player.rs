@@ -27,6 +27,9 @@ pub struct CurrentXP(f32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct RequiredXP(f32);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct PickUpRadius(f32);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
     damage: Damage,
@@ -45,6 +48,7 @@ pub struct PlayerBundle {
     current_xp: CurrentXP,
     required_xp: RequiredXP,
     max_attack_cooldown: MaxAttackCooldown,
+    pick_up_radius: PickUpRadius,
 }
 
 impl PlayerBundle {
@@ -63,6 +67,7 @@ impl PlayerBundle {
             },
             current_xp: CurrentXP(0.0),
             required_xp: RequiredXP(100.0),
+            pick_up_radius: PickUpRadius(100.0),
         }
     }
 }

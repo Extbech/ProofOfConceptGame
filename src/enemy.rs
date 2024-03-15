@@ -66,7 +66,7 @@ pub fn spawn_enemies(
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
     spawncooldown: ResMut<SpawnCooldown>,
-    mut rng: ResMut<GameRng>
+    mut rng: ResMut<GameRng>,
 ) {
     for _ in 0..spawncooldown.times_finished_this_tick() {
         let enemy_sprite: Handle<Image> = asset_server.load("models/spiky_blob_enemy.png");
@@ -102,7 +102,7 @@ pub fn handle_enemy_collision(
     }
 }
 
-fn is_collision(obj1: Vec3, obj2: Vec3, obj1_radius: f32, obj2_radius: f32) -> bool {
+pub fn is_collision(obj1: Vec3, obj2: Vec3, obj1_radius: f32, obj2_radius: f32) -> bool {
     let diff = (obj1.xy() - obj2.xy()).length();
     if diff < obj1_radius + obj2_radius {
         return true;

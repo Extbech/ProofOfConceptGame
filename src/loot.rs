@@ -1,9 +1,36 @@
 use crate::{
-    enemy::{Enemy, Health},
+    enemy::{is_collision, Enemy, Health},
+    player::{CurrentXP, PickUpRadius, Player},
     GameRng,
 };
 use bevy::prelude::*;
 use rand::prelude::*;
+
+#[derive(Component, Deref, Clone, Copy)]
+pub struct XP(f32);
+
+#[derive(Bundle)]
+pub struct XPBundle {
+    sprite: SpriteSheetBundle,
+    animation_timer: AnimationTimer,
+    animation_indices: AnimationIndices,
+    xp: XP,
+}
+impl XPBundle {
+    pub fn new(
+        sprite: SpriteSheetBundle,
+        animation_timer: AnimationTimer,
+        animation_indices: AnimationIndices,
+        xp: f32,
+    ) -> Self {
+        XPBundle {
+            sprite,
+            xp: XP(xp),
+            animation_timer,
+            animation_indices,
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct Loot;
@@ -61,7 +88,7 @@ pub fn spawn_xp_orb(
         third: 2,
         fourth: 3,
     };
-    commands.spawn((
+    commands.spawn(XPBundle::new(
         SpriteSheetBundle {
             texture: loot_texture_handle,
             atlas: TextureAtlas {
@@ -75,8 +102,9 @@ pub fn spawn_xp_orb(
             },
             ..default()
         },
-        animation_indices,
         AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+        animation_indices,
+        10.0,
     ));
 }
 pub fn check_for_dead_enemies(
@@ -115,6 +143,27 @@ pub fn animate_sprite(
                 2 => atlas.index = indices.fourth,
                 3 => atlas.index = indices.first,
                 _ => unreachable!("Inavlid animation index for this entity."),
+            }
+        }
+    }
+}
+
+pub fn pick_up_xp_orbs(
+    mut commands: Commands,
+    mut player_query: Query<(&Transform, &mut CurrentXP, &PickUpRadius), With<Player>>,
+    mut xp_query: Query<(&Transform, &XP, Entity), With<XP>>,
+) {
+    for (player_transform, mut current_xp, pick_up_radius) in player_query.iter_mut() {
+        for (xp_transform, xp, entity) in xp_query.iter_mut() {
+            if is_collision(
+                player_transform.translation,
+                xp_transform.translation,
+                **pick_up_radius,
+                0.0,
+            ) {
+                **current_xp += **xp;
+                commands.entity(entity).despawn();
+                println!("XP: {}", **current_xp);
             }
         }
     }

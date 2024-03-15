@@ -1,9 +1,9 @@
+mod cooldown;
 mod enemy;
 mod loot;
 mod map;
 mod player;
 mod projectiles;
-mod cooldown;
 
 use std::time::Duration;
 
@@ -11,16 +11,15 @@ use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use enemy::{
-    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown,
-    DEFAULT_SPAWN_RATE,
+    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, DEFAULT_SPAWN_RATE,
 };
 use player::{
-    spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range
+    spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range,
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
-use loot::{animate_sprite, check_for_dead_enemies};
+use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -40,6 +39,7 @@ fn main() {
                 update_enemies,
                 check_for_dead_enemies,
                 animate_sprite,
+                pick_up_xp_orbs,
             ),
         )
         .run();
@@ -87,7 +87,10 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     ));
     commands.insert_resource(DEFAULT_SPAWN_RATE);
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
-    commands.insert_resource(SpawnCooldown(Timer::new(Duration::from_secs_f32(*DEFAULT_SPAWN_RATE), TimerMode::Repeating)));
+    commands.insert_resource(SpawnCooldown(Timer::new(
+        Duration::from_secs_f32(*DEFAULT_SPAWN_RATE),
+        TimerMode::Repeating,
+    )));
     app_window_config(window);
 }
 
