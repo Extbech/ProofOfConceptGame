@@ -15,18 +15,18 @@ use enemy::{
     DEFAULT_SPAWN_RATE,
 };
 use player::{
-    AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed, Range
+    spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
-use loot::check_for_dead_enemies;
+use loot::{animate_sprite, check_for_dead_enemies};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(TilemapPlugin)
         .add_plugins(WorldInspectorPlugin::new())
-        .add_systems(Startup, (setup, map::setup_map))
+        .add_systems(Startup, (setup, map::setup_map, spawn_player_hero))
         .add_systems(
             Update,
             (
@@ -39,6 +39,7 @@ fn main() {
                 handle_enemy_collision,
                 update_enemies,
                 check_for_dead_enemies,
+                animate_sprite,
             ),
         )
         .run();
@@ -75,11 +76,7 @@ struct GameRng(SmallRng);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    window: Query<&mut Window, With<PrimaryWindow>>,
-) {
+fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn((
         {
             let mut cam = Camera2dBundle::default();
@@ -88,15 +85,7 @@ fn setup(
         },
         MyGameCamera,
     ));
-    commands.spawn(PlayerBundle::new(SpriteBundle {
-        transform: Transform::from_xyz(0., 0., 1.),
-        texture: asset_server.load("models/hero.png"),
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(100., 100.)),
-            ..Default::default()
-        },
-        ..default()
-    }));
+    commands.insert_resource(DEFAULT_SPAWN_RATE);
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.insert_resource(SpawnCooldown(Timer::new(Duration::from_secs_f32(*DEFAULT_SPAWN_RATE), TimerMode::Repeating)));
     app_window_config(window);
@@ -127,6 +116,7 @@ fn keyboard_input(
             &MaxAttackCooldown,
             &Damage,
             &Range,
+            &mut Sprite,
         ),
         With<Player>,
     >,
@@ -140,6 +130,7 @@ fn keyboard_input(
         &max_attack_cooldown,
         &damage,
         &range,
+        mut player_sprite,
     ) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) { 0. } else { 1. }
@@ -177,13 +168,11 @@ fn keyboard_input(
             });
         }
     }
-    // try to get a "smoothed" FPS value from Bevy
-    //if let Some(value) = diagnostics
-    //    .get(&FrameTimeDiagnosticsPlugin::FPS)
-    //    .and_then(|fps| fps.smoothed())
-    //{
-    //    println!("fps: {}", value);
-    //}
+    if keyboard_dir_x == 1. {
+        player_sprite.flip_x = false;
+    } else if keyboard_dir_x == -1. {
+        player_sprite.flip_x = true;
+    }
 }
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {

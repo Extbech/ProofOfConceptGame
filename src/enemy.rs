@@ -1,6 +1,6 @@
 use crate::player::Damage;
-use crate::{MovementSpeed, GameRng};
 use crate::{projectiles::Projectile, Player};
+use crate::{GameRng, MovementSpeed};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -69,14 +69,14 @@ pub fn spawn_enemies(
     mut rng: ResMut<GameRng>
 ) {
     for _ in 0..spawncooldown.times_finished_this_tick() {
-        let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
+        let enemy_sprite: Handle<Image> = asset_server.load("models/spiky_blob_enemy.png");
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(EnemyBundle::new(SpriteBundle {
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
             texture: enemy_sprite,
             sprite: Sprite {
-                custom_size: Some(Vec2::new(100., 100.)),
+                custom_size: Some(Vec2::new(70., 70.)),
                 ..Default::default()
             },
             ..default()

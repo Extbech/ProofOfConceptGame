@@ -1,3 +1,4 @@
+use crate::{Direction, MovementSpeed};
 use bevy::prelude::*;
 use crate::{cooldown::Cooldown, Direction, MovementSpeed};
 
@@ -23,14 +24,14 @@ pub struct Range(f32);
 pub struct ProjectileStatBundle {
     damage: Damage,
     projectile_speed: ProjectileSpeed,
-    range: Range
+    range: Range,
 }
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
     dir: Direction,
-    sprite: SpriteBundle,
+    sprite: SpriteSheetBundle,
     speed: MovementSpeed,
     attack_cooldown: AttackCooldown,
     max_attack_cooldown: MaxAttackCooldown,
@@ -38,7 +39,7 @@ pub struct PlayerBundle {
 }
 
 impl PlayerBundle {
-    pub fn new(sprite: SpriteBundle) -> Self {
+    pub fn new(sprite: SpriteSheetBundle) -> Self {
         PlayerBundle {
             marker: Player,
             dir: default(),
@@ -49,8 +50,31 @@ impl PlayerBundle {
             projectile_stats: ProjectileStatBundle {
                 damage: Damage(1.0),
                 projectile_speed: ProjectileSpeed(450.),
-                range: Range(500.)
-            }
+                range: Range(500.),
+            },
         }
     }
+}
+
+pub fn spawn_player_hero(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let texture_handle: Handle<Image> = asset_server.load("models/cowboy_hero.png");
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+    commands.spawn(PlayerBundle::new(SpriteSheetBundle {
+        texture: texture_handle,
+        atlas: TextureAtlas {
+            layout: texture_atlas_layout,
+            index: 0,
+        },
+        transform: Transform::from_xyz(0.0, 0.0, 3.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(70.0, 70.0)),
+            ..Default::default()
+        },
+        ..default()
+    }));
 }
