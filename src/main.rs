@@ -17,7 +17,7 @@ use player::{
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
-use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs};
+use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -37,6 +37,7 @@ fn main() {
                 update_enemies,
                 check_for_dead_enemies,
                 animate_sprite,
+                xp_orbs_collision,
                 pick_up_xp_orbs,
             ),
         )
@@ -76,10 +77,9 @@ struct MovementSpeed(f32);
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn((
-        {
-            let mut cam = Camera2dBundle::default();
-            cam.transform = cam.transform.with_scale(Vec3::new(1., 1., 1.));
-            cam
+        Camera2dBundle {
+            transform: Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+            ..Default::default()
         },
         MyGameCamera,
     ));
