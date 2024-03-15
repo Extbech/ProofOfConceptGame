@@ -5,8 +5,6 @@ mod player;
 mod projectiles;
 mod cooldown;
 
-use std::time::Duration;
-
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -34,7 +32,7 @@ fn main() {
                 sync_player_and_camera_pos,
                 projectile_movement,
                 cooldown::tick_cooldown::<AttackCooldown>,
-                cooldown::tick_timer_res::<SpawnCooldown>,
+                cooldown::tick_cooldown_res::<SpawnCooldown>,
                 spawn_enemies,
                 handle_enemy_collision,
                 update_enemies,
@@ -87,7 +85,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     ));
     commands.insert_resource(DEFAULT_SPAWN_RATE);
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
-    commands.insert_resource(SpawnCooldown(Timer::new(Duration::from_secs_f32(*DEFAULT_SPAWN_RATE), TimerMode::Repeating)));
+    commands.insert_resource(SpawnCooldown(default()));
     app_window_config(window);
 }
 
@@ -167,6 +165,8 @@ fn keyboard_input(
                 settings: PlaybackSettings::ONCE,
             });
         }
+    } else {
+        attack_cooldown.wait();
     }
     if keyboard_dir_x == 1. {
         player_sprite.flip_x = false;

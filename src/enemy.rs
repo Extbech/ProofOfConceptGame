@@ -1,3 +1,4 @@
+use crate::cooldown::Cooldown;
 use crate::player::Damage;
 use crate::{projectiles::Projectile, Player};
 use crate::{GameRng, MovementSpeed};
@@ -8,7 +9,7 @@ use rand::prelude::*;
 pub struct SpawnRate(f32);
 
 #[derive(Resource, Deref, DerefMut)]
-pub struct SpawnCooldown(pub Timer);
+pub struct SpawnCooldown(pub Cooldown);
 
 pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
 
@@ -65,10 +66,11 @@ pub fn spawn_enemies(
     asset_server: Res<AssetServer>,
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
-    spawncooldown: ResMut<SpawnCooldown>,
+    mut spawncooldown: ResMut<SpawnCooldown>,
+    spawnrate: Res<SpawnRate>,
     mut rng: ResMut<GameRng>
 ) {
-    for _ in 0..spawncooldown.times_finished_this_tick() {
+    for _ in 0..spawncooldown.reset(**spawnrate) {
         let enemy_sprite: Handle<Image> = asset_server.load("models/spiky_blob_enemy.png");
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
