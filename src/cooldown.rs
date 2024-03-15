@@ -9,7 +9,6 @@ pub struct Cooldown {
 
 impl Cooldown {
     pub fn reset(&mut self, tot: f32) -> u32 {
-        println!("{}", self.timer);
         let mut count = 0;
         assert!(0. < tot);
         while self.timer <= 0. {
