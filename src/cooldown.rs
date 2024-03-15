@@ -26,6 +26,7 @@ impl Cooldown {
             count += 1;
         }
         if self.waiting && 0 < count {
+            self.timer = default();
             self.waiting = false;
             1
         } else {
