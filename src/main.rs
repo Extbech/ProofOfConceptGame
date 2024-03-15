@@ -3,17 +3,19 @@ mod loot;
 mod map;
 mod player;
 mod projectiles;
+mod cooldown;
+
+use std::time::Duration;
 
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use enemy::{
-    handle_enemy_collision, spawn_enemies, tick_spawn_timer, update_enemies, SpawnCoolDown,
+    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown,
     DEFAULT_SPAWN_RATE,
 };
 use player::{
-    tick_cooldown, AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle,
-    ProjectileSpeed, Range,
+    AttackCooldown, Damage, MaxAttackCooldown, Player, PlayerBundle, ProjectileSpeed, Range
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
@@ -31,8 +33,8 @@ fn main() {
                 keyboard_input,
                 sync_player_and_camera_pos,
                 projectile_movement,
-                tick_cooldown,
-                tick_spawn_timer,
+                cooldown::tick_cooldown::<AttackCooldown>,
+                cooldown::tick_timer_res::<SpawnCooldown>,
                 spawn_enemies,
                 handle_enemy_collision,
                 update_enemies,
@@ -95,9 +97,8 @@ fn setup(
         },
         ..default()
     }));
-    commands.insert_resource(DEFAULT_SPAWN_RATE);
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
-    commands.init_resource::<SpawnCoolDown>();
+    commands.insert_resource(SpawnCooldown(Timer::new(Duration::from_secs_f32(*DEFAULT_SPAWN_RATE), TimerMode::Repeating)));
     app_window_config(window);
 }
 
@@ -136,7 +137,7 @@ fn keyboard_input(
         &player_speed,
         &projectile_speed,
         mut attack_cooldown,
-        &maxcd,
+        &max_attack_cooldown,
         &damage,
         &range,
     ) = player.single_mut();
@@ -153,27 +154,28 @@ fn keyboard_input(
         .clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND))
         .into();
     *player_dir = Direction::try_new(keyboard_dir.x, keyboard_dir.y).unwrap_or(*player_dir);
-    if keys.pressed(KeyCode::KeyJ) && **attack_cooldown <= 0. {
-        commands.spawn(ProjectileBundle::new(
-            SpriteBundle {
-                transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-                texture: asset_server.load("models/bullet.png"),
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(25., 25.)),
-                    ..Default::default()
+    if keys.pressed(KeyCode::KeyJ) {
+        for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
+            commands.spawn(ProjectileBundle::new(
+                SpriteBundle {
+                    transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
+                    texture: asset_server.load("models/bullet.png"),
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(25., 25.)),
+                        ..Default::default()
+                    },
+                    ..default()
                 },
-                ..default()
-            },
-            *player_dir,
-            MovementSpeed(*projectile_speed),
-            damage,
-            RemDistance(*range),
-        ));
-        **attack_cooldown += *maxcd;
-        commands.spawn(AudioBundle {
-            source: asset_server.load("sounds/effects/pew-laser.wav"),
-            settings: PlaybackSettings::ONCE,
-        });
+                *player_dir,
+                MovementSpeed(*projectile_speed),
+                damage,
+                RemDistance(*range),
+            ));
+            commands.spawn(AudioBundle {
+                source: asset_server.load("sounds/effects/pew-laser.wav"),
+                settings: PlaybackSettings::ONCE,
+            });
+        }
     }
     // try to get a "smoothed" FPS value from Bevy
     //if let Some(value) = diagnostics

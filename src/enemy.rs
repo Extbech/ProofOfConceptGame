@@ -7,8 +7,8 @@ use rand::prelude::*;
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnRate(f32);
 
-#[derive(Resource, Default, Deref, DerefMut)]
-pub struct SpawnCoolDown(f32);
+#[derive(Resource, Deref, DerefMut)]
+pub struct SpawnCooldown(pub Timer);
 
 pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
 
@@ -65,11 +65,10 @@ pub fn spawn_enemies(
     asset_server: Res<AssetServer>,
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
-    spawnrate: Res<SpawnRate>,
-    mut spawncooldown: ResMut<SpawnCoolDown>,
+    spawncooldown: ResMut<SpawnCooldown>,
     mut rng: ResMut<GameRng>
 ) {
-    if **spawncooldown <= 0. {
+    for _ in 0..spawncooldown.times_finished_this_tick() {
         let enemy_sprite: Handle<Image> = asset_server.load("models/enemy.png");
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
@@ -82,14 +81,6 @@ pub fn spawn_enemies(
             },
             ..default()
         }));
-        **spawncooldown += **spawnrate;
-    }
-}
-
-/// system for decreasing the cooldown timer of enemy spawns
-pub fn tick_spawn_timer(time: Res<Time>, mut cd: ResMut<SpawnCoolDown>) {
-    if 0. < **cd {
-        **cd -= time.delta_seconds();
     }
 }
 
