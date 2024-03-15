@@ -1,9 +1,9 @@
+mod cooldown;
 mod enemy;
 mod loot;
 mod map;
 mod player;
 mod projectiles;
-mod cooldown;
 
 use std::time::Duration;
 
@@ -14,12 +14,13 @@ use enemy::{
     handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate
 };
 use player::{
-    spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range
+    handle_player_xp, spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player,
+    ProjectileSpeed, Range,
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
-use loot::{animate_sprite, check_for_dead_enemies};
+use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
@@ -39,6 +40,9 @@ fn main() {
                 update_enemies,
                 check_for_dead_enemies,
                 animate_sprite,
+                xp_orbs_collision,
+                pick_up_xp_orbs,
+                handle_player_xp,
             ),
         )
         .run();
@@ -77,10 +81,9 @@ struct MovementSpeed(f32);
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn((
-        {
-            let mut cam = Camera2dBundle::default();
-            cam.transform = cam.transform.with_scale(Vec3::new(1., 1., 1.));
-            cam
+        Camera2dBundle {
+            transform: Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+            ..Default::default()
         },
         MyGameCamera,
     ));
