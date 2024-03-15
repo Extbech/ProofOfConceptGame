@@ -3,6 +3,7 @@ use crate::{Direction, MovementSpeed};
 use bevy::prelude::*;
 use bevy::sprite::MaterialMesh2dBundle;
 
+pub const XP_SCALING_FACTOR: f32 = 1.5;
 #[derive(Component)]
 pub struct Player;
 
@@ -28,6 +29,12 @@ pub struct CurrentXP(f32);
 pub struct RequiredXP(f32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct CurrentLevel(usize);
+
+#[derive(Component, Deref, Clone, Copy)]
+pub struct MaxLevel(usize);
+
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct PickUpRadius(f32);
 
 #[derive(Bundle)]
@@ -47,6 +54,8 @@ pub struct PlayerBundle {
     projectile_stats: ProjectileStatBundle,
     current_xp: CurrentXP,
     required_xp: RequiredXP,
+    current_level: CurrentLevel,
+    max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
 }
@@ -67,6 +76,8 @@ impl PlayerBundle {
             },
             current_xp: CurrentXP(0.0),
             required_xp: RequiredXP(100.0),
+            current_level: CurrentLevel(1),
+            max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
         }
     }
@@ -104,4 +115,31 @@ pub fn spawn_player_hero(
                 ..default()
             });
         });
+}
+
+pub fn handle_player_xp(
+    mut commands: Commands,
+    mut query: Query<
+        (
+            &Transform,
+            &mut CurrentXP,
+            &mut RequiredXP,
+            &mut CurrentLevel,
+            &MaxLevel,
+        ),
+        With<Player>,
+    >,
+) {
+    let (transform, mut current_xp, mut required_xp, mut current_level, max_level) =
+        query.single_mut();
+    if **current_xp >= **required_xp {
+        if **current_level < **max_level {
+            **current_level += 1;
+            **current_xp = **current_xp - **required_xp;
+            **required_xp = **required_xp * XP_SCALING_FACTOR;
+        }
+    }
+    println!("Level: {}", **current_level);
+    println!("Current xp: {}", **current_xp);
+    println!("Current xp: {}", **required_xp);
 }

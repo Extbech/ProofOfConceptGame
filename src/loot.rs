@@ -168,7 +168,6 @@ pub fn xp_orbs_collision(
         ) {
             **current_xp += **xp;
             commands.entity(entity).despawn();
-            println!("XP: {}", **current_xp);
             // TODO: play sound effect for xp pickup may add good game feel or it might be annoying (?)
         }
     }

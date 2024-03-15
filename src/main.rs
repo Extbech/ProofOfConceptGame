@@ -12,7 +12,8 @@ use enemy::{
     handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, DEFAULT_SPAWN_RATE,
 };
 use player::{
-    spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player, ProjectileSpeed, Range,
+    handle_player_xp, spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player,
+    ProjectileSpeed, Range,
 };
 use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
@@ -39,6 +40,7 @@ fn main() {
                 animate_sprite,
                 xp_orbs_collision,
                 pick_up_xp_orbs,
+                handle_player_xp,
             ),
         )
         .run();
