@@ -4,16 +4,14 @@ mod loot;
 mod map;
 mod player;
 mod projectiles;
+mod start_game;
 mod start_menu;
-
 use std::time::Duration;
 
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::{
-    handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate
-};
+use enemy::{handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate};
 use player::{
     handle_player_xp, spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player,
     ProjectileSpeed, Range,
@@ -22,33 +20,34 @@ use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
 use rand::{rngs::SmallRng, SeedableRng};
 
 use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision};
+use start_game::GamePlugin;
+use start_menu::StartMenuPlugin;
+
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_plugins(TilemapPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_systems(Startup, (setup, map::setup_map, spawn_player_hero))
-        .add_systems(
-            Update,
-            (
-                keyboard_input,
-                sync_player_and_camera_pos,
-                projectile_movement,
-                cooldown::tick_cooldown::<AttackCooldown>,
-                cooldown::tick_cooldown_res::<SpawnCooldown>,
-                spawn_enemies,
-                handle_enemy_collision,
-                update_enemies,
-                check_for_dead_enemies,
-                animate_sprite,
-                xp_orbs_collision,
-                pick_up_xp_orbs,
-                handle_player_xp,
-            ),
-        )
+        .insert_state(AppState::MainMenu)
+        .add_plugins(StartMenuPlugin {
+            state: AppState::MainMenu,
+        })
+        .add_plugins(GamePlugin {
+            state: AppState::InGame,
+        })
+        .add_systems(Startup, setup)
         .run();
 }
 
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
+enum AppState {
+    LoadingScreen,
+    MainMenu,
+    InGame,
+}
+#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
+enum PausedState {
+    #[default]
+    Paused,
+    Running,
+}
 #[derive(Component)]
 struct MyGameCamera;
 
@@ -182,5 +181,5 @@ fn keyboard_input(
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let mut curr_window = window.single_mut();
-    curr_window.title = "Vampire Survivors Copy Cat".to_string();
+    curr_window.title = start_menu::GAME_TITLE.to_string();
 }
