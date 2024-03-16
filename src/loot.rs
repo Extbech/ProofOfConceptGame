@@ -1,5 +1,5 @@
 use crate::{
-    enemy::{is_collision, Enemy, Health}, player::{CurrentXP, PickUpRadius, Player}, start_game::GameEntity, GameRng, MovementSpeed
+    cleanup, enemy::{is_collision, Enemy, Health}, player::{CurrentXP, PickUpRadius, Player}, GameRng, MovementSpeed
 };
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -9,7 +9,7 @@ pub struct XP(f32);
 
 #[derive(Bundle)]
 pub struct XPBundle {
-    game_entity: GameEntity,
+    cleanup: cleanup::ExitGame,
     sprite: SpriteSheetBundle,
     animation_timer: AnimationTimer,
     animation_indices: AnimationIndices,
@@ -25,7 +25,7 @@ impl XPBundle {
         speed: MovementSpeed,
     ) -> Self {
         XPBundle {
-            game_entity: GameEntity,
+            cleanup: cleanup::ExitGame,
             sprite,
             xp: XP(xp),
             animation_timer,
@@ -40,14 +40,14 @@ pub struct Loot;
 
 #[derive(Bundle)]
 pub struct LootBundle {
-    game_entity: GameEntity,
+    cleanup: cleanup::ExitGame,
     marker: Loot,
     sprite: SpriteBundle,
 }
 impl LootBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         LootBundle {
-            game_entity: GameEntity,
+            cleanup: cleanup::ExitGame,
             marker: Loot,
             sprite,
         }

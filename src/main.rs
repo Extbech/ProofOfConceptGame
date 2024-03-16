@@ -120,6 +120,13 @@ fn update_cursor(
     }
 }
 
+mod cleanup {
+    use bevy::prelude::*;
+
+    #[derive(Component)]
+    pub struct ExitGame;
+}
+
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
 fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {

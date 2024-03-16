@@ -9,9 +9,6 @@ use crate::{
     ui::update_xp_bar,
 };
 
-#[derive(Component)]
-pub struct GameEntity;
-
 pub struct GamePlugin<S: States> {
     pub state: S,
 }
@@ -25,7 +22,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                 (map::setup_map, spawn_player_hero),
             ).add_systems(
                 OnExit(AppState::InGame),
-                cleanup::<GameEntity>
+                cleanup::<cleanup::ExitGame>
             ).add_systems(
                 Update,
                 (

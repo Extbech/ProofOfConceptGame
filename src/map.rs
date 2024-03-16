@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileStorage, TileTextureIndex};
 
-use crate::start_game::GameEntity;
+use crate::cleanup;
 
 const BACKGROUND: &str = "environment/map.png";
 const BACKGROUND_METADATA: TilemapMetadata = TilemapMetadata {
@@ -51,7 +51,7 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
                     texture_index: TileTextureIndex(texture_index),
                     ..Default::default()
                 },)).insert(
-                    GameEntity)
+                    cleanup::ExitGame)
                 .id();
 
             tile_storage.set(&tile_pos, tile_entity);
