@@ -12,6 +12,7 @@ use crate::{
         sync_player_and_camera_pos, AttackCooldown,
     },
     projectiles::projectile_movement,
+    ui::update_xp_bar,
     update_cursor, AppState,
 };
 
@@ -45,6 +46,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     update_cursor,
                     player_movement,
                     player_shooting_mouse_dir,
+                    update_xp_bar,
                 )
                     .run_if(in_state(self.state.clone())),
             );
