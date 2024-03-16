@@ -54,6 +54,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     update_cursor,
                     player_movement,
                     player_shooting,
+                    update_health_ui,
                     update_xp_bar_and_level,
                 )
                     .run_if(in_state(self.state.clone())),
