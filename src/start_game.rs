@@ -11,7 +11,9 @@ use crate::{
     loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
     map,
     player::{
-        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement, player_shooting, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Vulnerability
+        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
+        player_shooting, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown,
+        Vulnerability,
     },
     projectiles::{handle_lifetime, speed_to_movement},
     ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
@@ -28,26 +30,32 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_plugins(WorldInspectorPlugin::new())
             .add_systems(
                 OnEnter(AppState::InGame),
-                (map::setup_map, spawn_player_hero, spawn_health_ui),
+                (
+                    map::setup_map,
+                    spawn_player_hero,
+                    spawn_health_ui.after(spawn_player_hero),
+                ),
             )
             .add_systems(OnExit(AppState::InGame), cleanup::<cleanup::ExitGame>)
             .add_systems(
                 Update,
                 (
-                    (player_attack_facing_from_mouse,
-                    handle_lifetime,
-                    handle_player_death,
-                    handle_enemy_damage_to_player,
-                    sync_player_and_camera_pos,
-                    speed_to_movement,
-                    cooldown::tick_cooldown::<AttackCooldown>,
-                    cooldown::tick_cooldown_res::<SpawnCooldown>,
-                    cooldown::tick_cooldown::<Vulnerability>,
-                    spawn_enemies,
-                    handle_enemy_damage_from_projectiles,
-                    update_enemies,
-                    check_for_dead_enemies,
-                    animate_sprite),
+                    (
+                        player_attack_facing_from_mouse,
+                        handle_lifetime,
+                        handle_player_death,
+                        handle_enemy_damage_to_player,
+                        sync_player_and_camera_pos,
+                        speed_to_movement,
+                        cooldown::tick_cooldown::<AttackCooldown>,
+                        cooldown::tick_cooldown_res::<SpawnCooldown>,
+                        cooldown::tick_cooldown::<Vulnerability>,
+                        spawn_enemies,
+                        handle_enemy_damage_from_projectiles,
+                        update_enemies,
+                        check_for_dead_enemies,
+                        animate_sprite,
+                    ),
                     xp_orbs_collision,
                     pick_up_xp_orbs,
                     handle_player_xp,
@@ -55,7 +63,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                     player_movement,
                     player_shooting,
                     update_xp_bar_and_level,
-                    update_health_ui,
+                    update_health_ui.after(sync_player_and_camera_pos),
                 )
                     .run_if(in_state(self.state.clone())),
             );

@@ -1,12 +1,12 @@
-use std::time::Duration;
-use crate::{Direction, Heading, Health};
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, Range, Vulnerability};
 use crate::projectiles::{HitList, ProjectileBundle};
-use crate::{projectiles::Projectile, Player};
 use crate::{cleanup, GameRng, MovementSpeed};
+use crate::{projectiles::Projectile, Player};
+use crate::{Direction, Heading, Health};
 use bevy::prelude::*;
 use rand::prelude::*;
+use std::time::Duration;
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnRate(pub Duration);
@@ -102,21 +102,31 @@ pub fn handle_enemy_damage_from_projectiles(
                     10.,
                 ) {
                     **health -= **damage;
-                    commands.spawn(ProjectileBundle::new(
-                        Heading::new(Vec2::new(0., 1.)), MovementSpeed(20.), Range(15.))).insert(
-                            Text2dBundle {
-                                text: Text::from_section(format!("{:.1}", **damage), TextStyle {
+                    commands
+                        .spawn(ProjectileBundle::new(
+                            Heading::new(Vec2::new(0., 1.)),
+                            MovementSpeed(20.),
+                            Range(15.),
+                        ))
+                        .insert(Text2dBundle {
+                            text: Text::from_section(
+                                format!("{:.1}", **damage),
+                                TextStyle {
                                     font_size: 40.0,
                                     color: Color::WHITE,
                                     font: asset_server.load("font/pixel-font.ttf"),
-                                }),
-                                transform: Transform {
-                                    translation: Vec3::new(enemy_transform.translation.x, enemy_transform.translation.y + 30., 10.),
-                                    ..default()
                                 },
+                            ),
+                            transform: Transform {
+                                translation: Vec3::new(
+                                    enemy_transform.translation.x,
+                                    enemy_transform.translation.y + 30.,
+                                    10.,
+                                ),
                                 ..default()
-                            }
-                        );
+                            },
+                            ..default()
+                        });
                     hitlist.push(ent)
                 }
             }
@@ -126,18 +136,18 @@ pub fn handle_enemy_damage_from_projectiles(
 
 pub fn handle_enemy_damage_to_player(
     enemy_query: Query<&Transform, With<Enemy>>,
-    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability), With<Player>>
+    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability), With<Player>>,
 ) {
     let (player_trans, mut player_health, mut vulnerability) = player_query.single_mut();
     let player_pos = player_trans.translation.xy();
-    let invuln_timer = Duration::from_secs_f32(1.);
+    let invuln_timer = Duration::from_secs_f32(5.);
     if vulnerability.is_ready(invuln_timer) {
         for enemy_trans in &enemy_query {
             let enemy_pos = enemy_trans.translation.xy();
             if is_collision(player_pos, enemy_pos, 0., 100.) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
-                return
+                return;
             }
         }
     }

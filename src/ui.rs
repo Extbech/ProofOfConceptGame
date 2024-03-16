@@ -94,11 +94,13 @@ pub fn spawn_health_ui(
     asset_server: Res<AssetServer>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<&Transform, With<MyGameCamera>>,
+    q_player: Query<&Health, With<Player>>,
 ) {
     let window = q_window.single();
     let camera_pos = q_camera.single().translation;
+    let health = q_player.single();
     let texture_handle: Handle<Image> = asset_server.load("ui/heart-pixel.png");
-    for i in 0..10 {
+    for i in 0..**health {
         commands.spawn((
             SpriteBundle {
                 transform: Transform::from_xyz(
@@ -125,7 +127,7 @@ pub fn update_health_ui(
     let camera_pos = q_camera.single().translation;
     let player_health = q_player_health.single();
     for (i, (mut transform, entity)) in q_health.iter_mut().enumerate() {
-        if i > **player_health as usize {
+        if i >= **player_health as usize {
             commands.entity(entity).despawn();
         } else {
             transform.translation.x =
