@@ -1,5 +1,8 @@
 use crate::{
-    enemy::{is_collision, Enemy, Health}, player::{CurrentXP, PickUpRadius, Player}, start_game::GameEntity, GameRng, MovementSpeed
+    enemy::{is_collision, Enemy, Health},
+    player::{CurrentXP, PickUpRadius, Player},
+    start_game::GameEntity,
+    GameRng, MovementSpeed,
 };
 use bevy::prelude::*;
 use rand::prelude::*;
