@@ -114,7 +114,6 @@ fn handle_button_click(
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     for (interaction, menu_button_action) in &interaction_query {
-        println!("{:?}", *interaction);
         if *interaction == Interaction::Pressed {
             match menu_button_action {
                 MenuButtonAction::Play => app_state.set(AppState::InGame),

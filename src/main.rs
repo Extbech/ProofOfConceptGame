@@ -7,6 +7,7 @@ mod projectiles;
 mod start_game;
 mod start_menu;
 use std::time::Duration;
+mod ui;
 
 use bevy::{prelude::*, window::PrimaryWindow};
 use enemy::{SpawnCooldown, SpawnRate};
