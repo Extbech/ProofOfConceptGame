@@ -259,6 +259,10 @@ pub fn player_shooting_facing(
 
 fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &Res<AssetServer>, dir: Direction, projectile_speed: ProjectileSpeed, damage: Damage, range: Range) {
     commands.spawn(ProjectileBundle::new(
+        dir,
+        MovementSpeed(*projectile_speed),
+        RemDistance(*range),
+    )).insert(
         SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
             texture: asset_server.load("models/bullet.png"),
@@ -267,11 +271,7 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
                 ..Default::default()
             },
             ..default()
-        },
-        dir,
-        MovementSpeed(*projectile_speed),
-        RemDistance(*range),
-    )).insert(        damage);
+    }).insert(        damage);
     commands.spawn(AudioBundle {
         source: asset_server.load("sounds/effects/pew-laser.wav"),
         settings: PlaybackSettings::ONCE,
