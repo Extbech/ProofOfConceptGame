@@ -136,3 +136,6 @@ pub fn update_health_ui(
         }
     }
 }
+pub fn spawn_upgrade_selection_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    todo!()
+}
