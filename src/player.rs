@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::enemy::Health;
-use crate::projectiles::{ProjectileBundle, RemDistance};
+use crate::Health;
+use crate::projectiles::ProjectileBundle;
 use crate::{cleanup, AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
@@ -26,7 +26,7 @@ pub struct AttackCooldown(Cooldown);
 pub struct Damage(u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Range(f32);
+pub struct Range(pub f32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct CurrentXP(f32);
@@ -46,6 +46,9 @@ pub struct PickUpRadius(f32);
 #[derive(Component, Deref, DerefMut)]
 pub struct Vulnerability(Cooldown);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct MaxSpeed(f32);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
     damage: Damage,
@@ -60,7 +63,7 @@ pub struct PlayerBundle {
     vulnerability: Vulnerability,
     dir: Direction,
     sprite: SpriteSheetBundle,
-    speed: MovementSpeed,
+    speed: MaxSpeed,
     attack_cooldown: AttackCooldown,
     projectile_stats: ProjectileStatBundle,
     current_xp: CurrentXP,
@@ -80,7 +83,7 @@ impl PlayerBundle {
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
             sprite,
-            speed: MovementSpeed(300.),
+            speed: MaxSpeed(300.),
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
@@ -149,7 +152,7 @@ pub fn player_movement(
         (
             &mut Transform,
             &mut Direction,
-            &MovementSpeed,
+            &MaxSpeed,
             &mut Sprite,
         ),
         With<Player>,
@@ -259,7 +262,7 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
     commands.spawn(ProjectileBundle::new(
         dir,
         MovementSpeed(*projectile_speed),
-        RemDistance(*range),
+        range,
     )).insert(
         SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
@@ -277,10 +280,8 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
 }
 
 pub fn handle_player_xp(
-    mut commands: Commands,
     mut query: Query<
         (
-            &Transform,
             &mut CurrentXP,
             &mut RequiredXP,
             &mut CurrentLevel,
@@ -289,7 +290,7 @@ pub fn handle_player_xp(
         With<Player>,
     >,
 ) {
-    let (transform, mut current_xp, mut required_xp, mut current_level, max_level) =
+    let (mut current_xp, mut required_xp, mut current_level, max_level) =
         query.single_mut();
     if **current_xp >= **required_xp {
         if **current_level < **max_level {

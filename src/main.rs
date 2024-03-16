@@ -133,3 +133,6 @@ fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Comma
         commands.entity(entity).despawn_recursive();
     }
 }
+
+#[derive(Component, Deref, DerefMut)]
+pub struct Health(pub u32);

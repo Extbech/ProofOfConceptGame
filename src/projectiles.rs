@@ -1,4 +1,6 @@
-use crate::{cleanup, player::Damage, Direction, MovementSpeed};
+use std::time::Duration;
+
+use crate::{cleanup, player::Range, Direction, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -17,35 +19,57 @@ pub struct ProjectileBundle {
     marker: Projectile,
     dir: Direction,
     speed: MovementSpeed,
-    rem_distance: RemDistance,
+    lifetime: LifeTime,
     has_hit: HitList
 }
 
 impl ProjectileBundle {
-    pub fn new(dir: Direction, speed: MovementSpeed, rem_distance: RemDistance) -> Self {
+    pub fn new(dir: Direction, speed: MovementSpeed, range: Range) -> Self {
         ProjectileBundle {
             cleanup: cleanup::ExitGame,
             marker: Projectile,
             dir,
             speed,
-            rem_distance,
+            lifetime: LifeTime::from_speed_and_range(speed, range),
             has_hit: HitList(vec![])
         }
     }
 }
 
-pub fn projectile_movement(
+pub fn speed_to_movement(
+    time: Res<Time>,
+    mut q: Query<(&Direction, &mut Transform, &MovementSpeed)>,
+) {
+    for (dir, mut tran, &speed) in &mut q {
+        let pos = &mut tran.translation;
+        (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * time.delta_seconds() * dir.v).into();
+    }
+}
+
+#[derive(Component)]
+pub struct LifeTime(Duration);
+
+impl LifeTime {
+    pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
+        LifeTime(Duration::from_secs_f32(*rng / *spd)) 
+    }
+
+    pub fn try_decrease(&mut self, by: Duration) -> bool {
+        match self.0.checked_sub(by) {
+            Some(dur) => {self.0 = dur; true}
+            None => false,
+        }
+    }
+}
+
+pub fn handle_lifetime(
     mut commands: Commands,
     time: Res<Time>,
-    mut q: Query<(&Direction, &mut Transform, &MovementSpeed, &mut RemDistance, Entity), With<Projectile>>,
+    mut q: Query<(&mut LifeTime, Entity)>
 ) {
-    for (dir, mut tran, &speed, mut rem_dist, ent) in &mut q {
-        if 0. <= **rem_dist {    
-            let pos = &mut tran.translation;
-            **rem_dist -= *speed * time.delta_seconds();
-            (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * time.delta_seconds() * dir.v).into();
-        } else {
-            commands.entity(ent).despawn();
+    for (mut lt, ent) in &mut q {
+        if !lt.try_decrease(time.delta()) {
+            commands.entity(ent).despawn_recursive();
         }
     }
 }
