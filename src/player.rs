@@ -71,7 +71,7 @@ pub struct PlayerBundle {
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
-    health: PlayerHealth
+    health: PlayerHealth,
 }
 
 impl PlayerBundle {
@@ -95,7 +95,7 @@ impl PlayerBundle {
             current_level: CurrentLevel(1),
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
-            health: PlayerHealth(2)
+            health: PlayerHealth(10),
         }
     }
 }
@@ -147,22 +147,9 @@ pub fn sync_player_and_camera_pos(
 pub fn player_movement(
     time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<
-        (
-            &mut Transform,
-            &mut Direction,
-            &MovementSpeed,
-            &mut Sprite,
-        ),
-        With<Player>,
-    >,
+    mut player: Query<(&mut Transform, &mut Direction, &MovementSpeed, &mut Sprite), With<Player>>,
 ) {
-    let (
-        mut player_trans,
-        mut player_dir,
-        &player_speed,
-        mut player_sprite,
-    ) = player.single_mut();
+    let (mut player_trans, mut player_dir, &player_speed, mut player_sprite) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };
@@ -199,7 +186,7 @@ pub fn player_shooting_mouse_dir(
         ),
         With<Player>,
     >,
-    cursor_pos: Res<CursorTranslation>
+    cursor_pos: Res<CursorTranslation>,
 ) {
     let (
         &player_trans,
@@ -210,10 +197,19 @@ pub fn player_shooting_mouse_dir(
         &range,
     ) = player.single_mut();
     let player_position = &mut player_trans.translation.xy();
-    let dir = Direction::try_new(**cursor_pos - *player_position).unwrap_or(Direction::try_new(Vec2::new(1.0, 1.0)).unwrap());
+    let dir = Direction::try_new(**cursor_pos - *player_position)
+        .unwrap_or(Direction::try_new(Vec2::new(1.0, 1.0)).unwrap());
     if keys.pressed(MouseButton::Left) {
         for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
-            player_shoot(&mut commands, *player_position, &asset_server, dir, projectile_speed, damage, range);
+            player_shoot(
+                &mut commands,
+                *player_position,
+                &asset_server,
+                dir,
+                projectile_speed,
+                damage,
+                range,
+            );
         }
     } else {
         attack_cooldown.wait();
@@ -250,20 +246,37 @@ pub fn player_shooting_facing(
     let player_position = &mut player_trans.translation.xy();
     if keys.pressed(KeyCode::KeyJ) {
         for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
-            player_shoot(&mut commands, *player_position, &asset_server, player_dir, projectile_speed, damage, range);
+            player_shoot(
+                &mut commands,
+                *player_position,
+                &asset_server,
+                player_dir,
+                projectile_speed,
+                damage,
+                range,
+            );
         }
     } else {
         attack_cooldown.wait();
     }
 }
 
-fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &Res<AssetServer>, dir: Direction, projectile_speed: ProjectileSpeed, damage: Damage, range: Range) {
-    commands.spawn(ProjectileBundle::new(
-        dir,
-        MovementSpeed(*projectile_speed),
-        RemDistance(*range),
-    )).insert(
-        SpriteBundle {
+fn player_shoot(
+    commands: &mut Commands,
+    player_position: Vec2,
+    asset_server: &Res<AssetServer>,
+    dir: Direction,
+    projectile_speed: ProjectileSpeed,
+    damage: Damage,
+    range: Range,
+) {
+    commands
+        .spawn(ProjectileBundle::new(
+            dir,
+            MovementSpeed(*projectile_speed),
+            RemDistance(*range),
+        ))
+        .insert(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
             texture: asset_server.load("models/bullet.png"),
             sprite: Sprite {
@@ -271,7 +284,8 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
                 ..Default::default()
             },
             ..default()
-    }).insert(        damage);
+        })
+        .insert(damage);
     commands.spawn(AudioBundle {
         source: asset_server.load("sounds/effects/pew-laser.wav"),
         settings: PlaybackSettings::ONCE,
@@ -303,11 +317,8 @@ pub fn handle_player_xp(
 }
 
 pub fn handle_player_death(
-    player_query: Query<
-        (&PlayerHealth),
-        With<Player>,
-    >,
-    mut app_state: ResMut<NextState<AppState>>
+    player_query: Query<(&PlayerHealth), With<Player>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     let player_health = player_query.single();
     if **player_health == 0 {
