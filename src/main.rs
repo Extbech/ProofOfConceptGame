@@ -8,17 +8,16 @@ mod start_menu;
 
 use std::time::Duration;
 
-use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use enemy::{
     handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate
 };
 use player::{
-    handle_player_xp, spawn_player_hero, AttackCooldown, Damage, MaxAttackCooldown, Player,
-    ProjectileSpeed, Range,
+    handle_player_xp, player_movement, player_shooting_facing, player_shooting_mouse_dir, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Player
 };
-use projectiles::{projectile_movement, ProjectileBundle, RemDistance};
+use projectiles::projectile_movement;
 use rand::{rngs::SmallRng, SeedableRng};
 
 use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision};
@@ -31,7 +30,9 @@ fn main() {
         .add_systems(
             Update,
             (
-                keyboard_input,
+                update_cursor,
+                player_movement,
+                player_shooting_mouse_dir,
                 sync_player_and_camera_pos,
                 projectile_movement,
                 cooldown::tick_cooldown::<AttackCooldown>,
@@ -59,9 +60,9 @@ pub struct Direction {
 }
 
 impl Direction {
-    fn try_new(x: f32, y: f32) -> Option<Self> {
+    fn try_new(v: Vec2) -> Option<Self> {
         Some(Direction {
-            v: Vec2::new(x, y).try_normalize()?,
+            v: v.try_normalize()?,
         })
     }
 }
@@ -91,96 +92,38 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.insert_resource(SpawnCooldown(default()));
+    commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     app_window_config(window);
-}
-
-fn sync_player_and_camera_pos(
-    player: Query<&Transform, With<Player>>,
-    mut cam: Query<&mut Transform, (With<MyGameCamera>, Without<Player>)>,
-) {
-    let player = player.single();
-    let mut cam = cam.single_mut();
-    cam.translation.x = player.translation.x;
-    cam.translation.y = player.translation.y;
-}
-
-fn keyboard_input(
-    time: Res<Time>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<
-        (
-            &mut Transform,
-            &mut Direction,
-            &MovementSpeed,
-            &ProjectileSpeed,
-            &mut AttackCooldown,
-            &MaxAttackCooldown,
-            &Damage,
-            &Range,
-            &mut Sprite,
-        ),
-        With<Player>,
-    >,
-) {
-    let (
-        mut player_trans,
-        mut player_dir,
-        &player_speed,
-        &projectile_speed,
-        mut attack_cooldown,
-        &max_attack_cooldown,
-        &damage,
-        &range,
-        mut player_sprite,
-    ) = player.single_mut();
-    let player_position = &mut player_trans.translation;
-    let keyboard_dir_x = if keys.pressed(KeyCode::KeyA) { 0. } else { 1. }
-        - if keys.pressed(KeyCode::KeyD) { 0. } else { 1. };
-    let keyboard_dir_y = if keys.pressed(KeyCode::KeyS) { 0. } else { 1. }
-        - if keys.pressed(KeyCode::KeyW) { 0. } else { 1. };
-
-    let keyboard_dir = Vec2::new(keyboard_dir_x, keyboard_dir_y).normalize_or_zero();
-    const BOUND: f32 = 1900.;
-    (player_position.x, player_position.y) = (player_position.xy()
-        + *player_speed * time.delta_seconds() * keyboard_dir)
-        .clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND))
-        .into();
-    *player_dir = Direction::try_new(keyboard_dir.x, keyboard_dir.y).unwrap_or(*player_dir);
-    if keys.pressed(KeyCode::KeyJ) {
-        for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
-            commands.spawn(ProjectileBundle::new(
-                SpriteBundle {
-                    transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
-                    texture: asset_server.load("models/bullet.png"),
-                    sprite: Sprite {
-                        custom_size: Some(Vec2::new(25., 25.)),
-                        ..Default::default()
-                    },
-                    ..default()
-                },
-                *player_dir,
-                MovementSpeed(*projectile_speed),
-                damage,
-                RemDistance(*range),
-            ));
-            commands.spawn(AudioBundle {
-                source: asset_server.load("sounds/effects/pew-laser.wav"),
-                settings: PlaybackSettings::ONCE,
-            });
-        }
-    } else {
-        attack_cooldown.wait();
-    }
-    if keyboard_dir_x == 1. {
-        player_sprite.flip_x = false;
-    } else if keyboard_dir_x == -1. {
-        player_sprite.flip_x = true;
-    }
 }
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let mut curr_window = window.single_mut();
     curr_window.title = "Vampire Survivors Copy Cat".to_string();
+}
+
+#[derive(Resource, Default, Deref, DerefMut)]
+struct CursorTranslation(Vec2);
+
+fn update_cursor(
+    mut mycoords: ResMut<CursorTranslation>,
+    // query to get the window (so we can read the current cursor position)
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    // query to get camera transform
+    q_camera: Query<(&Camera, &GlobalTransform), With<MyGameCamera>>,
+) {
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so Query::single() is OK
+    let (camera, camera_transform) = q_camera.single();
+
+    // There is only one primary window, so we can similarly get it from the query:
+    let window = q_window.single();
+
+    // check if the cursor is inside the window and get its position
+    // then, ask bevy to convert into world coordinates, and truncate to discard Z
+    if let Some(world_position) = window.cursor_position()
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .map(|ray| ray.origin.truncate())
+    {
+        **mycoords = world_position;
+    }
 }
