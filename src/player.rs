@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
+use crate::{Heading, Health};
 use crate::projectiles::ProjectileBundle;
-use crate::Health;
-use crate::{cleanup, AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
+use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
 
@@ -49,6 +49,9 @@ pub struct Vulnerability(Cooldown);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct MaxSpeed(f32);
 
+#[derive(Component, Deref, DerefMut)]
+pub struct AttackDirection(Heading);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
     damage: Damage,
@@ -61,9 +64,10 @@ pub struct PlayerBundle {
     cleanup: cleanup::ExitGame,
     marker: Player,
     vulnerability: Vulnerability,
-    dir: Direction,
+    dir: Heading,
+    attack_direction: AttackDirection,
     sprite: SpriteSheetBundle,
-    speed: MaxSpeed,
+    speed: MovementSpeed,
     attack_cooldown: AttackCooldown,
     projectile_stats: ProjectileStatBundle,
     current_xp: CurrentXP,
@@ -82,8 +86,9 @@ impl PlayerBundle {
             marker: Player,
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
+            attack_direction: AttackDirection(Heading::new(Vec2::new(0., 1.))),
             sprite,
-            speed: MaxSpeed(300.),
+            speed: MovementSpeed(300.),
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
@@ -146,33 +151,56 @@ pub fn sync_player_and_camera_pos(
 }
 
 pub fn player_movement(
-    time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Direction, &MaxSpeed, &mut Sprite), With<Player>>,
+    mut player: Query<
+        (
+            &mut Transform,
+            &mut Heading,
+            &mut Sprite,
+            &AttackDirection
+        ),
+        With<Player>,
+    >,
 ) {
-    let (mut player_trans, mut player_dir, &player_speed, mut player_sprite) = player.single_mut();
+    let (
+        mut player_trans,
+        mut player_dir,
+        mut player_sprite,
+        attack_dir
+    ) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };
     let keyboard_dir_y = if keys.pressed(KeyCode::KeyW) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyS) { 1. } else { 0. };
-
-    let keyboard_dir = Vec2::new(keyboard_dir_x, keyboard_dir_y).normalize_or_zero();
     const BOUND: f32 = 1900.;
-    (player_position.x, player_position.y) = (player_position.xy()
-        + *player_speed * time.delta_seconds() * keyboard_dir)
+    (player_position.x, player_position.y) = player_position.xy()
         .clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND))
         .into();
-    *player_dir = Direction::try_new(keyboard_dir).unwrap_or(*player_dir);
-    if keyboard_dir_x == 1. {
-        player_sprite.flip_x = false;
-    } else if keyboard_dir_x == -1. {
-        player_sprite.flip_x = true;
-    }
+    *player_dir = Heading::new(Vec2::new(keyboard_dir_x, keyboard_dir_y));
+    player_sprite.flip_x = attack_dir.x <= 0.;
+}
+
+pub fn player_attack_facing_from_mouse(
+    mut player: Query<
+        (
+            &Transform,
+            &mut AttackDirection
+        ),
+        With<Player>,
+    >,
+    cursor_pos: Res<CursorTranslation>
+) {
+    let (
+        &player_trans,
+        mut attack_direction
+    ) = player.single_mut();
+    let player_position = &mut player_trans.translation.xy();
+    *attack_direction = AttackDirection(Heading::new(**cursor_pos - *player_position));
 }
 
 /// System for shooting where the direction of the projectiles go from the player towards the cursor
-pub fn player_shooting_mouse_dir(
+pub fn player_shooting(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<MouseButton>>,
@@ -184,10 +212,10 @@ pub fn player_shooting_mouse_dir(
             &MaxAttackCooldown,
             &Damage,
             &Range,
+            &AttackDirection
         ),
         With<Player>,
-    >,
-    cursor_pos: Res<CursorTranslation>,
+    >
 ) {
     let (
         &player_trans,
@@ -196,88 +224,25 @@ pub fn player_shooting_mouse_dir(
         &max_attack_cooldown,
         &damage,
         &range,
+        attack_direction
     ) = player.single_mut();
     let player_position = &mut player_trans.translation.xy();
-    let dir = Direction::try_new(**cursor_pos - *player_position)
-        .unwrap_or(Direction::try_new(Vec2::new(1.0, 1.0)).unwrap());
     if keys.pressed(MouseButton::Left) {
         for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
-            player_shoot(
-                &mut commands,
-                *player_position,
-                &asset_server,
-                dir,
-                projectile_speed,
-                damage,
-                range,
-            );
+            player_shoot(&mut commands, *player_position, &asset_server, attack_direction, projectile_speed, damage, range);
         }
     } else {
         attack_cooldown.wait();
     }
 }
 
-/// System for shooting where the direction of the projectiles follow the direction of the player
-pub fn player_shooting_facing(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<
-        (
-            &Transform,
-            &Direction,
-            &ProjectileSpeed,
-            &mut AttackCooldown,
-            &MaxAttackCooldown,
-            &Damage,
-            &Range,
-        ),
-        With<Player>,
-    >,
-) {
-    let (
-        &player_trans,
-        &player_dir,
-        &projectile_speed,
-        mut attack_cooldown,
-        &max_attack_cooldown,
-        &damage,
-        &range,
-    ) = player.single_mut();
-    let player_position = &mut player_trans.translation.xy();
-    if keys.pressed(KeyCode::KeyJ) {
-        for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
-            player_shoot(
-                &mut commands,
-                *player_position,
-                &asset_server,
-                player_dir,
-                projectile_speed,
-                damage,
-                range,
-            );
-        }
-    } else {
-        attack_cooldown.wait();
-    }
-}
-
-fn player_shoot(
-    commands: &mut Commands,
-    player_position: Vec2,
-    asset_server: &Res<AssetServer>,
-    dir: Direction,
-    projectile_speed: ProjectileSpeed,
-    damage: Damage,
-    range: Range,
-) {
-    commands
-        .spawn(ProjectileBundle::new(
-            dir,
-            MovementSpeed(*projectile_speed),
-            range,
-        ))
-        .insert(SpriteBundle {
+fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &Res<AssetServer>, dir: &Heading, projectile_speed: ProjectileSpeed, damage: Damage, range: Range) {
+    commands.spawn(ProjectileBundle::new(
+        *dir,
+        MovementSpeed(*projectile_speed),
+        range,
+    )).insert(
+        SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
             texture: asset_server.load("models/bullet.png"),
             sprite: Sprite {

@@ -11,8 +11,7 @@ use crate::{
     loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
     map,
     player::{
-        handle_player_death, handle_player_xp, player_movement, player_shooting_mouse_dir,
-        spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Vulnerability,
+        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement, player_shooting, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Vulnerability
     },
     projectiles::{handle_lifetime, speed_to_movement},
     ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
@@ -35,6 +34,7 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_systems(
                 Update,
                 (
+                    (player_attack_facing_from_mouse,
                     handle_lifetime,
                     handle_player_death,
                     handle_enemy_damage_to_player,
@@ -47,13 +47,13 @@ impl<S: States> Plugin for GamePlugin<S> {
                     handle_enemy_damage_from_projectiles,
                     update_enemies,
                     check_for_dead_enemies,
-                    animate_sprite,
+                    animate_sprite),
                     xp_orbs_collision,
                     pick_up_xp_orbs,
                     handle_player_xp,
                     update_cursor,
                     player_movement,
-                    player_shooting_mouse_dir,
+                    player_shooting,
                     update_xp_bar_and_level,
                     update_health_ui,
                 )
