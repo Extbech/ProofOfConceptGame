@@ -136,3 +136,14 @@ fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Comma
 
 #[derive(Component, Deref, DerefMut)]
 pub struct Health(pub u32);
+/*
+pub fn handle_unhealthy(
+    mut commands: Commands,
+    q_healty: Query<(&Health, Entity), Without<Player>>
+) {
+    for (health, ent) in &q_healty {
+        if **health <= 0 {
+            commands.entity(ent).despawn_descendants();
+        }
+    }
+}*/

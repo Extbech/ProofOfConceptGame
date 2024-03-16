@@ -47,7 +47,7 @@ pub fn speed_to_movement(
 }
 
 #[derive(Component)]
-pub struct LifeTime(Duration);
+pub struct LifeTime(pub Duration);
 
 impl LifeTime {
     pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
