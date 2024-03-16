@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
+use crate::enemy::Health;
 use crate::projectiles::{ProjectileBundle, RemDistance};
 use crate::{cleanup, AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
@@ -22,7 +23,7 @@ pub struct MaxAttackCooldown(Duration);
 pub struct AttackCooldown(Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Damage(f32);
+pub struct Damage(u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Range(f32);
@@ -41,9 +42,6 @@ pub struct MaxLevel(usize);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct PickUpRadius(f32);
-
-#[derive(Component, Deref, DerefMut)]
-pub struct PlayerHealth(u32);
 
 #[derive(Component, Deref, DerefMut)]
 pub struct Vulnerability(Cooldown);
@@ -71,7 +69,7 @@ pub struct PlayerBundle {
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
-    health: PlayerHealth
+    health: Health
 }
 
 impl PlayerBundle {
@@ -86,7 +84,7 @@ impl PlayerBundle {
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
-                damage: Damage(1.0),
+                damage: Damage(1),
                 projectile_speed: ProjectileSpeed(450.),
                 range: Range(500.),
             },
@@ -95,7 +93,7 @@ impl PlayerBundle {
             current_level: CurrentLevel(1),
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
-            health: PlayerHealth(2)
+            health: Health(2)
         }
     }
 }
@@ -304,7 +302,7 @@ pub fn handle_player_xp(
 
 pub fn handle_player_death(
     player_query: Query<
-        (&PlayerHealth),
+        &Health,
         With<Player>,
     >,
     mut app_state: ResMut<NextState<AppState>>

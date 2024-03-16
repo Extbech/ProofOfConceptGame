@@ -124,7 +124,7 @@ pub fn check_for_dead_enemies(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     for (transform, entity, health) in query.iter() {
-        if **health <= 0.0 {
+        if **health <= 0 {
             commands.entity(entity).despawn();
             // 1/5 -> 20%
             spawn_xp_orb(
