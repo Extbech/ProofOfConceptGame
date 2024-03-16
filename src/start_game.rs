@@ -14,7 +14,7 @@ use crate::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement, player_shooting, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Vulnerability
     },
     projectiles::{handle_lifetime, speed_to_movement},
-    ui::update_xp_bar_and_level,
+    ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState,
 };
 
@@ -28,7 +28,7 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_plugins(WorldInspectorPlugin::new())
             .add_systems(
                 OnEnter(AppState::InGame),
-                (map::setup_map, spawn_player_hero),
+                (map::setup_map, spawn_player_hero, spawn_health_ui),
             )
             .add_systems(OnExit(AppState::InGame), cleanup::<cleanup::ExitGame>)
             .add_systems(

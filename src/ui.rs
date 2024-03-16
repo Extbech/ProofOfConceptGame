@@ -1,10 +1,12 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::player::{CurrentLevel, CurrentXP, Player, RequiredXP};
-
-pub fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    todo!();
-}
+use crate::{
+    cleanup::ExitGame,
+    player::{CurrentLevel, CurrentXP, Player, RequiredXP},
+    Health, MyGameCamera,
+};
+#[derive(Component)]
+pub struct HealthUiSprite;
 
 pub fn update_xp_bar_and_level(
     mut commands: Commands,
@@ -22,7 +24,7 @@ pub fn update_xp_bar_and_level(
             style: Style {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
-                flex_direction: FlexDirection::Column,
+                flex_direction: FlexDirection::ColumnReverse,
                 ..default()
             },
             ..default()
@@ -54,22 +56,81 @@ pub fn update_xp_bar_and_level(
                 .spawn(NodeBundle {
                     style: Style {
                         width: Val::Percent(100.0),
-                        height: Val::Percent(15.0),
+                        height: Val::Percent(10.0),
                         align_self: AlignSelf::End,
+                        flex_direction: FlexDirection::Row,
                         ..default()
                     },
 
                     ..default()
                 })
                 .with_children(|grandchild| {
-                    grandchild.spawn(TextBundle::from_section(
-                        (**level).to_string(),
-                        TextStyle {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 50.0,
-                            color: Color::WHITE,
+                    grandchild.spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(85.0),
+                            height: Val::Percent(100.0),
+                            align_self: AlignSelf::End,
+                            ..default()
                         },
-                    ));
+                        ..default()
+                    });
+                    grandchild.spawn(
+                        TextBundle::from_section(
+                            format!("lvl. {}", **level),
+                            TextStyle {
+                                font: asset_server.load("font/pixel-font.ttf"),
+                                font_size: 60.0,
+                                color: Color::WHITE,
+                            },
+                        )
+                        .with_no_wrap(),
+                    );
                 });
         });
+}
+
+pub fn spawn_health_ui(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    q_camera: Query<&Transform, With<MyGameCamera>>,
+) {
+    let window = q_window.single();
+    let camera_pos = q_camera.single().translation;
+    let texture_handle: Handle<Image> = asset_server.load("ui/heart-pixel.png");
+    for i in 0..10 {
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(
+                    (camera_pos.x - (window.width() / 2.0)) + 50.0 + (i as f32 * 60.0),
+                    (camera_pos.y + (window.height() / 2.0)) - 50.0,
+                    2.0,
+                ),
+                texture: texture_handle.clone(),
+                ..default()
+            },
+            HealthUiSprite,
+            ExitGame,
+        ));
+    }
+}
+pub fn update_health_ui(
+    mut commands: Commands,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    q_camera: Query<&Transform, (With<MyGameCamera>, Without<HealthUiSprite>)>,
+    mut q_health: Query<(&mut Transform, Entity), (With<HealthUiSprite>, Without<Player>)>,
+    q_player_health: Query<&Health, (With<Player>, Without<HealthUiSprite>)>,
+) {
+    let window = q_window.single();
+    let camera_pos = q_camera.single().translation;
+    let player_health = q_player_health.single();
+    for (i, (mut transform, entity)) in q_health.iter_mut().enumerate() {
+        if i > **player_health as usize {
+            commands.entity(entity).despawn();
+        } else {
+            transform.translation.x =
+                (camera_pos.x - (window.width() / 2.0)) + 50.0 + (i as f32 * 60.0);
+            transform.translation.y = (camera_pos.y + (window.height() / 2.0)) - 50.0;
+        }
+    }
 }

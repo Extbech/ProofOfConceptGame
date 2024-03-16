@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::{Direction, Heading, Health};
+use crate::{Heading, Health};
 use crate::projectiles::ProjectileBundle;
 use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
 
@@ -76,7 +76,7 @@ pub struct PlayerBundle {
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
-    health: Health
+    health: Health,
 }
 
 impl PlayerBundle {
@@ -101,7 +101,7 @@ impl PlayerBundle {
             current_level: CurrentLevel(1),
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
-            health: Health(2)
+            health: Health(2),
         }
     }
 }
@@ -250,7 +250,8 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
                 ..Default::default()
             },
             ..default()
-    }).insert(        damage);
+        })
+        .insert(damage);
     commands.spawn(AudioBundle {
         source: asset_server.load("sounds/effects/pew-laser.wav"),
         settings: PlaybackSettings::ONCE,
@@ -268,8 +269,7 @@ pub fn handle_player_xp(
         With<Player>,
     >,
 ) {
-    let (mut current_xp, mut required_xp, mut current_level, max_level) =
-        query.single_mut();
+    let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
     if **current_xp >= **required_xp {
         if **current_level < **max_level {
             **current_level += 1;
@@ -280,11 +280,8 @@ pub fn handle_player_xp(
 }
 
 pub fn handle_player_death(
-    player_query: Query<
-        &Health,
-        With<Player>,
-    >,
-    mut app_state: ResMut<NextState<AppState>>
+    player_query: Query<&Health, With<Player>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     let player_health = player_query.single();
     if **player_health == 0 {
