@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{AppState, MyGameCamera};
+use crate::{cleanup, AppState, MyGameCamera};
 pub const GAME_TITLE: &str = "To be Announced";
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component, Clone, Copy)]
@@ -15,7 +15,7 @@ pub struct StartMenuPlugin<S: States> {
 impl<S: States> Plugin for StartMenuPlugin<S> {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Startup,
+            OnEnter(AppState::MainMenu),
             render_start_menu.run_if(in_state(self.state.clone())),
         )
         .add_systems(
@@ -120,11 +120,5 @@ fn handle_button_click(
                 MenuButtonAction::Play => app_state.set(AppState::InGame),
             }
         }
-    }
-}
-// Generic system that takes a component as a parameter, and will despawn all entities with that component
-fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
     }
 }

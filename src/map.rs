@@ -2,14 +2,18 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileStorage, TileTextureIndex};
 
+use crate::start_game::GameEntity;
+
 const BACKGROUND: &str = "environment/map.png";
 const BACKGROUND_METADATA: TilemapMetadata = TilemapMetadata {
+    game_entity: GameEntity,
     size: TilemapSize { x: 128, y: 64 },
     tile_size: TilemapTileSize { x: 32.0, y: 32.0 },
     grid_size: TilemapGridSize { x: 32.0, y: 32.0 },
 };
 
 struct TilemapMetadata {
+    game_entity: GameEntity,
     size: TilemapSize,
     tile_size: TilemapTileSize,
     grid_size: TilemapGridSize,
@@ -24,6 +28,7 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
     let tilemap_entity = commands.spawn_empty().id();
 
     let TilemapMetadata {
+        game_entity: GameEntity,
         size,
         grid_size,
         tile_size,

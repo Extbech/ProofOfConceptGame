@@ -4,7 +4,8 @@ use std::time::Duration;
 
 use crate::cooldown::Cooldown;
 use crate::projectiles::{ProjectileBundle, RemDistance};
-use crate::{CursorTranslation, Direction, MovementSpeed, MyGameCamera};
+use crate::start_game::GameEntity;
+use crate::{AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
 
@@ -57,6 +58,7 @@ pub struct ProjectileStatBundle {
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
+    game_entity: GameEntity,
     marker: Player,
     vulnerability: Vulnerability,
     dir: Direction,
@@ -76,6 +78,7 @@ pub struct PlayerBundle {
 impl PlayerBundle {
     pub fn new(sprite: SpriteSheetBundle) -> Self {
         PlayerBundle {
+            game_entity: GameEntity,
             marker: Player,
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
@@ -298,5 +301,18 @@ pub fn handle_player_xp(
             **current_xp = **current_xp - **required_xp;
             **required_xp = **required_xp * XP_SCALING_FACTOR;
         }
+    }
+}
+
+pub fn handle_player_death(
+    player_query: Query<
+        (&PlayerHealth),
+        With<Player>,
+    >,
+    mut app_state: ResMut<NextState<AppState>>
+) {
+    let player_health = player_query.single();
+    if **player_health == 0 {
+        app_state.set(AppState::MainMenu)
     }
 }

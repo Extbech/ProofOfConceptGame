@@ -3,6 +3,7 @@ use std::time::Duration;
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, PlayerHealth, Vulnerability};
 use crate::projectiles::HitList;
+use crate::start_game::GameEntity;
 use crate::{projectiles::Projectile, Player};
 use crate::{GameRng, MovementSpeed};
 use bevy::prelude::*;
@@ -21,6 +22,7 @@ pub struct Enemy;
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
+    game_entity: GameEntity,
     marker: Enemy,
     health: Health,
     speed: MovementSpeed,
@@ -30,6 +32,7 @@ pub struct EnemyBundle {
 impl EnemyBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
+            game_entity: GameEntity,
             marker: Enemy,
             health: Health(2.),
             speed: MovementSpeed(100.),
