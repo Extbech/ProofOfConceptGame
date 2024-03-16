@@ -4,6 +4,7 @@ mod loot;
 mod map;
 mod player;
 mod projectiles;
+mod start_menu;
 
 use bevy::{input::ButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_ecs_tilemap::TilemapPlugin;

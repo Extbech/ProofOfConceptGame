@@ -139,7 +139,4 @@ pub fn handle_player_xp(
             **required_xp = **required_xp * XP_SCALING_FACTOR;
         }
     }
-    println!("Level: {}", **current_level);
-    println!("Current xp: {}", **current_xp);
-    println!("Current xp: {}", **required_xp);
 }
