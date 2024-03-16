@@ -9,17 +9,9 @@ mod start_menu;
 use std::time::Duration;
 
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use enemy::{handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate};
-use player::{
-    handle_player_xp, player_movement, player_shooting_mouse_dir, spawn_player_hero,
-    sync_player_and_camera_pos, AttackCooldown, Player,
-};
-use projectiles::projectile_movement;
+use enemy::{SpawnCooldown, SpawnRate};
+use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
-
-use loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision};
 use start_game::GamePlugin;
 use start_menu::StartMenuPlugin;
 

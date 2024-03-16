@@ -5,12 +5,14 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use crate::{
     cooldown,
     enemy::{handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown},
-    keyboard_input,
     loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
     map,
-    player::{handle_player_xp, spawn_player_hero, AttackCooldown},
+    player::{
+        handle_player_xp, player_movement, player_shooting_mouse_dir, spawn_player_hero,
+        sync_player_and_camera_pos, AttackCooldown,
+    },
     projectiles::projectile_movement,
-    sync_player_and_camera_pos, AppState,
+    update_cursor, AppState,
 };
 
 pub struct GamePlugin<S: States> {
@@ -28,7 +30,6 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_systems(
                 Update,
                 (
-                    keyboard_input,
                     sync_player_and_camera_pos,
                     projectile_movement,
                     cooldown::tick_cooldown::<AttackCooldown>,
@@ -41,6 +42,9 @@ impl<S: States> Plugin for GamePlugin<S> {
                     xp_orbs_collision,
                     pick_up_xp_orbs,
                     handle_player_xp,
+                    update_cursor,
+                    player_movement,
+                    player_shooting_mouse_dir,
                 )
                     .run_if(in_state(self.state.clone())),
             );
