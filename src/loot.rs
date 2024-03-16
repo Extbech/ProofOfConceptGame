@@ -161,8 +161,8 @@ pub fn xp_orbs_collision(
     let (player_transform, mut current_xp) = player_query.single_mut();
     for (xp_transform, xp, entity) in xp_query.iter_mut() {
         if is_collision(
-            player_transform.translation,
-            xp_transform.translation,
+            player_transform.translation.xy(),
+            xp_transform.translation.xy(),
             10.0,
             0.0,
         ) {
@@ -182,8 +182,8 @@ pub fn pick_up_xp_orbs(
     let (player_trasnform, pick_up_radius) = player_query.single_mut();
     for (mut xp_transform, speed) in xp_query.iter_mut() {
         if is_collision(
-            player_trasnform.translation,
-            xp_transform.translation,
+            player_trasnform.translation.xy(),
+            xp_transform.translation.xy(),
             **pick_up_radius,
             0.0,
         ) {

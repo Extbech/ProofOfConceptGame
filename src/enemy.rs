@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::player::Damage;
+use crate::player::{Damage, PlayerHealth, Vulnerability};
 use crate::projectiles::HitList;
 use crate::{projectiles::Projectile, Player};
 use crate::{GameRng, MovementSpeed};
@@ -86,7 +86,7 @@ pub fn spawn_enemies(
     }
 }
 
-pub fn handle_enemy_collision(
+pub fn handle_enemy_damage_from_projectiles(
     mut projectiles_query: Query<(&Transform, &Damage, &mut HitList), With<Projectile>>,
     mut enemy_query: Query<(&Transform, &mut Health, Entity), With<Enemy>>,
 ) {
@@ -94,8 +94,8 @@ pub fn handle_enemy_collision(
         for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
             if !hitlist.contains(&ent) {
                 if is_collision(
-                    projectile_transform.translation,
-                    enemy_transform.translation,
+                    projectile_transform.translation.xy(),
+                    enemy_transform.translation.xy(),
                     50.,
                     10.,
                 ) {
@@ -107,8 +107,27 @@ pub fn handle_enemy_collision(
     }
 }
 
-pub fn is_collision(obj1: Vec3, obj2: Vec3, obj1_radius: f32, obj2_radius: f32) -> bool {
-    let diff = (obj1.xy() - obj2.xy()).length();
+pub fn handle_enemy_damage_to_player(
+    enemy_query: Query<&Transform, With<Enemy>>,
+    mut player_query: Query<(&Transform, &mut PlayerHealth, &mut Vulnerability), With<Player>>
+) {
+    let (player_trans, mut player_health, mut vulnerability) = player_query.single_mut();
+    let player_pos = player_trans.translation.xy();
+    let invuln_timer = Duration::from_secs_f32(1.);
+    if vulnerability.is_ready(invuln_timer) {
+        for enemy_trans in &enemy_query {
+            let enemy_pos = enemy_trans.translation.xy();
+            if is_collision(player_pos, enemy_pos, 0., 100.) {
+                **player_health = player_health.saturating_sub(1);
+                vulnerability.reset(invuln_timer);
+                return
+            }
+        }
+    }
+}
+
+pub fn is_collision(obj1: Vec2, obj2: Vec2, obj1_radius: f32, obj2_radius: f32) -> bool {
+    let diff = (obj1 - obj2).length();
     if diff < obj1_radius + obj2_radius {
         return true;
     }

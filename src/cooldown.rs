@@ -15,6 +15,13 @@ pub struct Cooldown {
 }
 
 impl Cooldown {
+    pub fn waiting() -> Self {
+        Cooldown {
+            waiting: true,
+            ..default()
+        }
+    }
+
     /// Resets the cooldown with `period_length` waiting time per period and returns the number of periods elapsed.
     /// Also resets the waiting status of the timer.
     /// When waiting additional conditions only one cooldown period can pass.
@@ -68,6 +75,10 @@ impl Cooldown {
 
     pub fn unpause(&mut self) {
         self.paused = false;
+    }
+
+    pub fn is_ready(&self, period_length: Duration) -> bool {
+        period_length <= self.timer
     }
 }
 
