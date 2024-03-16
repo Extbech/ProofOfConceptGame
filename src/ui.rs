@@ -21,6 +21,7 @@ pub fn update_xp_bar(
             style: Style {
                 width: Val::Percent(100.0),
                 height: Val::Percent(5.0),
+                align_self: AlignSelf::End,
                 ..default()
             },
             background_color: Color::GRAY.into(),
