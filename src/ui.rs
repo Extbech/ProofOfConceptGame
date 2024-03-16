@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
-    cleanup::ExitGame,
+    cleanup,
     player::{CurrentLevel, CurrentXP, Player, RequiredXP},
     Health, MyGameCamera,
 };
@@ -110,7 +110,7 @@ pub fn spawn_health_ui(
                 ..default()
             },
             HealthUiSprite,
-            ExitGame,
+            cleanup::ExitGame,
         ));
     }
 }

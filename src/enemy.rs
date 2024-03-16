@@ -101,7 +101,7 @@ pub fn handle_enemy_damage_from_projectiles(
                     50.,
                     10.,
                 ) {
-                    **health -= **damage;
+                    **health = health.saturating_sub(**damage);
                     commands.spawn(ProjectileBundle::new(
                         Heading::new(Vec2::new(0., 1.)), MovementSpeed(20.), Range(15.))).insert(
                             Text2dBundle {
