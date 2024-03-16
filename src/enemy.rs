@@ -3,7 +3,7 @@ use crate::player::{Damage, Range, Vulnerability};
 use crate::projectiles::{HitList, ProjectileBundle};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{projectiles::Projectile, Player};
-use crate::{Direction, Heading, Health};
+use crate::{Heading, Health};
 use bevy::prelude::*;
 use rand::prelude::*;
 use std::time::Duration;
@@ -101,7 +101,7 @@ pub fn handle_enemy_damage_from_projectiles(
                     50.,
                     10.,
                 ) {
-                    **health -= **damage;
+                    **health = health.saturating_sub(**damage);
                     commands
                         .spawn(ProjectileBundle::new(
                             Heading::new(Vec2::new(0., 1.)),
