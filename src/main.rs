@@ -44,23 +44,23 @@ enum PausedState {
 #[derive(Component)]
 struct MyGameCamera;
 
-/// normalized vector pointing in some direction. Is always nonzero
+/// normalized or zero vector pointing in some direction.
 #[derive(Component, Clone, Copy, Deref, DerefMut)]
-pub struct Direction {
+pub struct Heading {
     v: Vec2,
 }
 
-impl Direction {
-    fn try_new(v: Vec2) -> Option<Self> {
-        Some(Direction {
-            v: v.try_normalize()?,
-        })
+impl Heading {
+    fn new(v: Vec2) -> Self {
+        Heading {
+            v: v.normalize_or_zero()
+        }
     }
 }
 
-impl Default for Direction {
+impl Default for Heading {
     fn default() -> Self {
-        Direction {
+        Heading {
             v: Vec2::new(0., 1.),
         }
     }

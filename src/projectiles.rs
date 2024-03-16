@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{cleanup, player::Range, Direction, MovementSpeed};
+use crate::{cleanup, player::Range, Direction, Heading, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -17,14 +17,14 @@ pub struct HitList(Vec<Entity>);
 pub struct ProjectileBundle {
     cleanup: cleanup::ExitGame,
     marker: Projectile,
-    dir: Direction,
+    dir: Heading,
     speed: MovementSpeed,
     lifetime: LifeTime,
     has_hit: HitList
 }
 
 impl ProjectileBundle {
-    pub fn new(dir: Direction, speed: MovementSpeed, range: Range) -> Self {
+    pub fn new(dir: Heading, speed: MovementSpeed, range: Range) -> Self {
         ProjectileBundle {
             cleanup: cleanup::ExitGame,
             marker: Projectile,
@@ -38,7 +38,7 @@ impl ProjectileBundle {
 
 pub fn speed_to_movement(
     time: Res<Time>,
-    mut q: Query<(&Direction, &mut Transform, &MovementSpeed)>,
+    mut q: Query<(&Heading, &mut Transform, &MovementSpeed)>,
 ) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
