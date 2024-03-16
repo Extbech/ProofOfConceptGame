@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use crate::cooldown::Cooldown;
 use crate::player::Damage;
+use crate::projectiles::HitList;
 use crate::{projectiles::Projectile, Player};
 use crate::{GameRng, MovementSpeed};
 use bevy::prelude::*;
@@ -86,18 +87,21 @@ pub fn spawn_enemies(
 }
 
 pub fn handle_enemy_collision(
-    projectiles_query: Query<(&Transform, &Damage), With<Projectile>>,
-    mut enemy_query: Query<(&Transform, &mut Health), With<Enemy>>,
+    mut projectiles_query: Query<(&Transform, &Damage, &mut HitList), With<Projectile>>,
+    mut enemy_query: Query<(&Transform, &mut Health, Entity), With<Enemy>>,
 ) {
-    for (projectile_transform, damage) in projectiles_query.iter() {
-        for (enemy_transform, mut health) in enemy_query.iter_mut() {
-            if is_collision(
-                projectile_transform.translation,
-                enemy_transform.translation,
-                50.,
-                10.,
-            ) {
-                **health -= **damage;
+    for (projectile_transform, damage, mut hitlist) in projectiles_query.iter_mut() {
+        for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
+            if !hitlist.contains(&ent) {
+                if is_collision(
+                    projectile_transform.translation,
+                    enemy_transform.translation,
+                    50.,
+                    10.,
+                ) {
+                    **health -= **damage;
+                    hitlist.push(ent)
+                }
             }
         }
     }

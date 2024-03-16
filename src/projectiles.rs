@@ -8,6 +8,9 @@ pub struct RemDistance(pub f32);
 #[derive(Component)]
 pub struct Projectile;
 
+#[derive(Component, Deref, DerefMut)]
+pub struct HitList(Vec<Entity>);
+
 #[derive(Bundle)]
 pub struct ProjectileBundle {
     marker: Projectile,
@@ -15,7 +18,8 @@ pub struct ProjectileBundle {
     sprite: SpriteBundle,
     speed: MovementSpeed,
     damage: Damage,
-    rem_distance: RemDistance
+    rem_distance: RemDistance,
+    has_hit: HitList
 }
 
 impl ProjectileBundle {
@@ -26,7 +30,8 @@ impl ProjectileBundle {
             sprite,
             speed,
             damage,
-            rem_distance
+            rem_distance,
+            has_hit: HitList(vec![])
         }
     }
 }
