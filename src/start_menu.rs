@@ -78,9 +78,9 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                     grandchild.spawn(TextBundle::from_section(
                         GAME_TITLE,
                         TextStyle {
-                            font_size: 80.0,
+                            font_size: 60.0,
                             color: Color::ORANGE,
-                            ..default()
+                            font: asset_server.load("font/pixel-font.ttf"),
                         },
                     ));
                     grandchild
@@ -96,9 +96,9 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                             great_grandchild.spawn(TextBundle::from_section(
                                 "Start Game",
                                 TextStyle {
-                                    font_size: 50.0,
+                                    font_size: 40.0,
                                     color: Color::WHITE,
-                                    ..default()
+                                    font: asset_server.load("font/pixel-font.ttf"),
                                 },
                             ));
                         });
