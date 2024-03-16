@@ -1,39 +1,73 @@
-use std::ops::DerefMut;
+use std::{ops::DerefMut, time::Duration};
 
 use bevy::prelude::*;
 
+
+/// Struct for events that have some minimal waiting period between occurences.
+/// The cooldown timer can be paused and scales to any length of cooldown, even short ones.
+/// For short cooldowns the output of [Cooldown::reset] should be used to trigger multiple occurences.
+/// It also supports a waiting state for when additional conditions to be met to trigger the event.
 #[derive(Resource, Component, Clone, Default)]
 pub struct Cooldown {
-    timer: f32,
-    waiting: bool
+    timer: Duration,
+    waiting: bool,
+    paused: bool
 }
 
 impl Cooldown {
-    /// Resets the cooldown with `tot` waiting time per period and returns the number of periods elapsed
-    pub fn reset(&mut self, tot: f32) -> u32 {
+    /// Resets the cooldown with `period_length` waiting time per period and returns the number of periods elapsed.
+    /// Also resets the waiting status of the timer.
+    /// When waiting additional conditions only one cooldown period can pass.
+    pub fn reset(&mut self, period_length: Duration) -> u32 {
         let mut count = 0;
-        assert!(0. < tot);
-        while self.timer <= 0. {
-            *&mut self.timer += tot;
+        assert!(!period_length.is_zero());
+        while period_length <= self.timer {
+            *&mut self.timer -= period_length;
             count += 1;
         }
-        self.waiting = false;
-        count
+        if self.waiting && 0 < count {
+            self.timer = default();
+            self.waiting = false;
+            1
+        } else {
+            count
+        }
     }
 
-    /// Sets the cooldown to the waiting status, where it clamps the timer to 0 when ticked
+    /// Same as [Cooldown::reset], except it sets the status to waiting.
+    pub fn reset_and_wait(&mut self, period_length: Duration) -> u32 {
+        let mut count = 0;
+        assert!(!period_length.is_zero());
+        while period_length <= self.timer {
+            *&mut self.timer -= period_length;
+            count += 1;
+        }
+        if self.waiting && 0 < count {
+            1
+        } else {
+            self.wait();
+            count
+        }
+    }
+
+    /// Sets the cooldown to the waiting status, where the timer does not overflow.
     pub fn wait(&mut self) {
         self.waiting = true;
     }
 
-    /// Reduce the cooldown. Clamp it if waiting and negative
+    /// Reduce the cooldown unless paused.
     pub fn tick(&mut self, time: &Time) {
-        if 0. < self.timer || !self.waiting {
-            self.timer -= time.delta_seconds();
+        if !self.paused {
+            self.timer += time.delta();
         }
-        if self.waiting && self.timer < 0. {
-            self.timer = 0.;
-        }
+    }
+
+    pub fn pause(&mut self) {
+        self.paused = true;
+    }
+
+    pub fn unpause(&mut self) {
+        self.paused = false;
     }
 }
 

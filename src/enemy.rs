@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::cooldown::Cooldown;
 use crate::player::Damage;
 use crate::{projectiles::Projectile, Player};
@@ -6,13 +8,10 @@ use bevy::prelude::*;
 use rand::prelude::*;
 
 #[derive(Resource, Deref, DerefMut)]
-pub struct SpawnRate(f32);
+pub struct SpawnRate(pub Duration);
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnCooldown(pub Cooldown);
-
-pub const DEFAULT_SPAWN_RATE: SpawnRate = SpawnRate(1.);
-
 #[derive(Component, Deref, DerefMut)]
 pub struct Health(f32);
 
