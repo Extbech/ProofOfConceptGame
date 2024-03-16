@@ -14,7 +14,7 @@ use crate::{
         handle_player_death, handle_player_xp, player_movement, player_shooting_mouse_dir,
         spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Vulnerability,
     },
-    projectiles::projectile_movement,
+    projectiles::{handle_lifetime, speed_to_movement},
     ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState,
 };
@@ -35,10 +35,11 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_systems(
                 Update,
                 (
+                    handle_lifetime,
                     handle_player_death,
                     handle_enemy_damage_to_player,
                     sync_player_and_camera_pos,
-                    projectile_movement,
+                    speed_to_movement,
                     cooldown::tick_cooldown::<AttackCooldown>,
                     cooldown::tick_cooldown_res::<SpawnCooldown>,
                     cooldown::tick_cooldown::<Vulnerability>,

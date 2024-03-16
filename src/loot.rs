@@ -1,8 +1,5 @@
 use crate::{
-    cleanup,
-    enemy::{is_collision, Enemy, Health},
-    player::{CurrentXP, PickUpRadius, Player},
-    GameRng, MovementSpeed,
+    cleanup, enemy::{is_collision, Enemy}, player::{CurrentXP, PickUpRadius, Player}, GameRng, Health, MovementSpeed
 };
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -124,7 +121,7 @@ pub fn check_for_dead_enemies(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     for (transform, entity, health) in query.iter() {
-        if **health <= 0.0 {
+        if **health <= 0 {
             commands.entity(entity).despawn();
             // 1/5 -> 20%
             spawn_xp_orb(

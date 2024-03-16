@@ -1,8 +1,8 @@
 use std::time::Duration;
-use crate::Direction;
+use crate::{Direction, Health};
 use crate::cooldown::Cooldown;
-use crate::player::{Damage, PlayerHealth, Vulnerability};
-use crate::projectiles::{HitList, ProjectileBundle, RemDistance};
+use crate::player::{Damage, Range, Vulnerability};
+use crate::projectiles::{HitList, ProjectileBundle};
 use crate::{projectiles::Projectile, Player};
 use crate::{cleanup, GameRng, MovementSpeed};
 use bevy::prelude::*;
@@ -13,8 +13,6 @@ pub struct SpawnRate(pub Duration);
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnCooldown(pub Cooldown);
-#[derive(Component, Deref, DerefMut)]
-pub struct Health(f32);
 
 #[derive(Component)]
 pub struct Enemy;
@@ -33,7 +31,7 @@ impl EnemyBundle {
         EnemyBundle {
             cleanup: cleanup::ExitGame,
             marker: Enemy,
-            health: Health(2.),
+            health: Health(2),
             speed: MovementSpeed(100.),
             sprite,
         }
@@ -105,7 +103,7 @@ pub fn handle_enemy_damage_from_projectiles(
                 ) {
                     **health -= **damage;
                     commands.spawn(ProjectileBundle::new(
-                        Direction::try_new(Vec2::new(0., 1.)).unwrap(), MovementSpeed(20.), RemDistance(15.))).insert(
+                        Direction::try_new(Vec2::new(0., 1.)).unwrap(), MovementSpeed(20.), Range(15.))).insert(
                             Text2dBundle {
                                 text: Text::from_section(format!("{:.1}", **damage), TextStyle {
                                     font_size: 40.0,
@@ -128,7 +126,7 @@ pub fn handle_enemy_damage_from_projectiles(
 
 pub fn handle_enemy_damage_to_player(
     enemy_query: Query<&Transform, With<Enemy>>,
-    mut player_query: Query<(&Transform, &mut PlayerHealth, &mut Vulnerability), With<Player>>
+    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability), With<Player>>
 ) {
     let (player_trans, mut player_health, mut vulnerability) = player_query.single_mut();
     let player_pos = player_trans.translation.xy();

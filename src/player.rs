@@ -3,7 +3,8 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::projectiles::{ProjectileBundle, RemDistance};
+use crate::projectiles::ProjectileBundle;
+use crate::Health;
 use crate::{cleanup, AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
@@ -22,10 +23,10 @@ pub struct MaxAttackCooldown(Duration);
 pub struct AttackCooldown(Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Damage(f32);
+pub struct Damage(u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Range(f32);
+pub struct Range(pub f32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct CurrentXP(f32);
@@ -43,10 +44,10 @@ pub struct MaxLevel(usize);
 pub struct PickUpRadius(f32);
 
 #[derive(Component, Deref, DerefMut)]
-pub struct PlayerHealth(u32);
-
-#[derive(Component, Deref, DerefMut)]
 pub struct Vulnerability(Cooldown);
+
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct MaxSpeed(f32);
 
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
@@ -62,7 +63,7 @@ pub struct PlayerBundle {
     vulnerability: Vulnerability,
     dir: Direction,
     sprite: SpriteSheetBundle,
-    speed: MovementSpeed,
+    speed: MaxSpeed,
     attack_cooldown: AttackCooldown,
     projectile_stats: ProjectileStatBundle,
     current_xp: CurrentXP,
@@ -71,7 +72,7 @@ pub struct PlayerBundle {
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
-    health: PlayerHealth,
+    health: Health,
 }
 
 impl PlayerBundle {
@@ -82,11 +83,11 @@ impl PlayerBundle {
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
             sprite,
-            speed: MovementSpeed(300.),
+            speed: MaxSpeed(300.),
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
-                damage: Damage(1.0),
+                damage: Damage(1),
                 projectile_speed: ProjectileSpeed(450.),
                 range: Range(500.),
             },
@@ -95,7 +96,7 @@ impl PlayerBundle {
             current_level: CurrentLevel(1),
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
-            health: PlayerHealth(10),
+            health: Health(2),
         }
     }
 }
@@ -147,7 +148,7 @@ pub fn sync_player_and_camera_pos(
 pub fn player_movement(
     time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Direction, &MovementSpeed, &mut Sprite), With<Player>>,
+    mut player: Query<(&mut Transform, &mut Direction, &MaxSpeed, &mut Sprite), With<Player>>,
 ) {
     let (mut player_trans, mut player_dir, &player_speed, mut player_sprite) = player.single_mut();
     let player_position = &mut player_trans.translation;
@@ -274,7 +275,7 @@ fn player_shoot(
         .spawn(ProjectileBundle::new(
             dir,
             MovementSpeed(*projectile_speed),
-            RemDistance(*range),
+            range,
         ))
         .insert(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
@@ -293,10 +294,8 @@ fn player_shoot(
 }
 
 pub fn handle_player_xp(
-    mut commands: Commands,
     mut query: Query<
         (
-            &Transform,
             &mut CurrentXP,
             &mut RequiredXP,
             &mut CurrentLevel,
@@ -305,8 +304,7 @@ pub fn handle_player_xp(
         With<Player>,
     >,
 ) {
-    let (transform, mut current_xp, mut required_xp, mut current_level, max_level) =
-        query.single_mut();
+    let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
     if **current_xp >= **required_xp {
         if **current_level < **max_level {
             **current_level += 1;
@@ -317,7 +315,7 @@ pub fn handle_player_xp(
 }
 
 pub fn handle_player_death(
-    player_query: Query<(&PlayerHealth), With<Player>>,
+    player_query: Query<&Health, With<Player>>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     let player_health = player_query.single();
