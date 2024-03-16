@@ -1,7 +1,7 @@
 use bevy::{ecs::query, prelude::*, window::PrimaryWindow};
 
 use crate::{
-    cleanup,
+    cleanup::{self, ExitGame},
     player::{CurrentLevel, CurrentXP, Player, RequiredXP},
     Health, MyGameCamera,
 };
@@ -37,6 +37,7 @@ pub fn update_xp_bar_and_level(
                 },
                 ..default()
             },
+            ExitGame,
             XPBar,
         ))
         .with_children(|child| {
