@@ -2,8 +2,8 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     cleanup::ExitGame,
-    player::{CurrentLevel, CurrentXP, Player, PlayerHealth, RequiredXP},
-    MyGameCamera,
+    player::{CurrentLevel, CurrentXP, Player, RequiredXP},
+    Health, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -119,7 +119,7 @@ pub fn update_health_ui(
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<&Transform, (With<MyGameCamera>, Without<HealthUiSprite>)>,
     mut q_health: Query<(&mut Transform, Entity), (With<HealthUiSprite>, Without<Player>)>,
-    q_player_health: Query<&PlayerHealth, (With<Player>, Without<HealthUiSprite>)>,
+    q_player_health: Query<&Health, (With<Player>, Without<HealthUiSprite>)>,
 ) {
     let window = q_window.single();
     let camera_pos = q_camera.single().translation;
