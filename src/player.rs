@@ -42,6 +42,12 @@ pub struct MaxLevel(usize);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct PickUpRadius(f32);
 
+#[derive(Component, Deref, DerefMut)]
+pub struct PlayerHealth(u32);
+
+#[derive(Component, Deref, DerefMut)]
+pub struct Vulnerability(Cooldown);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
     damage: Damage,
@@ -52,6 +58,7 @@ pub struct ProjectileStatBundle {
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
+    vulnerability: Vulnerability,
     dir: Direction,
     sprite: SpriteSheetBundle,
     speed: MovementSpeed,
@@ -63,12 +70,14 @@ pub struct PlayerBundle {
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
+    health: PlayerHealth
 }
 
 impl PlayerBundle {
     pub fn new(sprite: SpriteSheetBundle) -> Self {
         PlayerBundle {
             marker: Player,
+            vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
             sprite,
             speed: MovementSpeed(300.),
@@ -84,6 +93,7 @@ impl PlayerBundle {
             current_level: CurrentLevel(1),
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
+            health: PlayerHealth(2)
         }
     }
 }
