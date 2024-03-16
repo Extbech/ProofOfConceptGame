@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::projectiles::ProjectileBundle;
+use crate::projectiles::{LifeTime, ProjectileBundle};
 use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
 use crate::{Heading, Health};
 
@@ -251,7 +251,7 @@ fn player_shoot(
     commands.spawn(AudioBundle {
         source: asset_server.load("sounds/effects/pew-laser.wav"),
         settings: PlaybackSettings::ONCE,
-    });
+    }).insert(LifeTime(Duration::from_secs(1)));
 }
 
 pub fn handle_player_xp(
