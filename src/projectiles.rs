@@ -1,4 +1,4 @@
-use crate::{player::Damage, start_game::GameEntity, Direction, MovementSpeed};
+use crate::{cleanup, player::Damage, Direction, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -13,25 +13,21 @@ pub struct HitList(Vec<Entity>);
 
 #[derive(Bundle)]
 pub struct ProjectileBundle {
-    game_entity: GameEntity,
+    cleanup: cleanup::ExitGame,
     marker: Projectile,
     dir: Direction,
-    sprite: SpriteBundle,
     speed: MovementSpeed,
-    damage: Damage,
     rem_distance: RemDistance,
     has_hit: HitList
 }
 
 impl ProjectileBundle {
-    pub fn new(sprite: SpriteBundle, dir: Direction, speed: MovementSpeed, damage: Damage, rem_distance: RemDistance) -> Self {
+    pub fn new(dir: Direction, speed: MovementSpeed, rem_distance: RemDistance) -> Self {
         ProjectileBundle {
-            game_entity: GameEntity,
+            cleanup: cleanup::ExitGame,
             marker: Projectile,
             dir,
-            sprite,
             speed,
-            damage,
             rem_distance,
             has_hit: HitList(vec![])
         }

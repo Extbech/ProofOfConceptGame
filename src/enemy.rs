@@ -1,11 +1,10 @@
 use std::time::Duration;
-
+use crate::Direction;
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, PlayerHealth, Vulnerability};
-use crate::projectiles::HitList;
-use crate::start_game::GameEntity;
+use crate::projectiles::{HitList, ProjectileBundle, RemDistance};
 use crate::{projectiles::Projectile, Player};
-use crate::{GameRng, MovementSpeed};
+use crate::{cleanup, GameRng, MovementSpeed};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -22,7 +21,7 @@ pub struct Enemy;
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
-    game_entity: GameEntity,
+    cleanup: cleanup::ExitGame,
     marker: Enemy,
     health: Health,
     speed: MovementSpeed,
@@ -32,7 +31,7 @@ pub struct EnemyBundle {
 impl EnemyBundle {
     pub fn new(sprite: SpriteBundle) -> Self {
         EnemyBundle {
-            game_entity: GameEntity,
+            cleanup: cleanup::ExitGame,
             marker: Enemy,
             health: Health(2.),
             speed: MovementSpeed(100.),
@@ -82,7 +81,7 @@ pub fn spawn_enemies(
             texture: enemy_sprite,
             sprite: Sprite {
                 custom_size: Some(Vec2::new(70., 70.)),
-                ..Default::default()
+                ..default()
             },
             ..default()
         }));
@@ -92,6 +91,8 @@ pub fn spawn_enemies(
 pub fn handle_enemy_damage_from_projectiles(
     mut projectiles_query: Query<(&Transform, &Damage, &mut HitList), With<Projectile>>,
     mut enemy_query: Query<(&Transform, &mut Health, Entity), With<Enemy>>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
 ) {
     for (projectile_transform, damage, mut hitlist) in projectiles_query.iter_mut() {
         for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
@@ -103,6 +104,21 @@ pub fn handle_enemy_damage_from_projectiles(
                     10.,
                 ) {
                     **health -= **damage;
+                    commands.spawn(ProjectileBundle::new(
+                        Direction::try_new(Vec2::new(0., 1.)).unwrap(), MovementSpeed(20.), RemDistance(15.))).insert(
+                            Text2dBundle {
+                                text: Text::from_section(format!("{:.1}", **damage), TextStyle {
+                                    font_size: 40.0,
+                                    color: Color::WHITE,
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                }),
+                                transform: Transform {
+                                    translation: Vec3::new(enemy_transform.translation.x, enemy_transform.translation.y + 30., 10.),
+                                    ..default()
+                                },
+                                ..default()
+                            }
+                        );
                     hitlist.push(ent)
                 }
             }

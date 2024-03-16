@@ -19,9 +19,6 @@ use crate::{
     update_cursor, AppState,
 };
 
-#[derive(Component)]
-pub struct GameEntity;
-
 pub struct GamePlugin<S: States> {
     pub state: S,
 }
@@ -34,7 +31,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                 OnEnter(AppState::InGame),
                 (map::setup_map, spawn_player_hero),
             )
-            .add_systems(OnExit(AppState::InGame), cleanup::<GameEntity>)
+            .add_systems(OnExit(AppState::InGame), cleanup::<cleanup::ExitGame>)
             .add_systems(
                 Update,
                 (

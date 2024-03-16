@@ -4,8 +4,7 @@ use std::time::Duration;
 
 use crate::cooldown::Cooldown;
 use crate::projectiles::{ProjectileBundle, RemDistance};
-use crate::start_game::GameEntity;
-use crate::{AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
+use crate::{cleanup, AppState, CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
 
@@ -58,7 +57,7 @@ pub struct ProjectileStatBundle {
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
-    game_entity: GameEntity,
+    cleanup: cleanup::ExitGame,
     marker: Player,
     vulnerability: Vulnerability,
     dir: Direction,
@@ -78,7 +77,7 @@ pub struct PlayerBundle {
 impl PlayerBundle {
     pub fn new(sprite: SpriteSheetBundle) -> Self {
         PlayerBundle {
-            game_entity: GameEntity,
+            cleanup: cleanup::ExitGame,
             marker: Player,
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
@@ -260,6 +259,10 @@ pub fn player_shooting_facing(
 
 fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &Res<AssetServer>, dir: Direction, projectile_speed: ProjectileSpeed, damage: Damage, range: Range) {
     commands.spawn(ProjectileBundle::new(
+        dir,
+        MovementSpeed(*projectile_speed),
+        RemDistance(*range),
+    )).insert(
         SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
             texture: asset_server.load("models/bullet.png"),
@@ -268,12 +271,7 @@ fn player_shoot(commands: &mut Commands, player_position: Vec2, asset_server: &R
                 ..Default::default()
             },
             ..default()
-        },
-        dir,
-        MovementSpeed(*projectile_speed),
-        damage,
-        RemDistance(*range),
-    ));
+    }).insert(        damage);
     commands.spawn(AudioBundle {
         source: asset_server.load("sounds/effects/pew-laser.wav"),
         settings: PlaybackSettings::ONCE,
