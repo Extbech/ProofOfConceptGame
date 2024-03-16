@@ -7,7 +7,6 @@ use crate::projectiles::{ProjectileBundle, RemDistance};
 use crate::{CursorTranslation, Direction, MovementSpeed, MyGameCamera};
 
 use bevy::sprite::MaterialMesh2dBundle;
-use bevy::window::PrimaryWindow;
 
 pub const XP_SCALING_FACTOR: f32 = 1.5;
 #[derive(Component)]

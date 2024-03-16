@@ -15,7 +15,7 @@ use enemy::{
     handle_enemy_collision, spawn_enemies, update_enemies, SpawnCooldown, SpawnRate
 };
 use player::{
-    handle_player_xp, player_movement, player_shooting_facing, player_shooting_mouse_dir, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Player
+    handle_player_xp, player_movement, player_shooting_mouse_dir, spawn_player_hero, sync_player_and_camera_pos, AttackCooldown, Player
 };
 use projectiles::projectile_movement;
 use rand::{rngs::SmallRng, SeedableRng};
