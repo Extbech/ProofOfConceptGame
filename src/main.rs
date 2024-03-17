@@ -11,6 +11,7 @@ mod start_menu;
 mod ui;
 
 use bevy::{prelude::*, window::PrimaryWindow};
+use cooldown::InGameTime;
 use enemy::{SpawnCooldown, SpawnRate};
 use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
@@ -85,6 +86,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
+    commands.insert_resource(InGameTime::default());
     app_window_config(window);
 }
 

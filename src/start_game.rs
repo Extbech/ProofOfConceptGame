@@ -4,7 +4,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
     cleanup,
-    cooldown::CooldownPlugin,
+    cooldown::{handle_ingametime, CooldownPlugin},
     enemy::{
         handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player, spawn_enemies,
         update_enemies,
@@ -66,6 +66,7 @@ impl Plugin for RunningPlugin {
         app.add_plugins(CooldownPlugin).add_systems(
             Update,
             (
+                handle_ingametime,
                 pickup_loot,
                 player_attack_facing_from_mouse,
                 handle_player_death,

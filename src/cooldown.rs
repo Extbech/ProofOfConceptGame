@@ -92,6 +92,23 @@ pub fn tick_cooldown_res<CD: DerefMut<Target = Cooldown> + Resource>(
     cd.tick(&time);
 }
 
+#[derive(Resource, Default)]
+pub struct InGameTime(Duration);
+
+impl InGameTime {
+    pub fn tick(&mut self, by: Duration) {
+        self.0 += by;
+    }
+
+    pub fn time(&self) -> Duration {
+        self.0
+    }
+}
+
+pub fn handle_ingametime(time: Res<Time>, mut igt: ResMut<InGameTime>) {
+    igt.tick(time.delta())
+}
+
 #[derive(Component)]
 pub struct LifeTime(pub Duration);
 
