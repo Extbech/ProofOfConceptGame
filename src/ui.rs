@@ -1,4 +1,4 @@
-use bevy::{ecs::query, prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     cleanup,

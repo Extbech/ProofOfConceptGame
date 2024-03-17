@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{cleanup, AppState, MyGameCamera};
+use crate::{cleanup, AppState};
 pub const GAME_TITLE: &str = "To be Announced";
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component, Clone, Copy)]

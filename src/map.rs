@@ -1,5 +1,3 @@
-use std::thread::spawn;
-
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use bevy_ecs_tilemap::tiles::{TileStorage, TileTextureIndex};

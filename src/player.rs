@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::Cooldown;
-use crate::projectiles::{LifeTime, ProjectileBundle};
+use crate::projectiles::{LifeTime, ProjectileBundle, Radius};
 use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
 use crate::{Heading, Health};
 
@@ -23,7 +23,7 @@ pub struct MaxAttackCooldown(Duration);
 pub struct AttackCooldown(Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Damage(u32);
+pub struct Damage(pub u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Range(pub f32);
@@ -237,6 +237,7 @@ fn player_shoot(
             *dir,
             MovementSpeed(*projectile_speed),
             range,
+            Radius(100.)
         ))
         .insert(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
