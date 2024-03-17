@@ -116,8 +116,7 @@ pub struct CooldownPlugin;
 
 impl Plugin for CooldownPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_state(GameState::Running).
-        add_systems(Update, (
+        app.add_systems(Update, (
             handle_lifetime,
             tick_cooldown_res::<SpawnCooldown>,
             tick_cooldown::<AttackCooldown>,

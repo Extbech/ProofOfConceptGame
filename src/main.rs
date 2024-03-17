@@ -23,9 +23,7 @@ fn main() {
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
         })
-        .add_plugins(GamePlugin {
-            state: AppState::InGame,
-        })
+        .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
         .run();
 }
