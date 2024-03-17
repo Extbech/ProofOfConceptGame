@@ -24,7 +24,7 @@ pub struct ProjectileBundle {
     dir: Heading,
     speed: MovementSpeed,
     lifetime: LifeTime,
-    has_hit: HitList
+    has_hit: HitList,
 }
 
 impl ProjectileBundle {
@@ -36,7 +36,7 @@ impl ProjectileBundle {
             radius,
             speed,
             lifetime: LifeTime::from_speed_and_range(speed, range),
-            has_hit: HitList(vec![])
+            has_hit: HitList(vec![]),
         }
     }
 }
@@ -56,12 +56,15 @@ pub struct LifeTime(pub Duration);
 
 impl LifeTime {
     pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
-        LifeTime(Duration::from_secs_f32(*rng / *spd)) 
+        LifeTime(Duration::from_secs_f32(*rng / *spd))
     }
 
     pub fn try_decrease(&mut self, by: Duration) -> bool {
         match self.0.checked_sub(by) {
-            Some(dur) => {self.0 = dur; true}
+            Some(dur) => {
+                self.0 = dur;
+                true
+            }
             None => false,
         }
     }
@@ -70,7 +73,7 @@ impl LifeTime {
 pub fn handle_lifetime(
     mut commands: Commands,
     time: Res<Time>,
-    mut q: Query<(&mut LifeTime, Entity)>
+    mut q: Query<(&mut LifeTime, Entity)>,
 ) {
     for (mut lt, ent) in &mut q {
         if !lt.try_decrease(time.delta()) {
