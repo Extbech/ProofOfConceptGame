@@ -270,13 +270,11 @@ pub fn handle_player_xp(
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
-    if **current_xp >= **required_xp {
-        if **current_level < **max_level {
-            **current_level += 1;
-            **current_xp = **current_xp - **required_xp;
-            **required_xp = **required_xp * XP_SCALING_FACTOR;
-            game_state.set(GameState::LevelUp);
-        }
+    if **required_xp <= **current_xp && **current_level < **max_level {
+        **current_level += 1;
+        **current_xp -= **required_xp;
+        **required_xp *= XP_SCALING_FACTOR;
+        game_state.set(GameState::LevelUp);
     }
 }
 

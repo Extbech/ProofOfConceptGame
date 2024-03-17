@@ -33,7 +33,7 @@ impl Cooldown {
         let mut count = 0;
         assert!(!period_length.is_zero());
         while period_length <= self.timer {
-            *&mut self.timer -= period_length;
+            self.timer -= period_length;
             count += 1;
         }
         if self.waiting && 0 < count {
@@ -50,7 +50,7 @@ impl Cooldown {
         let mut count = 0;
         assert!(!period_length.is_zero());
         while period_length <= self.timer {
-            *&mut self.timer -= period_length;
+            self.timer -= period_length;
             count += 1;
         }
         if self.waiting && 0 < count {

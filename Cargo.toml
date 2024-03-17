@@ -13,3 +13,6 @@ bevy-inspector-egui = "0.23.4"
 
 [profile.dev.package."*"]
 opt-level = 3
+
+[lints]
+clippy.type_complexity = "allow"
