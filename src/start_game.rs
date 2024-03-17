@@ -78,11 +78,11 @@ impl Plugin for RunningPlugin {
                 check_for_dead_enemies,
                 xp_orbs_collision,
                 pick_up_xp_orbs,
-                handle_player_xp,
+                update_xp_bar_and_level,
+                handle_player_xp.before(update_xp_bar_and_level),
                 update_cursor,
                 player_movement,
                 player_shooting,
-                update_xp_bar_and_level,
             )
                 .run_if(in_state(STATE)),
         );
