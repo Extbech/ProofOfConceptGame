@@ -3,8 +3,8 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
-    cleanup, cooldown::{handle_ingametime, CooldownPlugin}, debug::show_radius, enemy::{
-        handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player, spawn_enemies,
+    cleanup, cooldown::{handle_ingametime, CooldownPlugin}, damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player}, debug::show_radius, enemy::{
+        spawn_enemies,
         update_enemies,
     }, items::pickup_loot, level_up_plugin::LevelUpPlugin, loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision}, map, player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,

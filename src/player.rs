@@ -3,9 +3,12 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::{Cooldown, LifeTime};
-use crate::projectiles::{ProjectileBundle, Radius};
+use crate::damage::Damage;
+use crate::projectiles::{ProjectileBundle};
+use crate::damage::Radius;
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
-use crate::{Heading, Health};
+use crate::{Heading};
+use crate::damage::Health;
 
 pub const XP_SCALING_FACTOR: f32 = 1.5;
 #[derive(Component)]
@@ -19,9 +22,6 @@ pub struct MaxAttackCooldown(Duration);
 
 #[derive(Component, Deref, DerefMut, Clone)]
 pub struct AttackCooldown(Cooldown);
-
-#[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Damage(pub u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Range(pub f32);

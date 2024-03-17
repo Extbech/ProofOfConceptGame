@@ -1,6 +1,7 @@
 use bevy::{prelude::*, sprite::{MaterialMesh2dBundle, Mesh2dHandle}};
 
-use crate::projectiles::Radius;
+use crate::damage::Radius;
+
 pub fn count<C: Component>(q: Query<(), With<C>>) {
     let mut count = 0;
     for _ in &q {
