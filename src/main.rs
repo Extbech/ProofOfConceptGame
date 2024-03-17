@@ -1,6 +1,7 @@
 mod cooldown;
 mod enemy;
 mod items;
+mod level_up_plugin;
 mod loot;
 mod map;
 mod player;

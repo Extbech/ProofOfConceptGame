@@ -275,6 +275,8 @@ pub fn handle_player_xp(
             **current_level += 1;
             **current_xp = **current_xp - **required_xp;
             **required_xp = **required_xp * XP_SCALING_FACTOR;
+            // Queue level up animation + sound
+            // 0.5 sec delay then level up selection.
             game_state.set(GameState::LevelUp);
         }
     }

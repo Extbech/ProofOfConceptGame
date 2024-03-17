@@ -3,13 +3,23 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
-    cleanup, cooldown::CooldownPlugin, enemy::{
+    cleanup,
+    cooldown::CooldownPlugin,
+    enemy::{
         handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player, spawn_enemies,
         update_enemies,
-    }, items::pickup_loot, loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision}, map, player::{
+    },
+    items::pickup_loot,
+    level_up_plugin::LevelUpPlugin,
+    loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
+    map,
+    player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
-    }, projectiles::speed_to_movement, ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level}, update_cursor, AppState, GameState
+    },
+    projectiles::speed_to_movement,
+    ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
+    update_cursor, AppState, GameState,
 };
 
 pub struct GamePlugin<S: States> {
@@ -22,6 +32,7 @@ impl<S: States> Plugin for GamePlugin<S> {
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(CooldownPlugin)
+            .add_plugins(LevelUpPlugin)
             .add_systems(
                 OnEnter(AppState::InGame),
                 (

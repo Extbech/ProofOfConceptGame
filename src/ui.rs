@@ -14,6 +14,9 @@ pub struct XPBar;
 #[derive(Component)]
 pub struct LevelUpUi;
 
+#[derive(Component)]
+pub struct Item;
+
 pub fn update_xp_bar_and_level(
     mut commands: Commands,
     query: Query<(&RequiredXP, &CurrentXP, &CurrentLevel), With<Player>>,
@@ -165,10 +168,12 @@ pub fn spawn_upgrade_selection_ui(
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
                     align_items: AlignItems::Center,
-                    justify_items: JustifyItems::Center,
+                    justify_content: JustifyContent::Center,
                     flex_direction: FlexDirection::Row,
+
                     ..default()
                 },
+                background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
                 ..default()
             },
             LevelUpUi,
@@ -176,35 +181,62 @@ pub fn spawn_upgrade_selection_ui(
         .with_children(|child| {
             (0..3).into_iter().for_each(|_| {
                 child
-                    .spawn(NodeBundle {
+                    .spawn((ButtonBundle {
                         style: Style {
                             width: Val::Percent(20.0),
                             height: Val::Percent(40.0),
-                            margin: UiRect::all(Val::Px(20.0)),
+                            margin: UiRect::all(Val::Px(40.0)),
                             flex_direction: FlexDirection::Column,
                             ..default()
                         },
                         background_color: Color::DARK_GRAY.into(),
                         ..default()
-                    })
+                    },))
                     .with_children(|text_child| {
-                        text_child.spawn(TextBundle::from_section(
-                            "Good Item",
-                            TextStyle {
-                                font: asset_server.load("font/pixel-font.ttf"),
-                                font_size: 32.0,
-                                color: Color::WHITE,
-                            },
-                        ));
-                        text_child.spawn(TextBundle::from_section(
-                            "Item description this is very useful stuff man!",
-                            TextStyle {
-                                font: asset_server.load("font/pixel-font.ttf"),
-                                font_size: 18.0,
-                                color: Color::WHITE,
-                            },
-                        ));
+                        text_child.spawn(
+                            TextBundle::from_section(
+                                "Good Item",
+                                TextStyle {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 32.0,
+                                    color: Color::WHITE,
+                                },
+                            )
+                            .with_text_justify(JustifyText::Center),
+                        );
+                        text_child.spawn(
+                            TextBundle::from_section(
+                                "Item description this is very useful stuff man!",
+                                TextStyle {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 18.0,
+                                    color: Color::WHITE,
+                                },
+                            )
+                            .with_style(Style {
+                                margin: UiRect::top(Val::Px(10.0)),
+                                ..default()
+                            }),
+                        );
                     });
             });
         });
+}
+
+pub fn handle_selection_cursor(
+    interaction_query: Query<(Entity, &Interaction), (Changed<Interaction>, With<Button>)>,
+    mut style_query: Query<&mut BackgroundColor>,
+) {
+    for (entity, interaction) in &interaction_query {
+        for mut style in &mut style_query {
+            match interaction {
+                Interaction::Pressed => println!("Button Pressed yo!"),
+                Interaction::Hovered => {
+                    println!("Button Hovered yo!");
+                    *style = Color::GOLD.into();
+                }
+                Interaction::None => {}
+            }
+        }
+    }
 }
