@@ -1,5 +1,6 @@
 mod cooldown;
 mod enemy;
+mod items;
 mod loot;
 mod map;
 mod player;
@@ -7,15 +8,14 @@ mod projectiles;
 mod start_game;
 mod start_menu;
 mod ui;
-mod items;
 
-use std::time::Duration;
 use bevy::{prelude::*, window::PrimaryWindow};
 use enemy::{SpawnCooldown, SpawnRate};
 use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
 use start_game::GamePlugin;
 use start_menu::StartMenuPlugin;
+use std::time::Duration;
 
 fn main() {
     App::new()
@@ -37,10 +37,11 @@ enum AppState {
     InGame,
 }
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-enum PausedState {
-    #[default]
+enum GameState {
     Paused,
+    #[default]
     Running,
+    LevelUp,
 }
 #[derive(Component)]
 struct MyGameCamera;
@@ -54,7 +55,7 @@ pub struct Heading {
 impl Heading {
     fn new(v: Vec2) -> Self {
         Heading {
-            v: v.normalize_or_zero()
+            v: v.normalize_or_zero(),
         }
     }
 }

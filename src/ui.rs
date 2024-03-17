@@ -11,6 +11,9 @@ pub struct HealthUiSprite;
 #[derive(Component)]
 pub struct XPBar;
 
+#[derive(Component)]
+pub struct LevelUpUi;
+
 pub fn update_xp_bar_and_level(
     mut commands: Commands,
     query: Query<(&RequiredXP, &CurrentXP, &CurrentLevel), With<Player>>,
@@ -147,6 +150,61 @@ pub fn update_health_ui(
         }
     }
 }
-pub fn spawn_upgrade_selection_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    todo!()
+pub fn spawn_upgrade_selection_ui(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    query: Query<Entity, With<LevelUpUi>>,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    align_items: AlignItems::Center,
+                    justify_items: JustifyItems::Center,
+                    flex_direction: FlexDirection::Row,
+                    ..default()
+                },
+                ..default()
+            },
+            LevelUpUi,
+        ))
+        .with_children(|child| {
+            (0..3).into_iter().for_each(|_| {
+                child
+                    .spawn(NodeBundle {
+                        style: Style {
+                            width: Val::Percent(20.0),
+                            height: Val::Percent(40.0),
+                            margin: UiRect::all(Val::Px(20.0)),
+                            flex_direction: FlexDirection::Column,
+                            ..default()
+                        },
+                        background_color: Color::DARK_GRAY.into(),
+                        ..default()
+                    })
+                    .with_children(|text_child| {
+                        text_child.spawn(TextBundle::from_section(
+                            "Good Item",
+                            TextStyle {
+                                font: asset_server.load("font/pixel-font.ttf"),
+                                font_size: 32.0,
+                                color: Color::WHITE,
+                            },
+                        ));
+                        text_child.spawn(TextBundle::from_section(
+                            "Item description this is very useful stuff man!",
+                            TextStyle {
+                                font: asset_server.load("font/pixel-font.ttf"),
+                                font_size: 18.0,
+                                color: Color::WHITE,
+                            },
+                        ));
+                    });
+            });
+        });
 }

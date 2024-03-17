@@ -9,7 +9,7 @@ use crate::{
     }, items::pickup_loot, loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision}, map, player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
-    }, projectiles::speed_to_movement, ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level}, update_cursor, AppState
+    }, projectiles::speed_to_movement, ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level}, update_cursor, AppState, GameState
 };
 
 pub struct GamePlugin<S: States> {
@@ -17,7 +17,8 @@ pub struct GamePlugin<S: States> {
 }
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
-        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        app.insert_state(GameState::Running)
+            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(CooldownPlugin)

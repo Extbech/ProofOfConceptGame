@@ -22,7 +22,7 @@ pub struct ProjectileBundle {
     dir: Heading,
     speed: MovementSpeed,
     lifetime: LifeTime,
-    has_hit: HitList
+    has_hit: HitList,
 }
 
 impl ProjectileBundle {
@@ -34,7 +34,7 @@ impl ProjectileBundle {
             radius,
             speed,
             lifetime: LifeTime::from_speed_and_range(speed, range),
-            has_hit: HitList(vec![])
+            has_hit: HitList(vec![]),
         }
     }
 }

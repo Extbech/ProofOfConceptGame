@@ -2,7 +2,7 @@ use std::{ops::DerefMut, time::Duration};
 
 use bevy::prelude::*;
 
-use crate::{enemy::SpawnCooldown, player::{AttackCooldown, Range, Vulnerability}, MovementSpeed, PausedState};
+use crate::{enemy::SpawnCooldown, player::{AttackCooldown, Range, Vulnerability}, GameState, MovementSpeed};
 
 
 /// Struct for events that have some minimal waiting period between occurences.
@@ -116,12 +116,12 @@ pub struct CooldownPlugin;
 
 impl Plugin for CooldownPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_state(PausedState::Running).
+        app.insert_state(GameState::Running).
         add_systems(Update, (
             handle_lifetime,
             tick_cooldown_res::<SpawnCooldown>,
             tick_cooldown::<AttackCooldown>,
             tick_cooldown::<Vulnerability>,
-        ).run_if(in_state(PausedState::Running)));
+        ).run_if(in_state(GameState::Running)));
     }
 }
