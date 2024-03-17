@@ -1,9 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
-    cleanup::{self, ExitGame},
-    player::{CurrentLevel, CurrentXP, Player, RequiredXP},
-    Health, MyGameCamera,
+    cleanup::{self, ExitGame}, cooldown::InGameTime, player::{CurrentLevel, CurrentXP, Player, RequiredXP}, Health, MyGameCamera
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -237,6 +235,7 @@ pub fn handle_selection_cursor(
 #[derive(Component)]
 pub struct StopWatchDisplay;
 pub fn render_stop_watch(
+    igt: Res<InGameTime>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     query: Query<Entity, With<StopWatchDisplay>>,
@@ -261,7 +260,7 @@ pub fn render_stop_watch(
         .with_children(|child| {
             child.spawn(
                 TextBundle::from_section(
-                    "StopWatch",
+                    format!("{}:{:0>2}", igt.time().as_secs() / 60, igt.time().as_secs() % 60),
                     TextStyle {
                         font: asset_server.load("font/pixel-font.ttf"),
                         color: Color::WHITE,
