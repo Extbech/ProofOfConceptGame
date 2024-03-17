@@ -1,8 +1,8 @@
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, Range, Vulnerability};
-use crate::projectiles::{HitList, ProjectileBundle};
+use crate::projectiles::{HitList, ProjectileBundle, Radius};
 use crate::{cleanup, GameRng, MovementSpeed};
-use crate::{projectiles::Projectile, Player};
+use crate::Player;
 use crate::{Heading, Health};
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -87,19 +87,19 @@ pub fn spawn_enemies(
 }
 
 pub fn handle_enemy_damage_from_projectiles(
-    mut projectiles_query: Query<(&Transform, &Damage, &mut HitList), With<Projectile>>,
+    mut damager_query: Query<(&Transform, &Damage, &mut HitList, &Radius)>,
     mut enemy_query: Query<(&Transform, &mut Health, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, mut hitlist) in projectiles_query.iter_mut() {
+    for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
         for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
             if !hitlist.contains(&ent) {
                 if is_collision(
                     projectile_transform.translation.xy(),
                     enemy_transform.translation.xy(),
-                    50.,
-                    10.,
+                    **radius,
+                    0.,
                 ) {
                     **health = health.saturating_sub(**damage);
                     commands
@@ -107,6 +107,7 @@ pub fn handle_enemy_damage_from_projectiles(
                             Heading::new(Vec2::new(0., 1.)),
                             MovementSpeed(20.),
                             Range(15.),
+                            Radius(0.)
                         ))
                         .insert(Text2dBundle {
                             text: Text::from_section(

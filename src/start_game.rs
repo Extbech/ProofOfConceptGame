@@ -8,6 +8,7 @@ use crate::{
         handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player, spawn_enemies,
         update_enemies, SpawnCooldown,
     },
+    items::pickup_loot,
     loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
     map,
     player::{
@@ -42,6 +43,7 @@ impl<S: States> Plugin for GamePlugin<S> {
                 Update,
                 (
                     (
+                        pickup_loot,
                         player_attack_facing_from_mouse,
                         handle_lifetime,
                         handle_player_death,

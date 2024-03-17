@@ -1,12 +1,12 @@
 mod cooldown;
 mod enemy;
+mod items;
 mod loot;
 mod map;
 mod player;
 mod projectiles;
 mod start_game;
 mod start_menu;
-use std::time::Duration;
 mod ui;
 
 use bevy::{prelude::*, window::PrimaryWindow};
@@ -15,6 +15,7 @@ use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
 use start_game::GamePlugin;
 use start_menu::StartMenuPlugin;
+use std::time::Duration;
 
 fn main() {
     App::new()
@@ -137,14 +138,3 @@ fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Comma
 
 #[derive(Component, Deref, DerefMut)]
 pub struct Health(pub u32);
-/*
-pub fn handle_unhealthy(
-    mut commands: Commands,
-    q_healty: Query<(&Health, Entity), Without<Player>>
-) {
-    for (health, ent) in &q_healty {
-        if **health <= 0 {
-            commands.entity(ent).despawn_descendants();
-        }
-    }
-}*/
