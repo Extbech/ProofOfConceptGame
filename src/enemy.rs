@@ -116,7 +116,6 @@ fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Re
             Heading::new(Vec2::new(0., 1.)),
             MovementSpeed(20.),
             Range(15.),
-            Radius(0.),
         ))
         .insert(Text2dBundle {
             text: Text::from_section(

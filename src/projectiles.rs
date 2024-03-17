@@ -4,10 +4,6 @@ use bevy::prelude::*;
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct RemDistance(pub f32);
 
-/// Projectiles are entities that move in a straight line at a fixed speed
-#[derive(Component)]
-pub struct Projectile;
-
 #[derive(Component, Deref, DerefMut)]
 pub struct HitList(pub Vec<Entity>);
 
@@ -17,8 +13,6 @@ pub struct Radius(pub f32);
 #[derive(Bundle)]
 pub struct ProjectileBundle {
     cleanup: cleanup::ExitGame,
-    marker: Projectile,
-    radius: Radius,
     dir: Heading,
     speed: MovementSpeed,
     lifetime: LifeTime,
@@ -26,12 +20,10 @@ pub struct ProjectileBundle {
 }
 
 impl ProjectileBundle {
-    pub fn new(dir: Heading, speed: MovementSpeed, range: Range, radius: Radius) -> Self {
+    pub fn new(dir: Heading, speed: MovementSpeed, range: Range) -> Self {
         ProjectileBundle {
             cleanup: cleanup::ExitGame,
-            marker: Projectile,
             dir,
-            radius,
             speed,
             lifetime: LifeTime::from_speed_and_range(speed, range),
             has_hit: HitList(vec![]),
