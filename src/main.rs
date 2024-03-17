@@ -1,16 +1,17 @@
 mod cooldown;
+mod damage;
+mod debug;
 mod enemy;
 mod items;
 mod level_up_plugin;
 mod loot;
 mod map;
+mod pause_game_plugin;
 mod player;
 mod projectiles;
 mod start_game;
 mod start_menu;
 mod ui;
-mod debug;
-mod damage;
 
 use bevy::{prelude::*, window::PrimaryWindow};
 use cooldown::InGameTime;
@@ -135,6 +136,9 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitLevelUpScreen;
+
+    #[derive(Component)]
+    pub struct ExitPauseScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component

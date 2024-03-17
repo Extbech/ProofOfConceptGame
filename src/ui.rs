@@ -1,11 +1,11 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
-    cleanup::{self, ExitGame, ExitLevelUpScreen},
+    cleanup::{self, ExitGame, ExitLevelUpScreen, ExitPauseScreen},
     cooldown::InGameTime,
     damage::Health,
     items::{ItemTooltips, ItemType},
-    player::{CurrentLevel, CurrentXP, PickUpRadius, Player, RequiredXP},
+    player::{CurrentLevel, CurrentXP, PickUpRadius, Player, PlayerDamage, RequiredXP},
     GameState, MovementSpeed, MyGameCamera,
 };
 #[derive(Component)]
@@ -239,15 +239,19 @@ pub fn handle_selection_cursor(
         (&Interaction, &SelectedItemType),
         (Changed<Interaction>, With<Button>),
     >,
-    mut player_query: Query<(&mut PickUpRadius, &mut MovementSpeed), With<Player>>,
+    mut player_query: Query<
+        (&mut PickUpRadius, &mut MovementSpeed, &mut PlayerDamage),
+        With<Player>,
+    >,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    let (mut pick_up_radius, mut movement_speed) = player_query.single_mut();
+    let (mut pick_up_radius, mut movement_speed, mut player_damage) = player_query.single_mut();
     for (interaction, item_type) in &interaction_query {
         match interaction {
             Interaction::Pressed => match **item_type {
                 ItemType::PassiveDamageIncrease => {
-                    println!("passive damage!");
+                    **player_damage += 1;
+                    println!("damage increase to: {}", **player_damage);
                     game_state.set(GameState::Running);
                 }
                 ItemType::PassiveMovementSpeedIncrease => {
@@ -307,5 +311,84 @@ pub fn render_stop_watch(
                 )
                 .with_text_justify(JustifyText::Center),
             );
+        });
+}
+#[derive(Component)]
+pub enum OptionsButtonAction {
+    Continue,
+    Settings,
+    Exit,
+}
+pub fn render_pause_options_node(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
+                ..default()
+            },
+            ExitPauseScreen,
+        ))
+        .with_children(|child| {
+            child
+                .spawn(NodeBundle {
+                    style: Style {
+                        width: Val::Percent(35.0),
+                        height: Val::Percent(60.0),
+                        align_items: AlignItems::Center,
+                        flex_direction: FlexDirection::Column,
+                        ..default()
+                    },
+                    background_color: Color::DARK_GRAY.into(),
+                    ..default()
+                })
+                .with_children(|grandchild| {
+                    grandchild.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Percent(80.0),
+                                height: Val::Px(200.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
+                        },
+                        OptionsButtonAction::Continue,
+                    ));
+                    grandchild.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Percent(80.0),
+                                height: Val::Px(200.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
+                        },
+                        OptionsButtonAction::Settings,
+                    ));
+
+                    grandchild.spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Percent(80.0),
+                                height: Val::Px(200.0),
+                                margin: UiRect::all(Val::Px(10.0)),
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
+                        },
+                        OptionsButtonAction::Exit,
+                    ));
+                });
         });
 }

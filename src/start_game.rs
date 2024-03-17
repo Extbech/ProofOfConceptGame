@@ -3,13 +3,23 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
-    cleanup, cooldown::{handle_ingametime, CooldownPlugin}, damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player}, debug::show_radius, enemy::{
-        spawn_enemies,
-        update_enemies,
-    }, items::pickup_loot, level_up_plugin::LevelUpPlugin, loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision}, map, player::{
+    cleanup,
+    cooldown::{handle_ingametime, CooldownPlugin},
+    damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player},
+    debug::show_radius,
+    enemy::{spawn_enemies, update_enemies},
+    items::pickup_loot,
+    level_up_plugin::LevelUpPlugin,
+    loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
+    map,
+    pause_game_plugin::{check_if_paused, PauseGamePlugin},
+    player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
-    }, projectiles::speed_to_movement, ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level}, update_cursor, AppState, GameState
+    },
+    projectiles::speed_to_movement,
+    ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level},
+    update_cursor, AppState, GameState,
 };
 
 pub struct GamePlugin;
@@ -23,6 +33,7 @@ impl Plugin for GamePlugin {
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)
             .add_plugins(LevelUpPlugin)
+            .add_plugins(PauseGamePlugin)
             .add_systems(
                 OnEnter(STATE),
                 (
@@ -67,15 +78,18 @@ impl Plugin for RunningPlugin {
                 spawn_enemies,
                 handle_enemy_damage_from_projectiles,
                 update_enemies,
-                check_for_dead_enemies,
-                xp_orbs_collision,
-                pick_up_xp_orbs,
-                update_xp_bar_and_level,
-                handle_player_xp.before(update_xp_bar_and_level),
-                update_cursor,
-                player_movement,
-                player_shooting,
-                render_stop_watch,
+                (
+                    check_for_dead_enemies,
+                    xp_orbs_collision,
+                    pick_up_xp_orbs,
+                    update_xp_bar_and_level,
+                    handle_player_xp.before(update_xp_bar_and_level),
+                    update_cursor,
+                    player_movement,
+                    player_shooting,
+                    render_stop_watch,
+                    check_if_paused,
+                ),
             )
                 .run_if(in_state(STATE)),
         );
