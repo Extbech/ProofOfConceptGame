@@ -18,7 +18,7 @@ use crate::{
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
     },
     projectiles::speed_to_movement,
-    ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
+    ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
 
@@ -83,6 +83,7 @@ impl Plugin for RunningPlugin {
                 update_cursor,
                 player_movement,
                 player_shooting,
+                render_stop_watch,
             )
                 .run_if(in_state(STATE)),
         );
