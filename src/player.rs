@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::cooldown::Cooldown;
 use crate::projectiles::{LifeTime, ProjectileBundle};
-use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
+use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, Health};
 
 use bevy::sprite::MaterialMesh2dBundle;
@@ -266,6 +266,7 @@ pub fn handle_player_xp(
         ),
         With<Player>,
     >,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
     if **current_xp >= **required_xp {
@@ -273,6 +274,7 @@ pub fn handle_player_xp(
             **current_level += 1;
             **current_xp = **current_xp - **required_xp;
             **required_xp = **required_xp * XP_SCALING_FACTOR;
+            game_state.set(GameState::LevelUp);
         }
     }
 }

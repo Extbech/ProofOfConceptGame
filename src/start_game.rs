@@ -17,7 +17,7 @@ use crate::{
     },
     projectiles::{handle_lifetime, speed_to_movement},
     ui::{spawn_health_ui, update_health_ui, update_xp_bar_and_level},
-    update_cursor, AppState,
+    update_cursor, AppState, GameState,
 };
 
 pub struct GamePlugin<S: States> {
@@ -25,7 +25,8 @@ pub struct GamePlugin<S: States> {
 }
 impl<S: States> Plugin for GamePlugin<S> {
     fn build(&self, app: &mut App) {
-        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        app.insert_state(GameState::Running)
+            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_systems(

@@ -36,10 +36,11 @@ enum AppState {
     InGame,
 }
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-enum PausedState {
-    #[default]
+enum GameState {
     Paused,
+    #[default]
     Running,
+    LevelUp,
 }
 #[derive(Component)]
 struct MyGameCamera;
@@ -53,7 +54,7 @@ pub struct Heading {
 impl Heading {
     fn new(v: Vec2) -> Self {
         Heading {
-            v: v.normalize_or_zero()
+            v: v.normalize_or_zero(),
         }
     }
 }
