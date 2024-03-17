@@ -50,9 +50,12 @@ pub struct MaxSpeed(f32);
 #[derive(Component, Deref, DerefMut)]
 pub struct AttackDirection(Heading);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct PlayerDamage(u32);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
-    damage: Damage,
+    damage: PlayerDamage,
     projectile_speed: ProjectileSpeed,
     range: Range,
 }
@@ -90,7 +93,7 @@ impl PlayerBundle {
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats: ProjectileStatBundle {
-                damage: Damage(1),
+                damage: PlayerDamage(1),
                 projectile_speed: ProjectileSpeed(450.),
                 range: Range(500.),
             },
@@ -176,7 +179,7 @@ pub fn player_shooting(
             &ProjectileSpeed,
             &mut AttackCooldown,
             &MaxAttackCooldown,
-            &Damage,
+            &PlayerDamage,
             &Range,
             &AttackDirection,
         ),
@@ -216,7 +219,7 @@ fn player_shoot(
     asset_server: &Res<AssetServer>,
     dir: &Heading,
     projectile_speed: ProjectileSpeed,
-    damage: Damage,
+    damage: PlayerDamage,
     range: Range,
 ) {
     commands
@@ -234,7 +237,7 @@ fn player_shoot(
             },
             ..default()
         })
-        .insert(damage)
+        .insert(Damage(*damage))
         .insert(Radius(20.));
     commands
         .spawn(AudioBundle {
