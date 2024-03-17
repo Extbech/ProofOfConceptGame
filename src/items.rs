@@ -1,12 +1,8 @@
 use bevy::prelude::*;
-use std::{collections::HashMap, time::Duration};
+use std::time::Duration;
 
 use crate::{
-    cooldown::LifeTime,
-    enemy::is_collision,
-    loot::Loot,
-    player::{Damage, Player},
-    projectiles::{HitList, Radius},
+    cooldown::LifeTime, damage::{is_collision, Damage, HitList, Radius}, loot::Loot, player::Player
 };
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {

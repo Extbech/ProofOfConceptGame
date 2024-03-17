@@ -1,14 +1,8 @@
-use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed};
+use crate::{cleanup, cooldown::LifeTime, damage::HitList, player::Range, Heading, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct RemDistance(pub f32);
-
-#[derive(Component, Deref, DerefMut)]
-pub struct HitList(pub Vec<Entity>);
-
-#[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Radius(pub f32);
 
 #[derive(Bundle)]
 pub struct ProjectileBundle {

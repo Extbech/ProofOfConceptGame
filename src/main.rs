@@ -10,6 +10,7 @@ mod start_game;
 mod start_menu;
 mod ui;
 mod debug;
+mod damage;
 
 use bevy::{prelude::*, window::PrimaryWindow};
 use cooldown::InGameTime;
@@ -142,6 +143,3 @@ fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Comma
         commands.entity(entity).despawn_recursive();
     }
 }
-
-#[derive(Component, Deref, DerefMut)]
-pub struct Health(pub u32);

@@ -1,12 +1,12 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use rand::seq::IteratorRandom;
 
 use crate::{
     cleanup::{self, ExitGame, ExitLevelUpScreen},
     cooldown::InGameTime,
+    damage::Health,
     items::{ItemTooltips, ItemType},
     player::{CurrentLevel, CurrentXP, PickUpRadius, Player, RequiredXP},
-    GameState, Health, MovementSpeed, MyGameCamera,
+    GameState, MovementSpeed, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
