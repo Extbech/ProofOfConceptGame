@@ -27,8 +27,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         const STATE: AppState = AppState::InGame;
-        app.insert_state(GameState::Paused)
-            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)
@@ -38,7 +37,7 @@ impl Plugin for GamePlugin {
                 OnEnter(STATE),
                 (
                     reset_ingametime,
-                    unpause,
+                    start_game,
                     map::setup_map,
                     spawn_player_hero,
                     spawn_health_ui.after(spawn_player_hero),
@@ -56,7 +55,7 @@ impl Plugin for GamePlugin {
     }
 }
 
-pub fn unpause(mut state: ResMut<NextState<GameState>>) {
+pub fn start_game(mut state: ResMut<NextState<GameState>>) {
     state.0 = Some(GameState::Running);
 }
 
