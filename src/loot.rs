@@ -1,7 +1,13 @@
-use crate::{
-    cleanup, damage::is_collision, enemy::Enemy, player::{CurrentXP, PickUpRadius, Player}, GameRng, MovementSpeed
-};
+use std::process::id;
+
 use crate::damage::Health;
+use crate::{
+    cleanup,
+    damage::is_collision,
+    enemy::Enemy,
+    player::{CurrentXP, PickUpRadius, Player},
+    GameRng, MovementSpeed,
+};
 use bevy::prelude::*;
 use rand::prelude::*;
 
@@ -36,20 +42,20 @@ impl XPBundle {
     }
 }
 
-#[derive(Component)]
-pub struct Loot;
+#[derive(Component, Deref, DerefMut)]
+pub struct LootId(u32);
 
 #[derive(Bundle)]
 pub struct LootBundle {
     cleanup: cleanup::ExitGame,
-    marker: Loot,
+    id: LootId,
     sprite: SpriteBundle,
 }
 impl LootBundle {
-    pub fn new(sprite: SpriteBundle) -> Self {
+    pub fn new(sprite: SpriteBundle, id: LootId) -> Self {
         LootBundle {
             cleanup: cleanup::ExitGame,
-            marker: Loot,
+            id,
             sprite,
         }
     }
@@ -64,18 +70,27 @@ pub struct AnimationIndices {
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
-/// Spawns health globes
-pub fn spawn_health_globe(commands: &mut Commands, asset_server: &Res<AssetServer>, pos: Vec3) {
-    let loot_texture_handle: Handle<Image> = asset_server.load("loot/Icon36.png");
-    commands.spawn(LootBundle::new(SpriteBundle {
-        transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
-        texture: loot_texture_handle,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(40., 40.)),
-            ..Default::default()
+/// Spawns loot
+pub fn try_spawn_loot(rng: &mut ResMut<GameRng>, commands: &mut Commands, asset_server: &Res<AssetServer>, pos: Vec3) {
+    let loot_id = rng.gen_range(0..10);
+    let image_path = match loot_id {
+        0 => "loot/Icon36.png",
+        1 => "loot/Icon22.png",
+        _ => return
+    };
+    let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
+    commands.spawn(LootBundle::new(
+        SpriteBundle {
+            transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
+            texture: loot_texture_handle,
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(40., 40.)),
+                ..Default::default()
+            },
+            ..default()
         },
-        ..default()
-    }));
+        LootId(loot_id),
+    ));
 }
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
 pub fn spawn_xp_orb(
@@ -131,9 +146,7 @@ pub fn check_for_dead_enemies(
                 &mut texture_atlas_layouts,
                 transform.translation,
             );
-            if rng.gen_range(0u16..10) == 0u16 {
-                spawn_health_globe(&mut commands, &asset_server, transform.translation);
-            }
+            try_spawn_loot(&mut rng, &mut commands, &asset_server, transform.translation);
         }
     }
 }

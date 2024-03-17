@@ -17,7 +17,7 @@ use crate::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
     },
-    projectiles::speed_to_movement,
+    projectiles::{orbital_movement, orbital_position, speed_to_movement},
     ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
@@ -79,6 +79,8 @@ impl Plugin for RunningPlugin {
                 spawn_enemies,
                 handle_enemy_damage_from_projectiles,
                 update_enemies,
+                orbital_movement,
+                orbital_position,
                 (
                     check_for_dead_enemies,
                     xp_orbs_collision,

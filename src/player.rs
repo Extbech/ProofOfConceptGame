@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::{Cooldown, LifeTime};
-use crate::damage::Health;
+use crate::damage::{Health, HitList};
 use crate::damage::Radius;
 use crate::damage::{Damage, DamagingBundle};
 use crate::projectiles::ProjectileBundle;
@@ -61,13 +61,12 @@ pub struct ProjectileStatBundle {
 }
 
 #[derive(Bundle)]
-pub struct PlayerBundle {
+pub struct PlayerStatBundle {
     cleanup: cleanup::ExitGame,
     marker: Player,
     vulnerability: Vulnerability,
     dir: Heading,
     attack_direction: AttackDirection,
-    sprite: SpriteSheetBundle,
     speed: MovementSpeed,
     attack_cooldown: AttackCooldown,
     projectile_stats: ProjectileStatBundle,
@@ -80,15 +79,14 @@ pub struct PlayerBundle {
     health: Health,
 }
 
-impl PlayerBundle {
-    pub fn new(sprite: SpriteSheetBundle) -> Self {
-        PlayerBundle {
+impl PlayerStatBundle {
+    pub fn new() -> Self {
+        PlayerStatBundle {
             cleanup: cleanup::ExitGame,
             marker: Player,
             vulnerability: Vulnerability(Cooldown::waiting()),
             dir: default(),
             attack_direction: AttackDirection(Heading::new(Vec2::new(0., 1.))),
-            sprite,
             speed: MovementSpeed(300.),
             attack_cooldown: AttackCooldown(default()),
             max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
@@ -116,7 +114,8 @@ pub fn spawn_player_hero(
     let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.spawn((
-        PlayerBundle::new(SpriteSheetBundle {
+        PlayerStatBundle::new(),
+        SpriteSheetBundle {
             texture: texture_handle,
             atlas: TextureAtlas {
                 layout: texture_atlas_layout,
@@ -128,7 +127,7 @@ pub fn spawn_player_hero(
                 ..Default::default()
             },
             ..default()
-        }),
+        },
         Radius(20.),
     ));
 }
@@ -240,6 +239,7 @@ fn player_shoot(
             },
             ..default()
         },
+        HitList(vec![])
     ));
     commands
         .spawn(AudioBundle {

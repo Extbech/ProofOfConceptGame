@@ -22,17 +22,19 @@ pub fn show_radius(
     let color = materials.add(Color::Rgba { red: 1., green: 0., blue: 0., alpha: 0.3 });
     for (rad, ent) in &q {
         let circ = Mesh2dHandle(meshes.add(Circle::new(**rad)));
-        commands.entity(ent).insert(ShowsRadius).with_children(|parent| {
-            parent.spawn(MaterialMesh2dBundle {
-                mesh: circ,
-                material: color.clone(),
-                transform: Transform::from_xyz(
-                    0.,
-                    0.,
-                    100.,
-                ),
-                ..default()
-        });
-        });
+        if let Some(mut inent) = commands.get_entity(ent) {
+            inent.insert(ShowsRadius).with_children(|parent| {
+                parent.spawn(MaterialMesh2dBundle {
+                    mesh: circ,
+                    material: color.clone(),
+                    transform: Transform::from_xyz(
+                        0.,
+                        0.,
+                        100.,
+                    ),
+                    ..default()
+            });
+            });
+        }
     }
 }

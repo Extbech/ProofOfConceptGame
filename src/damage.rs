@@ -20,25 +20,30 @@ pub struct DamagingBundle {
 #[derive(Component, Deref, DerefMut)]
 pub struct Health(pub u32);
 
+/// Damaging entities with a [HitList] can only hit another entity once
 #[derive(Component, Deref, DerefMut)]
 pub struct HitList(pub Vec<Entity>);
 
+/// Damaging entities with a [HitTimer] can only hit another entity once in a while
+#[derive(Component)]
+pub struct HitTimer;
+
 pub fn handle_enemy_damage_from_projectiles(
-    mut damager_query: Query<(&Transform, &Damage, &mut HitList, &Radius)>,
-    mut enemy_query: Query<(&Transform, &mut Health, &Radius, Entity), With<Enemy>>,
+    mut damager_query: Query<(&GlobalTransform, &Damage, &mut HitList, &Radius)>,
+    mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
         for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
             if !hitlist.contains(&ent) && is_collision(
-                    projectile_transform.translation.xy(),
-                    enemy_transform.translation.xy(),
+                    projectile_transform.translation().xy(),
+                    enemy_transform.translation().xy(),
                     **radius,
                     **enemy_rad,
             ) {
                 **health = health.saturating_sub(**damage);
-                spawn_damage_text(&mut commands, damage, &asset_server, enemy_transform.translation.xy());
+                spawn_damage_text(&mut commands, damage, &asset_server, enemy_transform.translation().xy());
                 hitlist.push(ent)
             }
         }
@@ -74,15 +79,15 @@ fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Re
 }
 
 pub fn handle_enemy_damage_to_player(
-    enemy_query: Query<(&Transform, &Radius), With<Enemy>>,
-    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability, &Radius), With<Player>>,
+    enemy_query: Query<(&GlobalTransform, &Radius), With<Enemy>>,
+    mut player_query: Query<(&GlobalTransform, &mut Health, &mut Vulnerability, &Radius), With<Player>>,
 ) {
     let (player_trans, mut player_health, mut vulnerability, player_radius) = player_query.single_mut();
-    let player_pos = player_trans.translation.xy();
+    let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(1.);
     if vulnerability.is_ready(invuln_timer) {
         for (enemy_trans, enemy_rad) in &enemy_query {
-            let enemy_pos = enemy_trans.translation.xy();
+            let enemy_pos = enemy_trans.translation().xy();
             if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
