@@ -1,8 +1,8 @@
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, Range, Vulnerability};
 use crate::projectiles::{HitList, ProjectileBundle, Radius};
-use crate::{cleanup, GameRng, MovementSpeed};
 use crate::Player;
+use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Health};
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -94,42 +94,40 @@ pub fn handle_enemy_damage_from_projectiles(
 ) {
     for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
         for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
-            if !hitlist.contains(&ent) {
-                if is_collision(
+            if !hitlist.contains(&ent) && is_collision(
                     projectile_transform.translation.xy(),
                     enemy_transform.translation.xy(),
                     **radius,
                     0.,
-                ) {
-                    **health = health.saturating_sub(**damage);
-                    commands
-                        .spawn(ProjectileBundle::new(
-                            Heading::new(Vec2::new(0., 1.)),
-                            MovementSpeed(20.),
-                            Range(15.),
-                            Radius(0.)
-                        ))
-                        .insert(Text2dBundle {
-                            text: Text::from_section(
-                                format!("{:.1}", **damage),
-                                TextStyle {
-                                    font_size: 40.0,
-                                    color: Color::WHITE,
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                },
-                            ),
-                            transform: Transform {
-                                translation: Vec3::new(
-                                    enemy_transform.translation.x,
-                                    enemy_transform.translation.y + 30.,
-                                    10.,
-                                ),
-                                ..default()
+            ) {
+                **health = health.saturating_sub(**damage);
+                commands
+                    .spawn(ProjectileBundle::new(
+                        Heading::new(Vec2::new(0., 1.)),
+                        MovementSpeed(20.),
+                        Range(15.),
+                        Radius(0.),
+                    ))
+                    .insert(Text2dBundle {
+                        text: Text::from_section(
+                            format!("{:.1}", **damage),
+                            TextStyle {
+                                font_size: 40.0,
+                                color: Color::WHITE,
+                                font: asset_server.load("font/pixel-font.ttf"),
                             },
+                        ),
+                        transform: Transform {
+                            translation: Vec3::new(
+                                enemy_transform.translation.x,
+                                enemy_transform.translation.y + 30.,
+                                10.,
+                            ),
                             ..default()
-                        });
-                    hitlist.push(ent)
-                }
+                        },
+                        ..default()
+                    });
+                hitlist.push(ent)
             }
         }
     }

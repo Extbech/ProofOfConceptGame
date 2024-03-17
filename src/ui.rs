@@ -179,7 +179,7 @@ pub fn spawn_upgrade_selection_ui(
             LevelUpUi,
         ))
         .with_children(|child| {
-            (0..3).into_iter().for_each(|_| {
+            (0..3).for_each(|_| {
                 child
                     .spawn((ButtonBundle {
                         style: Style {

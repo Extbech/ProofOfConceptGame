@@ -270,24 +270,22 @@ pub fn handle_player_xp(
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
-    if **current_xp >= **required_xp {
-        if **current_level < **max_level {
-            **current_level += 1;
-            **current_xp = **current_xp - **required_xp;
-            **required_xp = **required_xp * XP_SCALING_FACTOR;
-            // Queue level up animation + sound
-            // 0.5 sec delay then level up selection.
-            game_state.set(GameState::LevelUp);
-        }
+    if **required_xp <= **current_xp && **current_level < **max_level {
+        **current_level += 1;
+        **current_xp -= **required_xp;
+        **required_xp *= XP_SCALING_FACTOR;
+        game_state.set(GameState::LevelUp);
     }
 }
 
 pub fn handle_player_death(
     player_query: Query<&Health, With<Player>>,
     mut app_state: ResMut<NextState<AppState>>,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     let player_health = player_query.single();
     if **player_health == 0 {
-        app_state.set(AppState::MainMenu)
+        app_state.set(AppState::MainMenu);
+        game_state.set(GameState::Paused);
     }
 }

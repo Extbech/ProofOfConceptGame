@@ -48,8 +48,8 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
                     tilemap_id: TilemapId(tilemap_entity),
                     texture_index: TileTextureIndex(texture_index),
                     ..Default::default()
-                },)).insert(
-                    cleanup::ExitGame)
+                },))
+                .insert(cleanup::ExitGame)
                 .id();
 
             tile_storage.set(&tile_pos, tile_entity);
