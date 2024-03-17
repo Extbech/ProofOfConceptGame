@@ -30,7 +30,12 @@ fn main() {
         })
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
+        .add_systems(OnExit(AppState::InGame), unset_gamestate)
         .run();
+}
+
+pub fn unset_gamestate(mut state: ResMut<NextState<GameState>>) {
+    state.0 = None;
 }
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
@@ -39,10 +44,9 @@ enum AppState {
     MainMenu,
     InGame,
 }
-#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 enum GameState {
     Paused,
-    #[default]
     Running,
     LevelUp,
 }
