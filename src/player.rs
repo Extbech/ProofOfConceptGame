@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 use std::time::Duration;
 
-use crate::cooldown::Cooldown;
-use crate::projectiles::{LifeTime, ProjectileBundle, Radius};
+use crate::cooldown::{Cooldown, LifeTime};
+use crate::projectiles::{ProjectileBundle, Radius};
 use crate::{cleanup, AppState, CursorTranslation, MovementSpeed, MyGameCamera};
 use crate::{Heading, Health};
 

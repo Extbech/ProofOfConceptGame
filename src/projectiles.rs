@@ -1,6 +1,4 @@
-use std::time::Duration;
-
-use crate::{cleanup, player::Range, Heading, MovementSpeed};
+use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -48,33 +46,5 @@ pub fn speed_to_movement(
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
         (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * time.delta_seconds() * dir.v).into();
-    }
-}
-
-#[derive(Component)]
-pub struct LifeTime(pub Duration);
-
-impl LifeTime {
-    pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
-        LifeTime(Duration::from_secs_f32(*rng / *spd)) 
-    }
-
-    pub fn try_decrease(&mut self, by: Duration) -> bool {
-        match self.0.checked_sub(by) {
-            Some(dur) => {self.0 = dur; true}
-            None => false,
-        }
-    }
-}
-
-pub fn handle_lifetime(
-    mut commands: Commands,
-    time: Res<Time>,
-    mut q: Query<(&mut LifeTime, Entity)>
-) {
-    for (mut lt, ent) in &mut q {
-        if !lt.try_decrease(time.delta()) {
-            commands.entity(ent).despawn_recursive();
-        }
     }
 }

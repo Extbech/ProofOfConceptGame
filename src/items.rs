@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{enemy::is_collision, loot::Loot, player::{Damage, Player}, projectiles::{HitList, LifeTime, Radius}};
+use crate::{cooldown::LifeTime, enemy::is_collision, loot::Loot, player::{Damage, Player}, projectiles::{HitList, Radius}};
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     commands.spawn((Damage(100), LifeTime(Duration::from_secs_f32(1.)), HitList(vec![]), Radius(1000.), Transform {translation: Vec3::new(pos.x, pos.y, 1.), ..default()}));
