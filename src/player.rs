@@ -3,12 +3,12 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::{Cooldown, LifeTime};
-use crate::damage::Damage;
-use crate::projectiles::{ProjectileBundle};
-use crate::damage::Radius;
-use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
-use crate::{Heading};
 use crate::damage::Health;
+use crate::damage::Radius;
+use crate::damage::{Damage, DamagingBundle};
+use crate::projectiles::ProjectileBundle;
+use crate::Heading;
+use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 
 pub const XP_SCALING_FACTOR: f32 = 1.5;
 #[derive(Component)]
@@ -115,19 +115,22 @@ pub fn spawn_player_hero(
     let texture_handle: Handle<Image> = asset_server.load("models/cowboy_hero.png");
     let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands.spawn((PlayerBundle::new(SpriteSheetBundle {
-        texture: texture_handle,
-        atlas: TextureAtlas {
-            layout: texture_atlas_layout,
-            index: 0,
-        },
-        transform: Transform::from_xyz(0.0, 0.0, 3.0),
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(70.0, 70.0)),
-            ..Default::default()
-        },
-        ..default()
-    }), Radius(20.)));
+    commands.spawn((
+        PlayerBundle::new(SpriteSheetBundle {
+            texture: texture_handle,
+            atlas: TextureAtlas {
+                layout: texture_atlas_layout,
+                index: 0,
+            },
+            transform: Transform::from_xyz(0.0, 0.0, 3.0),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(70.0, 70.0)),
+                ..Default::default()
+            },
+            ..default()
+        }),
+        Radius(20.),
+    ));
 }
 
 pub fn sync_player_and_camera_pos(
@@ -222,13 +225,13 @@ fn player_shoot(
     damage: PlayerDamage,
     range: Range,
 ) {
-    commands
-        .spawn(ProjectileBundle::new(
-            *dir,
-            MovementSpeed(*projectile_speed),
-            range,
-        ))
-        .insert(SpriteBundle {
+    commands.spawn((
+        ProjectileBundle::new(*dir, MovementSpeed(*projectile_speed), range),
+        DamagingBundle {
+            damage: Damage(*damage),
+            radius: Radius(20.),
+        },
+        SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
             texture: asset_server.load("models/bullet.png"),
             sprite: Sprite {
@@ -236,9 +239,8 @@ fn player_shoot(
                 ..Default::default()
             },
             ..default()
-        })
-        .insert(Damage(*damage))
-        .insert(Radius(20.));
+        },
+    ));
     commands
         .spawn(AudioBundle {
             source: asset_server.load("sounds/effects/pew-laser.wav"),
