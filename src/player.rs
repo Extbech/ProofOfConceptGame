@@ -249,10 +249,12 @@ fn player_shoot(
             ..default()
         })
         .insert(damage);
-    commands.spawn(AudioBundle {
-        source: asset_server.load("sounds/effects/pew-laser.wav"),
-        settings: PlaybackSettings::ONCE,
-    }).insert(LifeTime(Duration::from_secs(1)));
+    commands
+        .spawn(AudioBundle {
+            source: asset_server.load("sounds/effects/pew-laser.wav"),
+            settings: PlaybackSettings::ONCE,
+        })
+        .insert(LifeTime(Duration::from_secs(1)));
 }
 
 pub fn handle_player_xp(
