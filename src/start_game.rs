@@ -10,6 +10,7 @@ use crate::{
         update_enemies,
     },
     items::pickup_loot,
+    level_up_plugin::LevelUpPlugin,
     loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
     map,
     player::{
@@ -31,6 +32,7 @@ impl Plugin for GamePlugin {
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)
+            .add_plugins(LevelUpPlugin)
             .add_systems(
                 OnEnter(STATE),
                 (

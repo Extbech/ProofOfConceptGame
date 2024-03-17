@@ -225,18 +225,14 @@ pub fn spawn_upgrade_selection_ui(
 
 pub fn handle_selection_cursor(
     interaction_query: Query<(Entity, &Interaction), (Changed<Interaction>, With<Button>)>,
-    mut style_query: Query<&mut BackgroundColor>,
 ) {
     for (entity, interaction) in &interaction_query {
-        for mut style in &mut style_query {
-            match interaction {
-                Interaction::Pressed => println!("Button Pressed yo!"),
-                Interaction::Hovered => {
-                    println!("Button Hovered yo!");
-                    *style = Color::GOLD.into();
-                }
-                Interaction::None => {}
+        match interaction {
+            Interaction::Pressed => println!("Button Pressed yo!"),
+            Interaction::Hovered => {
+                println!("Button Hovered yo!");
             }
+            Interaction::None => {}
         }
     }
 }
