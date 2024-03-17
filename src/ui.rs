@@ -228,11 +228,47 @@ pub fn handle_selection_cursor(
 ) {
     for (entity, interaction) in &interaction_query {
         match interaction {
-            Interaction::Pressed => println!("Button Pressed yo!"),
-            Interaction::Hovered => {
-                println!("Button Hovered yo!");
-            }
+            Interaction::Pressed => {}
+            Interaction::Hovered => {}
             Interaction::None => {}
         }
     }
+}
+#[derive(Component)]
+pub struct StopWatchDisplay;
+pub fn render_stop_watch(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    query: Query<Entity, With<StopWatchDisplay>>,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(8.0),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                ..default()
+            },
+            StopWatchDisplay,
+        ))
+        .with_children(|child| {
+            child.spawn(
+                TextBundle::from_section(
+                    "StopWatch",
+                    TextStyle {
+                        font: asset_server.load("font/pixel-font.ttf"),
+                        color: Color::WHITE,
+                        font_size: 30.0,
+                    },
+                )
+                .with_text_justify(JustifyText::Center),
+            );
+        });
 }
