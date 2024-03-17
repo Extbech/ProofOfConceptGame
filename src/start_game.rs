@@ -4,7 +4,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
     cleanup,
-    cooldown::{handle_ingametime, CooldownPlugin},
+    cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
     damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player},
     debug::show_radius,
     enemy::{spawn_enemies, update_enemies},
@@ -37,6 +37,7 @@ impl Plugin for GamePlugin {
             .add_systems(
                 OnEnter(STATE),
                 (
+                    reset_ingametime,
                     unpause,
                     map::setup_map,
                     spawn_player_hero,

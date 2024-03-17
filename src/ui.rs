@@ -293,6 +293,7 @@ pub fn render_stop_watch(
                 },
                 ..default()
             },
+            cleanup::ExitGame,
             StopWatchDisplay,
         ))
         .with_children(|child| {
