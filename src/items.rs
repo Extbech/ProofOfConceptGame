@@ -19,6 +19,8 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
             translation: Vec3::new(pos.x, pos.y, 1.),
             ..default()
         },
+        GlobalTransform::default(),
+        InheritedVisibility::VISIBLE
     ));
 }
 

@@ -9,6 +9,7 @@ mod projectiles;
 mod start_game;
 mod start_menu;
 mod ui;
+mod debug;
 
 use bevy::{prelude::*, window::PrimaryWindow};
 use cooldown::InGameTime;

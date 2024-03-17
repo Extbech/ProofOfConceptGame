@@ -65,7 +65,7 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
         tile_size,
         storage: tile_storage,
         texture: TilemapTexture::Single(texture_handle_grass),
-        transform: get_tilemap_center_transform(&size, &grid_size, &map_type, 0.0),
+        transform: get_tilemap_center_transform(&size, &grid_size, &map_type, -999.0),
         ..Default::default()
     });
 }

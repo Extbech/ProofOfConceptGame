@@ -125,7 +125,7 @@ pub fn check_for_dead_enemies(
 ) {
     for (transform, entity, health) in query.iter() {
         if **health == 0 {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
             // 1/5 -> 20%
             spawn_xp_orb(
                 &mut commands,
@@ -172,7 +172,7 @@ pub fn xp_orbs_collision(
             0.0,
         ) {
             **current_xp += **xp;
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
             // TODO: play sound effect for xp pickup may add good game feel or it might be annoying (?)
         }
     }

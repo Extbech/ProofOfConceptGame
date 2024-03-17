@@ -224,7 +224,6 @@ fn player_shoot(
             *dir,
             MovementSpeed(*projectile_speed),
             range,
-            Radius(100.),
         ))
         .insert(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
@@ -235,7 +234,8 @@ fn player_shoot(
             },
             ..default()
         })
-        .insert(damage);
+        .insert(damage)
+        .insert(Radius(20.));
     commands
         .spawn(AudioBundle {
             source: asset_server.load("sounds/effects/pew-laser.wav"),
