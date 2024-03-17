@@ -3,7 +3,7 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::{
-    cleanup, cooldown::{handle_ingametime, CooldownPlugin}, damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player}, debug::show_radius, enemy::{
+    cleanup, cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin}, damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player}, debug::show_radius, enemy::{
         spawn_enemies,
         update_enemies,
     }, items::pickup_loot, level_up_plugin::LevelUpPlugin, loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision}, map, player::{
@@ -26,13 +26,17 @@ impl Plugin for GamePlugin {
             .add_systems(
                 OnEnter(STATE),
                 (
+                    reset_ingametime,
                     unpause,
                     map::setup_map,
                     spawn_player_hero,
                     spawn_health_ui.after(spawn_player_hero),
                 ),
             )
-            .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
+            .add_systems(OnExit(STATE), (
+                cleanup::<cleanup::ExitGame>,
+
+            ))
             .add_systems(
                 Update,
                 (

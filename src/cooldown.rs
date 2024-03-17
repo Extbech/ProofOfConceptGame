@@ -103,10 +103,18 @@ impl InGameTime {
     pub fn time(&self) -> Duration {
         self.0
     }
+
+    pub fn reset(&mut self) {
+        *self = default();
+    }
 }
 
 pub fn handle_ingametime(time: Res<Time>, mut igt: ResMut<InGameTime>) {
     igt.tick(time.delta())
+}
+
+pub fn reset_ingametime(mut igt: ResMut<InGameTime>) {
+    igt.reset()
 }
 
 #[derive(Component)]
