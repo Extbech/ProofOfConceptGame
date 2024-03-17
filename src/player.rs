@@ -283,7 +283,7 @@ pub fn handle_player_xp(
 pub fn handle_player_death(
     player_query: Query<&Health, With<Player>>,
     mut app_state: ResMut<NextState<AppState>>,
-    mut game_state: ResMut<NextState<GameState>>
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
     let player_health = player_query.single();
     if **player_health == 0 {

@@ -1,8 +1,8 @@
 use crate::cooldown::Cooldown;
 use crate::player::{Damage, Range, Vulnerability};
 use crate::projectiles::{HitList, ProjectileBundle, Radius};
-use crate::{cleanup, GameRng, MovementSpeed};
 use crate::Player;
+use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Health};
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -107,7 +107,7 @@ pub fn handle_enemy_damage_from_projectiles(
                             Heading::new(Vec2::new(0., 1.)),
                             MovementSpeed(20.),
                             Range(15.),
-                            Radius(0.)
+                            Radius(0.),
                         ))
                         .insert(Text2dBundle {
                             text: Text::from_section(

@@ -2,8 +2,11 @@ use std::{ops::DerefMut, time::Duration};
 
 use bevy::prelude::*;
 
-use crate::{enemy::SpawnCooldown, player::{AttackCooldown, Range, Vulnerability}, GameState, MovementSpeed};
-
+use crate::{
+    enemy::SpawnCooldown,
+    player::{AttackCooldown, Range, Vulnerability},
+    GameState, MovementSpeed,
+};
 
 /// Struct for events that have some minimal waiting period between occurences.
 /// The cooldown timer can be paused and scales to any length of cooldown, even short ones.
@@ -73,28 +76,36 @@ impl Cooldown {
     }
 }
 
-pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component>(time: Res<Time>, mut q: Query<&mut CD>) {
+pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component>(
+    time: Res<Time>,
+    mut q: Query<&mut CD>,
+) {
     for mut cd in &mut q {
         cd.tick(&time);
     }
 }
 
-pub fn tick_cooldown_res<CD: DerefMut<Target = Cooldown> + Resource>(time: Res<Time>, mut cd: ResMut<CD>) {
+pub fn tick_cooldown_res<CD: DerefMut<Target = Cooldown> + Resource>(
+    time: Res<Time>,
+    mut cd: ResMut<CD>,
+) {
     cd.tick(&time);
 }
-
 
 #[derive(Component)]
 pub struct LifeTime(pub Duration);
 
 impl LifeTime {
     pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
-        LifeTime(Duration::from_secs_f32(*rng / *spd)) 
+        LifeTime(Duration::from_secs_f32(*rng / *spd))
     }
 
     pub fn try_decrease(&mut self, by: Duration) -> bool {
         match self.0.checked_sub(by) {
-            Some(dur) => {self.0 = dur; true}
+            Some(dur) => {
+                self.0 = dur;
+                true
+            }
             None => false,
         }
     }
@@ -103,7 +114,7 @@ impl LifeTime {
 pub fn handle_lifetime(
     mut commands: Commands,
     time: Res<Time>,
-    mut q: Query<(&mut LifeTime, Entity)>
+    mut q: Query<(&mut LifeTime, Entity)>,
 ) {
     for (mut lt, ent) in &mut q {
         if !lt.try_decrease(time.delta()) {
@@ -116,11 +127,15 @@ pub struct CooldownPlugin;
 
 impl Plugin for CooldownPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
-            handle_lifetime,
-            tick_cooldown_res::<SpawnCooldown>,
-            tick_cooldown::<AttackCooldown>,
-            tick_cooldown::<Vulnerability>,
-        ).run_if(in_state(GameState::Running)));
+        app.add_systems(
+            Update,
+            (
+                handle_lifetime,
+                tick_cooldown_res::<SpawnCooldown>,
+                tick_cooldown::<AttackCooldown>,
+                tick_cooldown::<Vulnerability>,
+            )
+                .run_if(in_state(GameState::Running)),
+        );
     }
 }
