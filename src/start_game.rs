@@ -27,7 +27,8 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         const STATE: AppState = AppState::InGame;
-        app.add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        app.insert_state(GameState::NotStarted)
+            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)
@@ -56,7 +57,7 @@ impl Plugin for GamePlugin {
 }
 
 pub fn start_game(mut state: ResMut<NextState<GameState>>) {
-    state.0 = Some(GameState::Running);
+    state.set(GameState::Running);
 }
 
 pub struct RunningPlugin;

@@ -31,17 +31,16 @@ fn main() {
         })
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
-        .add_systems(OnExit(AppState::InGame), unset_gamestate)
+        .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .run();
 }
 
-pub fn unset_gamestate(mut state: ResMut<NextState<GameState>>) {
-    state.0 = None;
+pub fn set_state_not_started(mut state: ResMut<NextState<GameState>>) {
+    state.set(GameState::NotStarted);
 }
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 enum AppState {
-    LoadingScreen,
     MainMenu,
     InGame,
 }
@@ -50,6 +49,7 @@ enum GameState {
     Paused,
     Running,
     LevelUp,
+    NotStarted,
 }
 #[derive(Component)]
 struct MyGameCamera;
