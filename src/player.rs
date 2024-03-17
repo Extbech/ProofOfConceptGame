@@ -224,7 +224,7 @@ fn player_shoot(
             *dir,
             MovementSpeed(*projectile_speed),
             range,
-            Radius(100.),
+            Radius(20.),
         ))
         .insert(SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 1.),

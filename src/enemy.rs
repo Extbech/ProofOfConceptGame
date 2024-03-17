@@ -24,6 +24,7 @@ pub struct EnemyBundle {
     health: Health,
     speed: MovementSpeed,
     sprite: SpriteBundle,
+    radius: Radius
 }
 
 impl EnemyBundle {
@@ -34,6 +35,7 @@ impl EnemyBundle {
             health: Health(2),
             speed: MovementSpeed(100.),
             sprite,
+            radius: Radius(50.)
         }
     }
 }
@@ -88,49 +90,53 @@ pub fn spawn_enemies(
 
 pub fn handle_enemy_damage_from_projectiles(
     mut damager_query: Query<(&Transform, &Damage, &mut HitList, &Radius)>,
-    mut enemy_query: Query<(&Transform, &mut Health, Entity), With<Enemy>>,
+    mut enemy_query: Query<(&Transform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
-        for (enemy_transform, mut health, ent) in enemy_query.iter_mut() {
+        for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
             if !hitlist.contains(&ent) && is_collision(
                     projectile_transform.translation.xy(),
                     enemy_transform.translation.xy(),
                     **radius,
-                    0.,
+                    **enemy_rad,
             ) {
                 **health = health.saturating_sub(**damage);
-                commands
-                    .spawn(ProjectileBundle::new(
-                        Heading::new(Vec2::new(0., 1.)),
-                        MovementSpeed(20.),
-                        Range(15.),
-                        Radius(0.),
-                    ))
-                    .insert(Text2dBundle {
-                        text: Text::from_section(
-                            format!("{:.1}", **damage),
-                            TextStyle {
-                                font_size: 40.0,
-                                color: Color::WHITE,
-                                font: asset_server.load("font/pixel-font.ttf"),
-                            },
-                        ),
-                        transform: Transform {
-                            translation: Vec3::new(
-                                enemy_transform.translation.x,
-                                enemy_transform.translation.y + 30.,
-                                10.,
-                            ),
-                            ..default()
-                        },
-                        ..default()
-                    });
+                spawn_damage_text(&mut commands, damage, &asset_server, enemy_transform.translation.xy());
                 hitlist.push(ent)
             }
         }
     }
+}
+
+fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Res<AssetServer>, enemy_pos: Vec2) {
+    commands
+        .spawn(ProjectileBundle::new(
+            Heading::new(Vec2::new(0., 1.)),
+            MovementSpeed(20.),
+            Range(15.),
+            Radius(0.),
+        ))
+        .insert(Text2dBundle {
+            text: Text::from_section(
+                format!("{:.1}", **damage),
+                TextStyle {
+                    font_size: 40.0,
+                    color: Color::WHITE,
+                    font: asset_server.load("font/pixel-font.ttf"),
+                },
+            ),
+            transform: Transform {
+                translation: Vec3::new(
+                    enemy_pos.x,
+                    enemy_pos.y + 30.,
+                    10.,
+                ),
+                ..default()
+            },
+            ..default()
+        });
 }
 
 pub fn handle_enemy_damage_to_player(
