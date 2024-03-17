@@ -112,7 +112,7 @@ pub fn spawn_player_hero(
     let texture_handle: Handle<Image> = asset_server.load("models/cowboy_hero.png");
     let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands.spawn(PlayerBundle::new(SpriteSheetBundle {
+    commands.spawn((PlayerBundle::new(SpriteSheetBundle {
         texture: texture_handle,
         atlas: TextureAtlas {
             layout: texture_atlas_layout,
@@ -124,7 +124,7 @@ pub fn spawn_player_hero(
             ..Default::default()
         },
         ..default()
-    }));
+    }), Radius(20.)));
 }
 
 pub fn sync_player_and_camera_pos(

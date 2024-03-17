@@ -74,16 +74,16 @@ fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Re
 }
 
 pub fn handle_enemy_damage_to_player(
-    enemy_query: Query<&Transform, With<Enemy>>,
-    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability), With<Player>>,
+    enemy_query: Query<(&Transform, &Radius), With<Enemy>>,
+    mut player_query: Query<(&Transform, &mut Health, &mut Vulnerability, &Radius), With<Player>>,
 ) {
-    let (player_trans, mut player_health, mut vulnerability) = player_query.single_mut();
+    let (player_trans, mut player_health, mut vulnerability, player_radius) = player_query.single_mut();
     let player_pos = player_trans.translation.xy();
-    let invuln_timer = Duration::from_secs_f32(5.);
+    let invuln_timer = Duration::from_secs_f32(1.);
     if vulnerability.is_ready(invuln_timer) {
-        for enemy_trans in &enemy_query {
+        for (enemy_trans, enemy_rad) in &enemy_query {
             let enemy_pos = enemy_trans.translation.xy();
-            if is_collision(player_pos, enemy_pos, 0., 100.) {
+            if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
                 return;
