@@ -1,6 +1,5 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
+use std::{collections::HashMap, time::Duration};
 
 use crate::{
     cooldown::LifeTime,
@@ -36,5 +35,41 @@ pub fn pickup_loot(
             spawn_bomb(&mut commands, loot_position);
             commands.entity(ent).despawn_recursive();
         }
+    }
+}
+#[derive(Component, PartialEq, Eq, Hash, Copy, Clone)]
+pub enum ItemType {
+    PassiveDamageIncrease,
+    PassiveMovementSpeedIncrease,
+    PassivePickUpRadiusIncrease,
+}
+#[derive(Component)]
+pub struct PassiveDamageIncrease(pub u8);
+
+#[derive(Component)]
+pub struct PassiveMovementSpeedIncrease(pub u8);
+
+#[derive(Component)]
+pub struct PassivePickUpRadiusIncrease(pub u8);
+
+#[derive(Resource, Deref)]
+pub struct ItemTooltips(pub [(ItemType, &'static str); 3]);
+
+impl Default for ItemTooltips {
+    fn default() -> Self {
+        ItemTooltips([
+            (
+                ItemType::PassiveDamageIncrease,
+                "Increase All Damage Done By 10%.",
+            ),
+            (
+                ItemType::PassiveMovementSpeedIncrease,
+                "Increase Movement Speed By 10%.",
+            ),
+            (
+                ItemType::PassivePickUpRadiusIncrease,
+                "Increase Pickup Radius By 10%.",
+            ),
+        ])
     }
 }

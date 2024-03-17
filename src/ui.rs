@@ -1,10 +1,12 @@
 use bevy::{prelude::*, window::PrimaryWindow};
+use rand::seq::IteratorRandom;
 
 use crate::{
-    cleanup::{self, ExitGame},
+    cleanup::{self, ExitGame, ExitLevelUpScreen},
     cooldown::InGameTime,
+    items::{ItemTooltips, ItemType},
     player::{CurrentLevel, CurrentXP, Player, RequiredXP},
-    Health, MyGameCamera,
+    GameState, Health, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -154,12 +156,16 @@ pub fn update_health_ui(
         }
     }
 }
+#[derive(Component, Deref)]
+pub struct SelectedItemType(pub ItemType);
+
 pub fn spawn_upgrade_selection_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    query: Query<Entity, With<LevelUpUi>>,
+    ui_query: Query<Entity, With<LevelUpUi>>,
+    item_tooltips: Res<ItemTooltips>,
 ) {
-    for entity in &query {
+    for entity in &ui_query {
         commands.entity(entity).despawn_recursive();
     }
     commands
@@ -178,21 +184,25 @@ pub fn spawn_upgrade_selection_ui(
                 ..default()
             },
             LevelUpUi,
+            ExitLevelUpScreen,
         ))
         .with_children(|child| {
-            (0..3).for_each(|_| {
+            item_tooltips.iter().for_each(|(item_type, tooltip)| {
                 child
-                    .spawn((ButtonBundle {
-                        style: Style {
-                            width: Val::Percent(20.0),
-                            height: Val::Percent(40.0),
-                            margin: UiRect::all(Val::Px(40.0)),
-                            flex_direction: FlexDirection::Column,
+                    .spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Percent(20.0),
+                                height: Val::Percent(40.0),
+                                margin: UiRect::all(Val::Px(40.0)),
+                                flex_direction: FlexDirection::Column,
+                                ..default()
+                            },
+                            background_color: Color::DARK_GRAY.into(),
                             ..default()
                         },
-                        background_color: Color::DARK_GRAY.into(),
-                        ..default()
-                    },))
+                        SelectedItemType(*item_type),
+                    ))
                     .with_children(|text_child| {
                         text_child.spawn(
                             TextBundle::from_section(
@@ -207,7 +217,7 @@ pub fn spawn_upgrade_selection_ui(
                         );
                         text_child.spawn(
                             TextBundle::from_section(
-                                "Item description this is very useful stuff man!",
+                                *tooltip,
                                 TextStyle {
                                     font: asset_server.load("font/pixel-font.ttf"),
                                     font_size: 18.0,
@@ -225,11 +235,28 @@ pub fn spawn_upgrade_selection_ui(
 }
 
 pub fn handle_selection_cursor(
-    interaction_query: Query<(Entity, &Interaction), (Changed<Interaction>, With<Button>)>,
+    interaction_query: Query<
+        (Entity, &Interaction, &SelectedItemType),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut game_state: ResMut<NextState<GameState>>,
 ) {
-    for (entity, interaction) in &interaction_query {
+    for (entity, interaction, item_type) in &interaction_query {
         match interaction {
-            Interaction::Pressed => {}
+            Interaction::Pressed => match **item_type {
+                ItemType::PassiveDamageIncrease => {
+                    println!("passive damage!");
+                    game_state.set(GameState::Running);
+                }
+                ItemType::PassiveMovementSpeedIncrease => {
+                    println!("speed increase!");
+                    game_state.set(GameState::Running);
+                }
+                ItemType::PassivePickUpRadiusIncrease => {
+                    println!("pickup increase!");
+                    game_state.set(GameState::Running);
+                }
+            },
             Interaction::Hovered => {}
             Interaction::None => {}
         }

@@ -13,6 +13,7 @@ mod ui;
 use bevy::{prelude::*, window::PrimaryWindow};
 use cooldown::InGameTime;
 use enemy::{SpawnCooldown, SpawnRate};
+use items::ItemTooltips;
 use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
 use start_game::GamePlugin;
@@ -87,6 +88,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
+    commands.insert_resource(ItemTooltips::default());
     app_window_config(window);
 }
 
@@ -128,6 +130,9 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitGame;
+
+    #[derive(Component)]
+    pub struct ExitLevelUpScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
