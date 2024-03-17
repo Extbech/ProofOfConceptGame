@@ -5,8 +5,8 @@ use crate::{
     cleanup::{self, ExitGame, ExitLevelUpScreen},
     cooldown::InGameTime,
     items::{ItemTooltips, ItemType},
-    player::{CurrentLevel, CurrentXP, Player, RequiredXP},
-    GameState, Health, MyGameCamera,
+    player::{CurrentLevel, CurrentXP, PickUpRadius, Player, RequiredXP},
+    GameState, Health, MovementSpeed, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -236,12 +236,14 @@ pub fn spawn_upgrade_selection_ui(
 
 pub fn handle_selection_cursor(
     interaction_query: Query<
-        (Entity, &Interaction, &SelectedItemType),
+        (&Interaction, &SelectedItemType),
         (Changed<Interaction>, With<Button>),
     >,
+    mut player_query: Query<(&mut PickUpRadius, &mut MovementSpeed), With<Player>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    for (entity, interaction, item_type) in &interaction_query {
+    let (mut pick_up_radius, mut movement_speed) = player_query.single_mut();
+    for (interaction, item_type) in &interaction_query {
         match interaction {
             Interaction::Pressed => match **item_type {
                 ItemType::PassiveDamageIncrease => {
@@ -249,11 +251,13 @@ pub fn handle_selection_cursor(
                     game_state.set(GameState::Running);
                 }
                 ItemType::PassiveMovementSpeedIncrease => {
-                    println!("speed increase!");
+                    **movement_speed *= 1.1;
+                    println!("Movement speed increased to: {}", **movement_speed);
                     game_state.set(GameState::Running);
                 }
                 ItemType::PassivePickUpRadiusIncrease => {
-                    println!("pickup increase!");
+                    **pick_up_radius *= 1.1;
+                    println!("Pickup radius increased to: {}", **pick_up_radius);
                     game_state.set(GameState::Running);
                 }
             },
