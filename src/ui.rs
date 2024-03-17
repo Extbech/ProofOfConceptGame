@@ -1,7 +1,10 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
-    cleanup::{self, ExitGame}, cooldown::InGameTime, player::{CurrentLevel, CurrentXP, Player, RequiredXP}, Health, MyGameCamera
+    cleanup::{self, ExitGame},
+    cooldown::InGameTime,
+    player::{CurrentLevel, CurrentXP, Player, RequiredXP},
+    Health, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -260,11 +263,15 @@ pub fn render_stop_watch(
         .with_children(|child| {
             child.spawn(
                 TextBundle::from_section(
-                    format!("{}:{:0>2}", igt.time().as_secs() / 60, igt.time().as_secs() % 60),
+                    format!(
+                        "{}:{:0>2}",
+                        igt.time().as_secs() / 60,
+                        igt.time().as_secs() % 60
+                    ),
                     TextStyle {
                         font: asset_server.load("font/pixel-font.ttf"),
                         color: Color::WHITE,
-                        font_size: 30.0,
+                        font_size: 34.0,
                     },
                 )
                 .with_text_justify(JustifyText::Center),

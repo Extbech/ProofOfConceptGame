@@ -7,8 +7,6 @@ use crate::projectiles::{ProjectileBundle, Radius};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, Health};
 
-use bevy::sprite::MaterialMesh2dBundle;
-
 pub const XP_SCALING_FACTOR: f32 = 1.5;
 #[derive(Component)]
 pub struct Player;
@@ -110,34 +108,23 @@ pub fn spawn_player_hero(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("models/cowboy_hero.png");
     let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands
-        .spawn(PlayerBundle::new(SpriteSheetBundle {
-            texture: texture_handle,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
-            },
-            transform: Transform::from_xyz(0.0, 0.0, 3.0),
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(70.0, 70.0)),
-                ..Default::default()
-            },
-            ..default()
-        }))
-        .with_children(|child| {
-            child.spawn(MaterialMesh2dBundle {
-                mesh: bevy::sprite::Mesh2dHandle(meshes.add(Rectangle::new(70.0, 20.0))),
-                material: materials.add(Color::GREEN),
-                transform: Transform::from_xyz(0.0, 50.0, 1.0),
-                ..default()
-            });
-        });
+    commands.spawn(PlayerBundle::new(SpriteSheetBundle {
+        texture: texture_handle,
+        atlas: TextureAtlas {
+            layout: texture_atlas_layout,
+            index: 0,
+        },
+        transform: Transform::from_xyz(0.0, 0.0, 3.0),
+        sprite: Sprite {
+            custom_size: Some(Vec2::new(70.0, 70.0)),
+            ..Default::default()
+        },
+        ..default()
+    }));
 }
 
 pub fn sync_player_and_camera_pos(
