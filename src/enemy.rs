@@ -22,7 +22,7 @@ pub struct EnemyBundle {
     health: Health,
     speed: MovementSpeed,
     sprite: SpriteBundle,
-    radius: Radius
+    radius: Radius,
 }
 
 impl EnemyBundle {
@@ -33,7 +33,7 @@ impl EnemyBundle {
             health: Health(2),
             speed: MovementSpeed(100.),
             sprite,
-            radius: Radius(50.)
+            radius: Radius(50.),
         }
     }
 }

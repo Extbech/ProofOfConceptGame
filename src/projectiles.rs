@@ -1,4 +1,4 @@
-use crate::{cleanup, cooldown::LifeTime, damage::HitList, player::Range, Heading, MovementSpeed};
+use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -47,7 +47,7 @@ pub struct OrbitingBundle {
     pub vel: AngularVelocity,
     pub angle: Angle,
     pub radius: OrbitalRadius,
-    pub spatial: SpatialBundle
+    pub spatial: SpatialBundle,
 }
 
 pub fn orbital_movement(time: Res<Time>, mut query: Query<(&AngularVelocity, &mut Angle)>) {

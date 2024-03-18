@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::cooldown::{Cooldown, LifeTime};
-use crate::damage::{Health, HitList};
 use crate::damage::Radius;
 use crate::damage::{Damage, DamagingBundle};
+use crate::damage::{Health, HitList};
 use crate::projectiles::ProjectileBundle;
 use crate::Heading;
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
@@ -239,7 +239,7 @@ fn player_shoot(
             },
             ..default()
         },
-        HitList(vec![])
+        HitList(vec![]),
     ));
     commands
         .spawn(AudioBundle {

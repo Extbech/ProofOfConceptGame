@@ -1,5 +1,3 @@
-use std::process::id;
-
 use crate::damage::Health;
 use crate::{
     cleanup,
@@ -71,12 +69,17 @@ pub struct AnimationIndices {
 pub struct AnimationTimer(Timer);
 
 /// Spawns loot
-pub fn try_spawn_loot(rng: &mut ResMut<GameRng>, commands: &mut Commands, asset_server: &Res<AssetServer>, pos: Vec3) {
+pub fn try_spawn_loot(
+    rng: &mut ResMut<GameRng>,
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    pos: Vec3,
+) {
     let loot_id = rng.gen_range(0..10);
     let image_path = match loot_id {
         0 => "loot/Icon36.png",
         1 => "loot/Icon22.png",
-        _ => return
+        _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
     commands.spawn(LootBundle::new(
@@ -146,7 +149,12 @@ pub fn check_for_dead_enemies(
                 &mut texture_atlas_layouts,
                 transform.translation,
             );
-            try_spawn_loot(&mut rng, &mut commands, &asset_server, transform.translation);
+            try_spawn_loot(
+                &mut rng,
+                &mut commands,
+                &asset_server,
+                transform.translation,
+            );
         }
     }
 }

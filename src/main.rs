@@ -35,7 +35,7 @@ fn main() {
         .run();
 }
 
-pub fn set_state_not_started(mut state: ResMut<NextState<GameState>>) {
+fn set_state_not_started(mut state: ResMut<NextState<GameState>>) {
     state.set(GameState::NotStarted);
 }
 

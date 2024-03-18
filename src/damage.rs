@@ -2,8 +2,12 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{enemy::Enemy, player::{Player, Range, Vulnerability}, projectiles::ProjectileBundle, Heading, MovementSpeed};
-
+use crate::{
+    enemy::Enemy,
+    player::{Player, Range, Vulnerability},
+    projectiles::ProjectileBundle,
+    Heading, MovementSpeed,
+};
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(pub u32);
@@ -36,21 +40,33 @@ pub fn handle_enemy_damage_from_projectiles(
 ) {
     for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
         for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
-            if !hitlist.contains(&ent) && is_collision(
+            if !hitlist.contains(&ent)
+                && is_collision(
                     projectile_transform.translation().xy(),
                     enemy_transform.translation().xy(),
                     **radius,
                     **enemy_rad,
-            ) {
+                )
+            {
                 **health = health.saturating_sub(**damage);
-                spawn_damage_text(&mut commands, damage, &asset_server, enemy_transform.translation().xy());
+                spawn_damage_text(
+                    &mut commands,
+                    damage,
+                    &asset_server,
+                    enemy_transform.translation().xy(),
+                );
                 hitlist.push(ent)
             }
         }
     }
 }
 
-fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Res<AssetServer>, enemy_pos: Vec2) {
+fn spawn_damage_text(
+    commands: &mut Commands,
+    damage: &Damage,
+    asset_server: &Res<AssetServer>,
+    enemy_pos: Vec2,
+) {
     commands
         .spawn(ProjectileBundle::new(
             Heading::new(Vec2::new(0., 1.)),
@@ -67,11 +83,7 @@ fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Re
                 },
             ),
             transform: Transform {
-                translation: Vec3::new(
-                    enemy_pos.x,
-                    enemy_pos.y + 30.,
-                    10.,
-                ),
+                translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., 10.),
                 ..default()
             },
             ..default()
@@ -80,9 +92,13 @@ fn spawn_damage_text(commands: &mut Commands, damage: &Damage, asset_server: &Re
 
 pub fn handle_enemy_damage_to_player(
     enemy_query: Query<(&GlobalTransform, &Radius), With<Enemy>>,
-    mut player_query: Query<(&GlobalTransform, &mut Health, &mut Vulnerability, &Radius), With<Player>>,
+    mut player_query: Query<
+        (&GlobalTransform, &mut Health, &mut Vulnerability, &Radius),
+        With<Player>,
+    >,
 ) {
-    let (player_trans, mut player_health, mut vulnerability, player_radius) = player_query.single_mut();
+    let (player_trans, mut player_health, mut vulnerability, player_radius) =
+        player_query.single_mut();
     let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(1.);
     if vulnerability.is_ready(invuln_timer) {
