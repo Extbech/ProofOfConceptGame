@@ -1,4 +1,4 @@
-use bevy::{app::Plugin, prelude::*};
+use bevy::{app::Plugin, prelude::*, reflect::GetTypeRegistration};
 use rand::prelude::*;
 
 use crate::{
@@ -43,16 +43,18 @@ pub fn spawn_upgrade_selection_ui(
     }
     let mut generated_indexes: Vec<usize> = Vec::new();
     for _ in 0..3 {
-        let mut rand_index = rng.gen_range(0..item_tooltips.len() - 1);
-        while generated_indexes.contains(&rand_index) {
-            if rand_index == item_tooltips.len() - 1 {
-                rand_index = 0;
-            } else {
+        let mut rand_index = rng.gen_range(0..item_tooltips.len() - generated_indexes.len());
+        for gen_index in &generated_indexes {
+            if *gen_index <= rand_index {
                 rand_index += 1;
+            } else {
+                break;
             }
         }
         generated_indexes.push(rand_index);
+        generated_indexes.sort();
     }
+    generated_indexes.shuffle(&mut **rng);
     println!(
         "The random generated skill indexes are: {:?}",
         generated_indexes,
