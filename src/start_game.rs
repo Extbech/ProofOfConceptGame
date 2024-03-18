@@ -79,7 +79,7 @@ impl Plugin for RunningPlugin {
                     handle_player_death,
                     handle_enemy_damage_to_player,
                     sync_player_and_camera_pos,
-                    speed_to_movement.before(sync_player_and_camera_pos),
+                    speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
                     spawn_enemies,
                     handle_enemy_damage_from_projectiles,
                     update_enemies,
@@ -93,7 +93,7 @@ impl Plugin for RunningPlugin {
                         handle_player_xp.before(update_xp_bar_and_level),
                         update_cursor,
                         player_movement,
-                        player_shooting,
+                        player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
                         render_stop_watch,
                         check_if_paused,
                     ),
