@@ -7,16 +7,17 @@ pub struct LevelUpPlugin;
 
 impl Plugin for LevelUpPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (spawn_upgrade_selection_ui, handle_selection_cursor)
-                .run_if(in_state(AppState::InGame))
-                .run_if(in_state(GameState::LevelUp)),
-        )
-        .add_systems(
-            OnExit(GameState::LevelUp),
-            (cleanup::<cleanup::ExitLevelUpScreen>,),
-        );
+        app.add_systems(OnEnter(GameState::LevelUp), spawn_upgrade_selection_ui)
+            .add_systems(
+                Update,
+                (handle_selection_cursor)
+                    .run_if(in_state(AppState::InGame))
+                    .run_if(in_state(GameState::LevelUp)),
+            )
+            .add_systems(
+                OnExit(GameState::LevelUp),
+                (cleanup::<cleanup::ExitLevelUpScreen>,),
+            );
     }
 }
 
