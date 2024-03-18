@@ -65,36 +65,40 @@ pub struct RunningPlugin;
 impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
-        app.add_plugins(CooldownPlugin).add_systems(
-            Update,
-            (
+        app.add_plugins(CooldownPlugin)
+            .add_systems(
+                PreUpdate,
                 show_radius, // Debug system
-                handle_ingametime,
-                pickup_loot,
-                player_attack_facing_from_mouse,
-                handle_player_death,
-                handle_enemy_damage_to_player,
-                sync_player_and_camera_pos,
-                speed_to_movement,
-                spawn_enemies,
-                handle_enemy_damage_from_projectiles,
-                update_enemies,
-                orbital_movement,
-                orbital_position,
-                (
-                    check_for_dead_enemies,
-                    xp_orbs_collision,
-                    pick_up_xp_orbs,
-                    update_xp_bar_and_level,
-                    handle_player_xp.before(update_xp_bar_and_level),
-                    update_cursor,
-                    player_movement,
-                    player_shooting,
-                    render_stop_watch,
-                    check_if_paused,
-                ),
             )
-                .run_if(in_state(STATE)),
-        );
+            .add_systems(
+                Update,
+                (
+                    handle_ingametime,
+                    pickup_loot,
+                    player_attack_facing_from_mouse,
+                    handle_player_death,
+                    handle_enemy_damage_to_player,
+                    sync_player_and_camera_pos,
+                    speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
+                    spawn_enemies,
+                    handle_enemy_damage_from_projectiles,
+                    update_enemies,
+                    orbital_movement,
+                    orbital_position,
+                    (
+                        check_for_dead_enemies,
+                        xp_orbs_collision,
+                        pick_up_xp_orbs,
+                        update_xp_bar_and_level,
+                        handle_player_xp.before(update_xp_bar_and_level),
+                        update_cursor,
+                        player_movement,
+                        player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
+                        render_stop_watch,
+                        check_if_paused,
+                    ),
+                )
+                    .run_if(in_state(STATE)),
+            );
     }
 }
