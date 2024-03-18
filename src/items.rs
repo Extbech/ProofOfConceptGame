@@ -23,7 +23,7 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
                 ..default()
             },
             ..default()
-        }
+        },
     ));
 }
 
@@ -53,7 +53,7 @@ pub fn pickup_loot(
                                 damage: Damage(2),
                                 radius: Radius(50.),
                             },
-                            HitList(vec![]) // TODO: Remove this and add a timing based system for orbiting damagers instead
+                            HitList(vec![]), // TODO: Remove this and add a timing based system for orbiting damagers instead
                         ));
                     });
                 }

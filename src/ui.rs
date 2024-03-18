@@ -1,4 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
+use rand::Rng;
 
 use crate::{
     cleanup::{self, ExitGame, ExitLevelUpScreen, ExitPauseScreen},
@@ -6,7 +7,7 @@ use crate::{
     damage::Health,
     items::{ItemTooltips, ItemType},
     player::{CurrentLevel, CurrentXP, PickUpRadius, Player, PlayerDamage, RequiredXP},
-    GameState, MovementSpeed, MyGameCamera,
+    GameRng, GameState, MovementSpeed, MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -164,10 +165,31 @@ pub fn spawn_upgrade_selection_ui(
     asset_server: Res<AssetServer>,
     ui_query: Query<Entity, With<LevelUpUi>>,
     item_tooltips: Res<ItemTooltips>,
+    mut rng: ResMut<GameRng>,
 ) {
     for entity in &ui_query {
         commands.entity(entity).despawn_recursive();
     }
+    let mut generated_indexes: Vec<usize> = Vec::new();
+    for _ in 0..3 {
+        let mut rand_index = rng.gen_range(0..item_tooltips.len() - 1);
+        while generated_indexes.contains(&rand_index) {
+            if rand_index == item_tooltips.len() - 1 {
+                rand_index = 0;
+            } else {
+                rand_index += 1;
+            }
+        }
+        generated_indexes.push(rand_index);
+    }
+    println!(
+        "The random generated skill indexes are: {:?}",
+        generated_indexes,
+    );
+    let randomly_skill_selection: Vec<(ItemType, &'static str)> = generated_indexes
+        .iter()
+        .map(|index| item_tooltips[*index])
+        .collect();
     commands
         .spawn((
             NodeBundle {
@@ -187,50 +209,52 @@ pub fn spawn_upgrade_selection_ui(
             ExitLevelUpScreen,
         ))
         .with_children(|child| {
-            item_tooltips.iter().for_each(|(item_type, tooltip)| {
-                child
-                    .spawn((
-                        ButtonBundle {
-                            style: Style {
-                                width: Val::Percent(20.0),
-                                height: Val::Percent(40.0),
-                                margin: UiRect::all(Val::Px(40.0)),
-                                flex_direction: FlexDirection::Column,
+            randomly_skill_selection
+                .iter()
+                .for_each(|(item_type, tooltip)| {
+                    child
+                        .spawn((
+                            ButtonBundle {
+                                style: Style {
+                                    width: Val::Percent(20.0),
+                                    height: Val::Percent(40.0),
+                                    margin: UiRect::all(Val::Px(40.0)),
+                                    flex_direction: FlexDirection::Column,
+                                    ..default()
+                                },
+                                background_color: Color::DARK_GRAY.into(),
                                 ..default()
                             },
-                            background_color: Color::DARK_GRAY.into(),
-                            ..default()
-                        },
-                        SelectedItemType(*item_type),
-                    ))
-                    .with_children(|text_child| {
-                        text_child.spawn(
-                            TextBundle::from_section(
-                                "Good Item",
-                                TextStyle {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 32.0,
-                                    color: Color::WHITE,
-                                },
-                            )
-                            .with_text_justify(JustifyText::Center),
-                        );
-                        text_child.spawn(
-                            TextBundle::from_section(
-                                *tooltip,
-                                TextStyle {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 18.0,
-                                    color: Color::WHITE,
-                                },
-                            )
-                            .with_style(Style {
-                                margin: UiRect::top(Val::Px(10.0)),
-                                ..default()
-                            }),
-                        );
-                    });
-            });
+                            SelectedItemType(*item_type),
+                        ))
+                        .with_children(|text_child| {
+                            text_child.spawn(
+                                TextBundle::from_section(
+                                    "Good Item",
+                                    TextStyle {
+                                        font: asset_server.load("font/pixel-font.ttf"),
+                                        font_size: 32.0,
+                                        color: Color::WHITE,
+                                    },
+                                )
+                                .with_text_justify(JustifyText::Center),
+                            );
+                            text_child.spawn(
+                                TextBundle::from_section(
+                                    *tooltip,
+                                    TextStyle {
+                                        font: asset_server.load("font/pixel-font.ttf"),
+                                        font_size: 18.0,
+                                        color: Color::WHITE,
+                                    },
+                                )
+                                .with_style(Style {
+                                    margin: UiRect::top(Val::Px(10.0)),
+                                    ..default()
+                                }),
+                            );
+                        });
+                });
         });
 }
 
