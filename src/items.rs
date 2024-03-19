@@ -69,6 +69,8 @@ pub enum ItemType {
     PassiveDamageIncrease,
     PassiveMovementSpeedIncrease,
     PassivePickUpRadiusIncrease,
+    PassiveHealthIncrease,
+    ActiveOrbitingOrb,
 }
 #[derive(Component)]
 pub struct PassiveDamageIncrease(pub u8);
@@ -79,23 +81,42 @@ pub struct PassiveMovementSpeedIncrease(pub u8);
 #[derive(Component)]
 pub struct PassivePickUpRadiusIncrease(pub u8);
 
+#[derive(Component)]
+pub struct PassiveHealthIncrease(pub u8);
+
+#[derive(Component)]
+pub struct ActiveOrbitingOrb(pub u8);
+
 #[derive(Resource, Deref)]
-pub struct ItemTooltips(pub [(ItemType, &'static str); 3]);
+pub struct ItemTooltips(pub [(ItemType, &'static str, &'static str); 5]);
 
 impl Default for ItemTooltips {
     fn default() -> Self {
         ItemTooltips([
             (
                 ItemType::PassiveDamageIncrease,
+                "Damage",
                 "Increase All Damage Done By 10%.",
             ),
             (
                 ItemType::PassiveMovementSpeedIncrease,
+                "Movement Speed",
                 "Increase Movement Speed By 10%.",
             ),
             (
                 ItemType::PassivePickUpRadiusIncrease,
+                "Pick Up Radius",
                 "Increase Pickup Radius By 10%.",
+            ),
+            (
+                ItemType::ActiveOrbitingOrb,
+                "Orb Jutsu",
+                "Spawn an orbiting orb that damages enemies it comes in contact with.",
+            ),
+            (
+                ItemType::PassiveHealthIncrease,
+                "Vitality",
+                "Increase max health by 1.",
             ),
         ])
     }

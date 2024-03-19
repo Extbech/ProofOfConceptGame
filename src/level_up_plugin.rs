@@ -1,8 +1,9 @@
-use bevy::{app::Plugin, prelude::*, reflect::GetTypeRegistration};
+use bevy::{app::Plugin, prelude::*};
 use rand::prelude::*;
 
 use crate::{
     cleanup,
+    damage::Health,
     items::{ItemTooltips, ItemType},
     player::{PickUpRadius, Player, PlayerDamage},
     AppState, GameRng, GameState, MovementSpeed,
@@ -35,7 +36,7 @@ pub fn spawn_upgrade_selection_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     ui_query: Query<Entity, With<LevelUpUi>>,
-    item_tooltips: Res<ItemTooltips>,
+    item_tooltips: ResMut<ItemTooltips>,
     mut rng: ResMut<GameRng>,
 ) {
     for entity in &ui_query {
@@ -59,7 +60,7 @@ pub fn spawn_upgrade_selection_ui(
         "The random generated skill indexes are: {:?}",
         generated_indexes,
     );
-    let randomly_skill_selection: Vec<(ItemType, &'static str)> = generated_indexes
+    let randomly_skill_selection: Vec<(ItemType, &'static str, &'static str)> = generated_indexes
         .iter()
         .map(|index| item_tooltips[*index])
         .collect();
@@ -84,13 +85,14 @@ pub fn spawn_upgrade_selection_ui(
         .with_children(|child| {
             randomly_skill_selection
                 .iter()
-                .for_each(|(item_type, tooltip)| {
+                .for_each(|(item_type, title, description)| {
                     child
                         .spawn((
                             ButtonBundle {
                                 style: Style {
                                     width: Val::Percent(20.0),
                                     height: Val::Percent(40.0),
+                                    align_items: AlignItems::Center,
                                     margin: UiRect::all(Val::Px(40.0)),
                                     flex_direction: FlexDirection::Column,
                                     ..default()
@@ -103,10 +105,10 @@ pub fn spawn_upgrade_selection_ui(
                         .with_children(|text_child| {
                             text_child.spawn(
                                 TextBundle::from_section(
-                                    "Good Item",
+                                    *title,
                                     TextStyle {
                                         font: asset_server.load("font/pixel-font.ttf"),
-                                        font_size: 32.0,
+                                        font_size: 28.0,
                                         color: Color::WHITE,
                                     },
                                 )
@@ -114,7 +116,7 @@ pub fn spawn_upgrade_selection_ui(
                             );
                             text_child.spawn(
                                 TextBundle::from_section(
-                                    *tooltip,
+                                    *description,
                                     TextStyle {
                                         font: asset_server.load("font/pixel-font.ttf"),
                                         font_size: 18.0,
@@ -122,7 +124,7 @@ pub fn spawn_upgrade_selection_ui(
                                     },
                                 )
                                 .with_style(Style {
-                                    margin: UiRect::top(Val::Px(10.0)),
+                                    margin: UiRect::top(Val::Px(30.0)),
                                     ..default()
                                 }),
                             );
@@ -137,12 +139,18 @@ pub fn handle_selection_cursor(
         (Changed<Interaction>, With<Button>),
     >,
     mut player_query: Query<
-        (&mut PickUpRadius, &mut MovementSpeed, &mut PlayerDamage),
+        (
+            &mut PickUpRadius,
+            &mut MovementSpeed,
+            &mut PlayerDamage,
+            &mut Health,
+        ),
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    let (mut pick_up_radius, mut movement_speed, mut player_damage) = player_query.single_mut();
+    let (mut pick_up_radius, mut movement_speed, mut player_damage, mut health) =
+        player_query.single_mut();
     for (interaction, item_type) in &interaction_query {
         match interaction {
             Interaction::Pressed => match **item_type {
@@ -159,6 +167,15 @@ pub fn handle_selection_cursor(
                 ItemType::PassivePickUpRadiusIncrease => {
                     **pick_up_radius *= 1.1;
                     println!("Pickup radius increased to: {}", **pick_up_radius);
+                    game_state.set(GameState::Running);
+                }
+                ItemType::ActiveOrbitingOrb => {
+                    println!("Orb jutsu");
+                    game_state.set(GameState::Running);
+                }
+                ItemType::PassiveHealthIncrease => {
+                    **health += 1;
+                    println!("health increased to: {}", **health);
                     game_state.set(GameState::Running);
                 }
             },
