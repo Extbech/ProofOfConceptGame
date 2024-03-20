@@ -1,4 +1,4 @@
-use bevy::{ecs::query, prelude::*};
+use bevy::prelude::*;
 use std::time::Duration;
 
 use crate::{
