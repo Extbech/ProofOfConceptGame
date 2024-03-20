@@ -10,7 +10,10 @@ use crate::{
     enemy::{spawn_enemies, update_enemies},
     items::pickup_loot,
     level_up_plugin::LevelUpPlugin,
-    loot::{animate_sprite, check_for_dead_enemies, pick_up_xp_orbs, xp_orbs_collision},
+    loot::{
+        activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
+        xp_orbs_collision,
+    },
     map,
     pause_game_plugin::{check_if_paused, PauseGamePlugin},
     player::{
@@ -90,7 +93,7 @@ impl Plugin for RunningPlugin {
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,
-                        pick_up_xp_orbs,
+                        activate_xp_orb_movement,
                         update_xp_bar_and_level,
                         handle_player_xp.before(update_xp_bar_and_level),
                         update_cursor,
@@ -99,6 +102,7 @@ impl Plugin for RunningPlugin {
                         render_stop_watch,
                         check_if_paused,
                         handle_projectile_rotation,
+                        handle_xp_orb_movement,
                     ),
                 )
                     .run_if(in_state(STATE)),

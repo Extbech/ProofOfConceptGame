@@ -12,6 +12,9 @@ use rand::prelude::*;
 #[derive(Component, Deref, Clone, Copy)]
 pub struct XP(f32);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct XPActive(pub bool);
+
 #[derive(Bundle)]
 pub struct XPBundle {
     cleanup: cleanup::ExitGame,
@@ -20,6 +23,7 @@ pub struct XPBundle {
     animation_indices: AnimationIndices,
     xp: XP,
     speed: MovementSpeed,
+    active: XPActive,
 }
 impl XPBundle {
     pub fn new(
@@ -36,6 +40,7 @@ impl XPBundle {
             animation_timer,
             animation_indices,
             speed,
+            active: XPActive(false),
         }
     }
 }
@@ -198,19 +203,31 @@ pub fn xp_orbs_collision(
 }
 /// Causes xp orb entities to start moving towards the player if they are within pick up radius.
 /// **NB** Make sure xp_orb movement speed is greater than the players, if not theoretically the player can always outrun the orbs.
-pub fn pick_up_xp_orbs(
+pub fn activate_xp_orb_movement(
     mut player_query: Query<(&Transform, &PickUpRadius), With<Player>>,
-    mut xp_query: Query<(&mut Transform, &MovementSpeed), (With<XP>, Without<Player>)>,
-    time: Res<Time>,
+    mut xp_query: Query<(&Transform, &mut XPActive), (With<XP>, Without<Player>)>,
 ) {
     let (player_trasnform, pick_up_radius) = player_query.single_mut();
-    for (mut xp_transform, speed) in xp_query.iter_mut() {
+    for (xp_transform, mut active) in xp_query.iter_mut() {
         if is_collision(
             player_trasnform.translation.xy(),
             xp_transform.translation.xy(),
             **pick_up_radius,
             0.0,
         ) {
+            **active = true;
+        }
+    }
+}
+
+pub fn handle_xp_orb_movement(
+    mut player_query: Query<&Transform, With<Player>>,
+    mut xp_query: Query<(&mut Transform, &MovementSpeed, &XPActive), (With<XP>, Without<Player>)>,
+    time: Res<Time>,
+) {
+    let player_trasnform = player_query.single_mut();
+    for (mut xp_transform, speed, active) in xp_query.iter_mut() {
+        if **active {
             let xp_pos = xp_transform.translation.xy();
             let player_pos = player_trasnform.translation.xy();
             xp_transform.translation = (xp_pos
