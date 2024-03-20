@@ -15,6 +15,9 @@ pub struct XP(f32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct XPActive(pub bool);
 
+#[derive(Component)]
+pub struct XPAbsorbItem;
+
 #[derive(Bundle)]
 pub struct XPBundle {
     cleanup: cleanup::ExitGame,
@@ -84,6 +87,7 @@ pub fn try_spawn_loot(
     let image_path = match loot_id {
         0 => "loot/Icon36.png",
         1 => "loot/Icon22.png",
+        2 => "loot/xp_orb_toggler.png",
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
@@ -234,5 +238,11 @@ pub fn handle_xp_orb_movement(
                 - (xp_pos - player_pos).normalize_or_zero() * time.delta_seconds() * **speed)
                 .extend(xp_transform.translation.z);
         }
+    }
+}
+
+pub fn activate_all_xp_orbs(q: &mut Query<&mut XPActive, With<XP>>) {
+    for mut active in q {
+        **active = true;
     }
 }

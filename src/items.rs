@@ -1,10 +1,10 @@
-use bevy::prelude::*;
+use bevy::{ecs::query, prelude::*};
 use std::time::Duration;
 
 use crate::{
     cooldown::LifeTime,
     damage::{is_collision, Damage, DamagingBundle, HitList, Radius},
-    loot::LootId,
+    loot::{activate_all_xp_orbs, LootId, XPActive, XP},
     player::Player,
     projectiles::{AngularVelocity, OrbitalRadius, OrbitingBundle},
 };
@@ -32,6 +32,7 @@ pub fn pickup_loot(
     mut commands: Commands,
     query_player: Query<(&Transform, Entity), With<Player>>,
     query_loot: Query<(&Transform, &LootId, Entity)>,
+    mut query_xp: Query<&mut XPActive, With<XP>>,
     asset_server: Res<AssetServer>,
 ) {
     let (player_trans, player_entity) = query_player.single();
@@ -69,7 +70,10 @@ pub fn pickup_loot(
                         ));
                     });
                 }
-                _ => unreachable!("invalid loot id"),
+                2 => {
+                    activate_all_xp_orbs(&mut query_xp);
+                }
+                _ => unreachable!("Inavlid loot id"),
             }
             commands.entity(ent).despawn_recursive();
         }
