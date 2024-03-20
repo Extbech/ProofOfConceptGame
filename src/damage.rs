@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use crate::{
     enemy::Enemy,
     player::{Player, Range, Vulnerability},
-    projectiles::ProjectileBundle,
+    projectiles::{ProjectileBundle, ShouldRotate},
     Heading, MovementSpeed,
 };
 
@@ -72,6 +72,7 @@ fn spawn_damage_text(
             Heading::new(Vec2::new(0., 1.)),
             MovementSpeed(20.),
             Range(15.),
+            ShouldRotate(false),
         ))
         .insert(Text2dBundle {
             text: Text::from_section(

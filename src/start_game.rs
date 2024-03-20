@@ -17,7 +17,9 @@ use crate::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
     },
-    projectiles::{orbital_movement, orbital_position, speed_to_movement},
+    projectiles::{
+        handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
+    },
     ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
@@ -96,6 +98,7 @@ impl Plugin for RunningPlugin {
                         player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
                         render_stop_watch,
                         check_if_paused,
+                        handle_projectile_rotation,
                     ),
                 )
                     .run_if(in_state(STATE)),

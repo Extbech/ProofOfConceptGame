@@ -6,7 +6,7 @@ use crate::cooldown::{Cooldown, LifeTime};
 use crate::damage::Radius;
 use crate::damage::{Damage, DamagingBundle};
 use crate::damage::{Health, HitList};
-use crate::projectiles::ProjectileBundle;
+use crate::projectiles::{ProjectileBundle, ShouldRotate};
 use crate::Heading;
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 
@@ -215,6 +215,7 @@ pub fn player_shooting(
     }
 }
 
+/// Bullet Asset source: https://opengameart.org/content/assets-free-laser-bullets-pack-2020
 fn player_shoot(
     commands: &mut Commands,
     player_position: Vec2,
@@ -224,17 +225,25 @@ fn player_shoot(
     damage: PlayerDamage,
     range: Range,
 ) {
+    let diff = player_position - **dir;
     commands.spawn((
-        ProjectileBundle::new(*dir, MovementSpeed(*projectile_speed), range),
+        ProjectileBundle::new(
+            *dir,
+            MovementSpeed(*projectile_speed),
+            range,
+            ShouldRotate(true),
+        ),
         DamagingBundle {
             damage: Damage(*damage),
             radius: Radius(20.),
         },
         SpriteBundle {
-            transform: Transform::from_xyz(player_position.x, player_position.y, 1.),
+            transform: Transform::from_xyz(player_position.x, player_position.y, 1.).with_rotation(
+                Quat::from_axis_angle(Vec3::new(0., 0., 1.), diff.y.atan2(diff.x)),
+            ),
             texture: asset_server.load("models/bullet.png"),
             sprite: Sprite {
-                custom_size: Some(Vec2::new(25., 25.)),
+                custom_size: Some(Vec2::new(50., 50.)),
                 ..Default::default()
             },
             ..default()
