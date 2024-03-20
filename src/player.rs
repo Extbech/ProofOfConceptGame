@@ -53,6 +53,9 @@ pub struct AttackDirection(Heading);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct PlayerDamage(u32);
 
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct MaxHealth(pub u32);
+
 #[derive(Bundle)]
 pub struct ProjectileStatBundle {
     damage: PlayerDamage,
@@ -77,6 +80,7 @@ pub struct PlayerStatBundle {
     max_attack_cooldown: MaxAttackCooldown,
     pick_up_radius: PickUpRadius,
     health: Health,
+    max_health: MaxHealth,
 }
 
 impl PlayerStatBundle {
@@ -101,6 +105,7 @@ impl PlayerStatBundle {
             max_level: MaxLevel(10),
             pick_up_radius: PickUpRadius(100.0),
             health: Health(2),
+            max_health: MaxHealth(2),
         }
     }
 }

@@ -5,7 +5,7 @@ use crate::{
     cleanup,
     damage::Health,
     items::{ItemTooltips, ItemType},
-    player::{PickUpRadius, Player, PlayerDamage},
+    player::{MaxHealth, PickUpRadius, Player, PlayerDamage},
     AppState, GameRng, GameState, MovementSpeed,
 };
 pub struct LevelUpPlugin;
@@ -144,12 +144,13 @@ pub fn handle_selection_cursor(
             &mut MovementSpeed,
             &mut PlayerDamage,
             &mut Health,
+            &mut MaxHealth,
         ),
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    let (mut pick_up_radius, mut movement_speed, mut player_damage, mut health) =
+    let (mut pick_up_radius, mut movement_speed, mut player_damage, mut health, mut max_health) =
         player_query.single_mut();
     for (interaction, item_type) in &interaction_query {
         match interaction {
@@ -175,6 +176,7 @@ pub fn handle_selection_cursor(
                 }
                 ItemType::PassiveHealthIncrease => {
                     **health += 1;
+                    **max_health += 1;
                     println!("health increased to: {}", **health);
                     game_state.set(GameState::Running);
                 }

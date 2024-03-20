@@ -23,7 +23,7 @@ use crate::{
     projectiles::{
         handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
     },
-    ui::{render_stop_watch, spawn_health_ui, update_health_ui, update_xp_bar_and_level},
+    ui::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
 
@@ -46,7 +46,6 @@ impl Plugin for GamePlugin {
                     start_game,
                     map::setup_map,
                     spawn_player_hero,
-                    spawn_health_ui.after(spawn_player_hero),
                 ),
             )
             .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
