@@ -27,10 +27,12 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     ));
 }
 
+/// Orb sprite is from: https://opengameart.org/content/pixel-orbs
 pub fn pickup_loot(
     mut commands: Commands,
     query_player: Query<(&Transform, Entity), With<Player>>,
     query_loot: Query<(&Transform, &LootId, Entity)>,
+    asset_server: Res<AssetServer>,
 ) {
     let (player_trans, player_entity) = query_player.single();
     let player_pos = player_trans.translation.xy();
@@ -47,6 +49,16 @@ pub fn pickup_loot(
                             OrbitingBundle {
                                 vel: AngularVelocity(3.),
                                 radius: OrbitalRadius(200.),
+                                sprite: {
+                                    SpriteBundle {
+                                        texture: asset_server.load("loot/orb_purple.png"),
+                                        sprite: Sprite {
+                                            custom_size: Some(Vec2::new(70., 70.)),
+                                            ..Default::default()
+                                        },
+                                        ..default()
+                                    }
+                                },
                                 ..default()
                             },
                             DamagingBundle {
