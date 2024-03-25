@@ -61,7 +61,7 @@ pub fn speed_to_movement(
 pub struct AngularVelocity(pub f32);
 
 #[derive(Component, Default, Deref, DerefMut)]
-pub struct Angle(f32);
+pub struct Angle(pub f32);
 
 #[derive(Component, Default, Deref, DerefMut)]
 pub struct OrbitalRadius(pub f32);

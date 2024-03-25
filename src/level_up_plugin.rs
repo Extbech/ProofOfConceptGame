@@ -4,8 +4,9 @@ use rand::prelude::*;
 use crate::{
     cleanup,
     damage::Health,
-    items::{ItemTooltips, ItemType},
+    items::{spawn_new_orb, ItemTooltips, ItemType},
     player::{MaxHealth, PickUpRadius, Player, PlayerDamage},
+    projectiles::OrbitalRadius,
     AppState, GameRng, GameState, MovementSpeed,
 };
 pub struct LevelUpPlugin;
@@ -134,8 +135,9 @@ pub fn spawn_upgrade_selection_ui(
 }
 
 pub fn handle_selection_cursor(
-    interaction_query: Query<
-        (&Interaction, &SelectedItemType),
+    mut commands: Commands,
+    mut interaction_query: Query<
+        (&Interaction, &SelectedItemType, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
     mut player_query: Query<
@@ -145,14 +147,23 @@ pub fn handle_selection_cursor(
             &mut PlayerDamage,
             &mut Health,
             &mut MaxHealth,
+            Entity,
         ),
         With<Player>,
     >,
+    mut orb_query: Query<Entity, With<OrbitalRadius>>,
     mut game_state: ResMut<NextState<GameState>>,
+    asset_server: Res<AssetServer>,
 ) {
-    let (mut pick_up_radius, mut movement_speed, mut player_damage, mut health, mut max_health) =
-        player_query.single_mut();
-    for (interaction, item_type) in &interaction_query {
+    let (
+        mut pick_up_radius,
+        mut movement_speed,
+        mut player_damage,
+        mut health,
+        mut max_health,
+        player_entity,
+    ) = player_query.single_mut();
+    for (interaction, item_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => match **item_type {
                 ItemType::PassiveDamageIncrease => {
@@ -172,6 +183,7 @@ pub fn handle_selection_cursor(
                 }
                 ItemType::ActiveOrbitingOrb => {
                     println!("Orb jutsu");
+                    spawn_new_orb(&mut commands, player_entity, &mut orb_query, &asset_server);
                     game_state.set(GameState::Running);
                 }
                 ItemType::PassiveHealthIncrease => {
@@ -181,8 +193,10 @@ pub fn handle_selection_cursor(
                     game_state.set(GameState::Running);
                 }
             },
-            Interaction::Hovered => {}
-            Interaction::None => {}
+            Interaction::Hovered => {
+                *background_color = Color::GRAY.into();
+            }
+            Interaction::None => *background_color = Color::DARK_GRAY.into(),
         }
     }
 }
