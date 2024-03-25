@@ -23,7 +23,8 @@ pub fn setup_map(commands: Commands, asset_server: Res<AssetServer>) {
 
 fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
     let texture_handle_grass: Handle<Image> = asset_server.load(BACKGROUND);
-    let tilemap_entity = commands.spawn_empty().id();
+    let tilemap_entity: Entity = commands.spawn_empty().id();
+    let mut parent_vec: Vec<Entity> = Vec::new();
 
     let TilemapMetadata {
         size,
@@ -51,7 +52,7 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
                 },))
                 .insert(cleanup::ExitGame)
                 .id();
-
+            parent_vec.push(tile_entity);
             tile_storage.set(&tile_pos, tile_entity);
         }
     }
@@ -68,4 +69,11 @@ fn setup_grass(mut commands: Commands, asset_server: Res<AssetServer>) {
         transform: get_tilemap_center_transform(&size, &grid_size, &map_type, -999.0),
         ..Default::default()
     });
+    commands
+        .spawn(())
+        .insert(Name::new("Map"))
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .insert(cleanup::ExitGame)
+        .push_children(&parent_vec);
 }
