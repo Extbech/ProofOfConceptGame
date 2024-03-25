@@ -1,12 +1,12 @@
 use bevy::prelude::*;
-use std::time::Duration;
+use std::{f32::consts::TAU, time::Duration};
 
 use crate::{
     cooldown::LifeTime,
-    damage::{is_collision, Damage, DamagingBundle, HitList, Radius},
+    damage::{is_collision, Damage, DamagingBundle, Health, HitList, Radius},
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
-    player::Player,
-    projectiles::{AngularVelocity, OrbitalRadius, OrbitingBundle},
+    player::{MaxHealth, Player},
+    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
 };
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
@@ -30,54 +30,81 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
 /// Orb sprite is from: https://opengameart.org/content/pixel-orbs
 pub fn pickup_loot(
     mut commands: Commands,
-    query_player: Query<(&Transform, Entity), With<Player>>,
+    mut query_player: Query<(&Transform, &mut Health, &MaxHealth), With<Player>>,
     query_loot: Query<(&Transform, &LootId, Entity)>,
     mut query_xp: Query<&mut XPActive, With<XP>>,
-    asset_server: Res<AssetServer>,
 ) {
-    let (player_trans, player_entity) = query_player.single();
+    let (player_trans, mut health, max_health) = query_player.single_mut();
     let player_pos = player_trans.translation.xy();
     for (loot_trans, loot, ent) in &query_loot {
         let loot_position = loot_trans.translation.xy();
         if is_collision(player_pos, loot_position, 100., 0.) {
             match **loot {
                 0 => {
-                    spawn_bomb(&mut commands, loot_position);
+                    if **health < **max_health {
+                        **health += 1;
+                    } else {
+                        continue;
+                    }
                 }
                 1 => {
-                    commands.entity(player_entity).with_children(|parent| {
-                        parent.spawn((
-                            OrbitingBundle {
-                                vel: AngularVelocity(3.),
-                                radius: OrbitalRadius(200.),
-                                sprite: {
-                                    SpriteBundle {
-                                        texture: asset_server.load("loot/orb_purple.png"),
-                                        sprite: Sprite {
-                                            custom_size: Some(Vec2::new(70., 70.)),
-                                            ..Default::default()
-                                        },
-                                        ..default()
-                                    }
-                                },
-                                ..default()
-                            },
-                            DamagingBundle {
-                                damage: Damage(2),
-                                radius: Radius(50.),
-                            },
-                            HitList(vec![]), // TODO: Remove this and add a timing based system for orbiting damagers instead
-                        ));
-                    });
+                    spawn_bomb(&mut commands, loot_position);
                 }
                 2 => {
                     activate_all_xp_orbs(&mut query_xp);
                 }
-                _ => unreachable!("Inavlid loot id"),
+                _ => unreachable!("Invalid loot id"),
             }
             commands.entity(ent).despawn_recursive();
         }
     }
+}
+/// This func handles correct angle distance between orb projectiles.
+pub fn spawn_new_orb(
+    commands: &mut Commands,
+    player_entity: Entity,
+    query_orb: &mut Query<Entity, With<OrbitalRadius>>,
+    asset_server: &Res<AssetServer>,
+) {
+    // will at least spawn 1 orb.
+    let mut orb_counter = 1;
+    for entity in query_orb {
+        orb_counter += 1;
+        commands.entity(entity).despawn_recursive();
+    }
+    commands.entity(player_entity).with_children(|parent| {
+        for i in 0..orb_counter {
+            let angle = if i == 0 {
+                Angle(0.0)
+            } else {
+                Angle((TAU / orb_counter as f32) * i as f32)
+            };
+            println!("orb: {} with angle. {}", i, *angle);
+            parent.spawn((
+                OrbitingBundle {
+                    vel: AngularVelocity(3.),
+                    radius: OrbitalRadius(200.),
+                    angle,
+                    sprite: {
+                        SpriteBundle {
+                            texture: asset_server.load("loot/orb_purple.png"),
+                            sprite: Sprite {
+                                custom_size: Some(Vec2::new(70., 70.)),
+                                ..Default::default()
+                            },
+                            ..default()
+                        }
+                    },
+                    ..default()
+                },
+                DamagingBundle {
+                    damage: Damage(2),
+                    radius: Radius(50.),
+                },
+                HitList(vec![]), // TODO: Remove this and add a timing based system for orbiting damagers instead
+            ));
+        }
+    });
 }
 
 #[derive(Component, PartialEq, Eq, Hash, Copy, Clone)]
