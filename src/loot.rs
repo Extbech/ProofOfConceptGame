@@ -66,6 +66,21 @@ impl LootBundle {
         }
     }
 }
+#[derive(Bundle)]
+pub struct LootBundleSheet {
+    cleanup: cleanup::ExitGame,
+    id: LootId,
+    sprite: SpriteSheetBundle,
+}
+impl LootBundleSheet {
+    pub fn new(sprite: SpriteSheetBundle, id: LootId) -> Self {
+        LootBundleSheet {
+            cleanup: cleanup::ExitGame,
+            id,
+            sprite,
+        }
+    }
+}
 #[derive(Component)]
 pub struct AnimationIndices {
     first: usize,
@@ -76,33 +91,72 @@ pub struct AnimationIndices {
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
-/// Spawns loot
+/// Spawns loot.
+///
+/// Health potion sprite sheet: https://opengameart.org/content/icons32x32
+///
+/// Bomb sprite sheet (needs update): https://opengameart.org/content/pixel-art-bomb-animation
 pub fn try_spawn_loot(
     rng: &mut ResMut<GameRng>,
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
+    texture_atlas_layouts: &mut ResMut<Assets<TextureAtlasLayout>>,
     pos: Vec3,
 ) {
     let loot_id = rng.gen_range(0..10);
-    let image_path = match loot_id {
-        0 => "loot/Icon36.png",
-        1 => "loot/Icon22.png",
-        2 => "loot/xp_orb_toggler.png",
+    let (image_path, col, row, index, size) = match loot_id {
+        0 => (
+            "loot/potions.png",
+            Some(4),
+            Some(2),
+            Some(5),
+            Some(Vec2::new(32.0, 32.0)),
+        ),
+        1 => (
+            "loot/bomb.png",
+            Some(3),
+            Some(1),
+            Some(1),
+            Some(Vec2::new(80.0, 80.0)),
+        ),
+        2 => ("loot/xp_orb_toggler.png", None, None, None, None),
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
-    commands.spawn(LootBundle::new(
-        SpriteBundle {
-            transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
-            texture: loot_texture_handle,
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(40., 40.)),
-                ..Default::default()
+    if index.is_some() {
+        let layout =
+            TextureAtlasLayout::from_grid(size.unwrap(), col.unwrap(), row.unwrap(), None, None);
+        let texture_atlas_layout = texture_atlas_layouts.add(layout);
+        commands.spawn(LootBundleSheet::new(
+            SpriteSheetBundle {
+                texture: loot_texture_handle,
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: index.unwrap(),
+                },
+                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(40., 40.)),
+                    ..Default::default()
+                },
+                ..default()
             },
-            ..default()
-        },
-        LootId(loot_id),
-    ));
+            LootId(loot_id),
+        ));
+    } else {
+        commands.spawn(LootBundle::new(
+            SpriteBundle {
+                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
+                texture: loot_texture_handle,
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(40., 40.)),
+                    ..Default::default()
+                },
+                ..default()
+            },
+            LootId(loot_id),
+        ));
+    }
 }
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
 pub fn spawn_xp_orb(
@@ -162,6 +216,7 @@ pub fn check_for_dead_enemies(
                 &mut rng,
                 &mut commands,
                 &asset_server,
+                &mut texture_atlas_layouts,
                 transform.translation,
             );
         }

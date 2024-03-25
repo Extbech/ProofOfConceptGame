@@ -10,7 +10,7 @@ use crate::projectiles::{ProjectileBundle, ShouldRotate};
 use crate::Heading;
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 
-pub const XP_SCALING_FACTOR: f32 = 1.5;
+pub const XP_SCALING_FACTOR: f32 = 25.0;
 #[derive(Component)]
 pub struct Player;
 
@@ -133,7 +133,7 @@ pub fn spawn_player_hero(
             },
             ..default()
         },
-        Radius(20.),
+        Radius(25.),
     ));
 }
 
@@ -279,7 +279,7 @@ pub fn handle_player_xp(
     if **required_xp <= **current_xp && **current_level < **max_level {
         **current_level += 1;
         **current_xp -= **required_xp;
-        **required_xp *= XP_SCALING_FACTOR;
+        **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
     }
 }

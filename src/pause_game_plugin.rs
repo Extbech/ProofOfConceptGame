@@ -51,7 +51,7 @@ pub fn render_pause_options_node(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
+                background_color: Color::rgba(0.0, 0.0, 0.0, 0.8).into(),
                 ..default()
             },
             ExitPauseScreen,

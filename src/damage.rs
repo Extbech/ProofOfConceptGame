@@ -94,15 +94,22 @@ fn spawn_damage_text(
 pub fn handle_enemy_damage_to_player(
     enemy_query: Query<(&GlobalTransform, &Radius), With<Enemy>>,
     mut player_query: Query<
-        (&GlobalTransform, &mut Health, &mut Vulnerability, &Radius),
+        (
+            &GlobalTransform,
+            &mut Health,
+            &mut Vulnerability,
+            &Radius,
+            &mut Sprite,
+        ),
         With<Player>,
     >,
 ) {
-    let (player_trans, mut player_health, mut vulnerability, player_radius) =
+    let (player_trans, mut player_health, mut vulnerability, player_radius, mut sprite) =
         player_query.single_mut();
     let player_pos = player_trans.translation().xy();
-    let invuln_timer = Duration::from_secs_f32(1.);
+    let invuln_timer = Duration::from_secs_f32(2.);
     if vulnerability.is_ready(invuln_timer) {
+        sprite.color = sprite.color.with_a(1.0);
         for (enemy_trans, enemy_rad) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
             if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
@@ -111,6 +118,8 @@ pub fn handle_enemy_damage_to_player(
                 return;
             }
         }
+    } else {
+        sprite.color = sprite.color.with_a(0.6);
     }
 }
 
