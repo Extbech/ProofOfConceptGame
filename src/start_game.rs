@@ -1,7 +1,3 @@
-use bevy::prelude::*;
-use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-
 use crate::{
     cleanup,
     cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
@@ -26,6 +22,9 @@ use crate::{
     ui::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
+use bevy::prelude::*;
+use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 pub struct GamePlugin;
 
@@ -44,7 +43,7 @@ impl Plugin for GamePlugin {
                 (
                     reset_ingametime,
                     start_game,
-                    map::setup_map,
+                    map::generate_map::setup_map,
                     spawn_player_hero,
                 ),
             )

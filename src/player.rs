@@ -102,7 +102,7 @@ impl PlayerStatBundle {
             current_xp: CurrentXP(0.0),
             required_xp: RequiredXP(100.0),
             current_level: CurrentLevel(1),
-            max_level: MaxLevel(10),
+            max_level: MaxLevel(100),
             pick_up_radius: PickUpRadius(100.0),
             health: Health(2),
             max_health: MaxHealth(2),
