@@ -10,7 +10,7 @@ use crate::{
         activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
         xp_orbs_collision,
     },
-    map,
+    map::map_plugin::MapPlugin,
     pause_game_plugin::{check_if_paused, PauseGamePlugin},
     player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
@@ -38,14 +38,10 @@ impl Plugin for GamePlugin {
             .add_plugins(RunningPlugin)
             .add_plugins(LevelUpPlugin)
             .add_plugins(PauseGamePlugin)
+            .add_plugins(MapPlugin)
             .add_systems(
                 OnEnter(STATE),
-                (
-                    reset_ingametime,
-                    start_game,
-                    map::generate_map::setup_map,
-                    spawn_player_hero,
-                ),
+                (reset_ingametime, start_game, spawn_player_hero),
             )
             .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
             .add_systems(

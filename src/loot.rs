@@ -8,6 +8,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use rand::prelude::*;
+use test_game::LOOT_DROPS_Z;
 
 #[derive(Component, Deref, Clone, Copy)]
 pub struct XP(f32);
@@ -134,7 +135,7 @@ pub fn try_spawn_loot(
                     layout: texture_atlas_layout,
                     index: index.unwrap(),
                 },
-                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
+                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
                 sprite: Sprite {
                     custom_size: Some(Vec2::new(40., 40.)),
                     ..Default::default()
@@ -146,7 +147,7 @@ pub fn try_spawn_loot(
     } else {
         commands.spawn(LootBundle::new(
             SpriteBundle {
-                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, pos.z),
+                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
                 texture: loot_texture_handle,
                 sprite: Sprite {
                     custom_size: Some(Vec2::new(40., 40.)),
@@ -181,7 +182,7 @@ pub fn spawn_xp_orb(
                 layout: texture_atlas_layout,
                 index: animation_indices.first,
             },
-            transform: Transform::from_xyz(pos.x, pos.y, pos.z),
+            transform: Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(30., 30.)),
                 ..Default::default()

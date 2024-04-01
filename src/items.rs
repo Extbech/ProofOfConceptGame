@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use std::{f32::consts::TAU, time::Duration};
+use test_game::LOOT_DROPS_Z;
 
 use crate::{
     cooldown::LifeTime,
@@ -19,7 +20,7 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
         HitList(vec![]),
         SpatialBundle {
             transform: Transform {
-                translation: Vec3::new(pos.x, pos.y, 1.),
+                translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
                 ..default()
             },
             ..default()

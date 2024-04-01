@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use test_game::{PLAYER_Z, PROJECTILES_Z};
 
 use std::time::Duration;
 
@@ -126,7 +127,7 @@ pub fn spawn_player_hero(
                 layout: texture_atlas_layout,
                 index: 0,
             },
-            transform: Transform::from_xyz(0.0, 0.0, 3.0),
+            transform: Transform::from_xyz(0.0, 0.0, PLAYER_Z),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(70.0, 70.0)),
                 ..Default::default()
@@ -243,9 +244,11 @@ fn player_shoot(
             radius: Radius(20.),
         },
         SpriteBundle {
-            transform: Transform::from_xyz(player_position.x, player_position.y, 1.).with_rotation(
-                Quat::from_axis_angle(Vec3::new(0., 0., 1.), diff.y.atan2(diff.x)),
-            ),
+            transform: Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z)
+                .with_rotation(Quat::from_axis_angle(
+                    Vec3::new(0., 0., 1.0),
+                    diff.y.atan2(diff.x),
+                )),
             texture: asset_server.load("models/bullet.png"),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(50., 50.)),
