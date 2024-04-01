@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use test_game::PROJECTILES_Z;
 
 use crate::{
     enemy::Enemy,
@@ -84,7 +85,7 @@ fn spawn_damage_text(
                 },
             ),
             transform: Transform {
-                translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., 10.),
+                translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., PROJECTILES_Z),
                 ..default()
             },
             ..default()

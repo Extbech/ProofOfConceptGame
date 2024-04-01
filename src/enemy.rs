@@ -5,6 +5,7 @@ use crate::{cleanup, GameRng, MovementSpeed};
 use bevy::prelude::*;
 use rand::prelude::*;
 use std::time::Duration;
+use test_game::ENEMY_Z;
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnRate(pub Duration);
@@ -75,7 +76,7 @@ pub fn spawn_enemies(
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(EnemyBundle::new(SpriteBundle {
-            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, 1.),
+            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
             texture: enemy_sprite,
             sprite: Sprite {
                 custom_size: Some(Vec2::new(70., 70.)),

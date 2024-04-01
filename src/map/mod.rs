@@ -1,1 +1,1 @@
-pub mod generate_map;
+pub mod map_plugin;
