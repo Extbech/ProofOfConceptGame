@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use noise::{NoiseFn, Perlin};
 use rand::Rng;
 use test_game::{TILE_LAYER_1_Z, TILE_LAYER_2_Z};
+
 const MAP_SIZE: (usize, usize) = (128, 128);
 const TILE_SIZE: Vec2 = Vec2::new(32.0, 32.0);
 const GRID_COL: usize = 56;
@@ -10,8 +11,35 @@ const START_X: f32 = -(MAP_SIZE.0 as f32 * TILE_SIZE.x) / 2.0;
 const START_Y: f32 = -(MAP_SIZE.1 as f32 * TILE_SIZE.y) / 2.0;
 const PERLIN_SCALE_FACTOR: f64 = 15.0;
 
+#[repr(usize)]
+/// A Unit-only enum represinting the different indexes (usize) used in tilesheet.
+/// An enum is used to more easily clearify and understand what indexes are represent what in the tilesheet so that we dont have to remember each index manually.
+/// Consider changing this into e.g consts in lib.rs or something complety different.
+///
+/// example:
+/// ```rust
+/// match value {
+///     v if v < 0.5 => TileSheetIndex::MiddleGrassTile as usize,
+///     v if v > 0.5 => TileSheetIndex::MiddleSandTile as usize,
+///     _ => unreachable!("Unreachable!")
+/// }
+/// ```
+enum TileSheetIndex {
+    MiddleGrassTile = 113,
+    MiddleSandTile = 117,
+    Bush = 1078,
+}
+
 #[derive(Resource)]
+/// Generation seed used strictly for the Perlin grid for map generation.
 pub struct GenerationSeed(u32);
+
+#[derive(Component)]
+pub struct LayerOne;
+
+#[derive(Component)]
+pub struct LayerTwo;
+
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
@@ -52,33 +80,41 @@ fn spawn_decoration_layer(
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
     let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-    for x in 0..MAP_SIZE.0 {
-        for y in 0..MAP_SIZE.1 {
-            if should_spawn_tree(map.get([
-                x as f64 / PERLIN_SCALE_FACTOR,
-                y as f64 / PERLIN_SCALE_FACTOR,
-            ])) {
-                commands.spawn(SpriteSheetBundle {
-                    texture: texture_handle.clone(),
-                    atlas: TextureAtlas {
-                        layout: texture_atlas_layout.clone(),
-                        index: 1078,
-                    },
-                    sprite: Sprite {
-                        custom_size: Some(TILE_SIZE),
-                        ..Default::default()
-                    },
-                    transform: Transform::from_translation(Vec3::new(
-                        START_X + (x as f32 * TILE_SIZE.x),
-                        START_Y + (y as f32 * TILE_SIZE.y),
-                        TILE_LAYER_2_Z,
-                    )),
-                    ..default()
-                });
+    commands
+        .spawn(())
+        .insert(Name::new("Map Layer Two"))
+        .insert(LayerTwo)
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .insert(InheritedVisibility::default())
+        .with_children(|child| {
+            for x in 0..MAP_SIZE.0 {
+                for y in 0..MAP_SIZE.1 {
+                    if should_spawn_tree(map.get([
+                        x as f64 / PERLIN_SCALE_FACTOR,
+                        y as f64 / PERLIN_SCALE_FACTOR,
+                    ])) {
+                        child.spawn(SpriteSheetBundle {
+                            texture: texture_handle.clone(),
+                            atlas: TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: TileSheetIndex::Bush as usize,
+                            },
+                            sprite: Sprite {
+                                custom_size: Some(TILE_SIZE),
+                                ..Default::default()
+                            },
+                            transform: Transform::from_translation(Vec3::new(
+                                START_X + (x as f32 * TILE_SIZE.x),
+                                START_Y + (y as f32 * TILE_SIZE.y),
+                                TILE_LAYER_2_Z,
+                            )),
+                            ..default()
+                        });
+                    }
+                }
             }
-        }
-    }
+        });
 }
 
 fn spawn_ground_layer(
@@ -92,31 +128,39 @@ fn spawn_ground_layer(
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
     let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-    for x in 0..MAP_SIZE.0 {
-        for y in 0..MAP_SIZE.1 {
-            commands.spawn(SpriteSheetBundle {
-                texture: texture_handle.clone(),
-                atlas: TextureAtlas {
-                    layout: texture_atlas_layout.clone(),
-                    index: get_ground_texture_index(map.get([
-                        x as f64 / PERLIN_SCALE_FACTOR,
-                        y as f64 / PERLIN_SCALE_FACTOR,
-                    ])),
-                },
-                sprite: Sprite {
-                    custom_size: Some(TILE_SIZE),
-                    ..Default::default()
-                },
-                transform: Transform::from_translation(Vec3::new(
-                    START_X + (x as f32 * TILE_SIZE.x),
-                    START_Y + (y as f32 * TILE_SIZE.y),
-                    TILE_LAYER_1_Z,
-                )),
-                ..default()
-            });
-        }
-    }
+    commands
+        .spawn(())
+        .insert(Name::new("Map Layer One"))
+        .insert(LayerOne)
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .insert(InheritedVisibility::default())
+        .with_children(|child| {
+            for x in 0..MAP_SIZE.0 {
+                for y in 0..MAP_SIZE.1 {
+                    child.spawn(SpriteSheetBundle {
+                        texture: texture_handle.clone(),
+                        atlas: TextureAtlas {
+                            layout: texture_atlas_layout.clone(),
+                            index: get_ground_texture_index(map.get([
+                                x as f64 / PERLIN_SCALE_FACTOR,
+                                y as f64 / PERLIN_SCALE_FACTOR,
+                            ])),
+                        },
+                        sprite: Sprite {
+                            custom_size: Some(TILE_SIZE),
+                            ..Default::default()
+                        },
+                        transform: Transform::from_translation(Vec3::new(
+                            START_X + (x as f32 * TILE_SIZE.x),
+                            START_Y + (y as f32 * TILE_SIZE.y),
+                            TILE_LAYER_1_Z,
+                        )),
+                        ..default()
+                    });
+                }
+            }
+        });
 }
 fn generate_noise_map(seed: u32) -> Perlin {
     //let mut rng = thread_rng();
@@ -134,8 +178,8 @@ fn should_spawn_tree(val: f64) -> bool {
 
 fn get_ground_texture_index(val: f64) -> usize {
     match val.abs() {
-        v if v < 0.5 => 113,
-        v if v > 0.5 => 117,
+        v if v < 0.5 => TileSheetIndex::MiddleGrassTile as usize,
+        v if v > 0.5 => TileSheetIndex::MiddleSandTile as usize,
         _ => unreachable!("no index found"),
     }
 }
