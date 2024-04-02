@@ -4,7 +4,7 @@ use crate::{
     damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player},
     debug::show_radius,
     enemy::{spawn_enemies, update_enemies},
-    items::{pickup_loot, spawn_lightning},
+    items::{animate_lightning, pickup_loot, spawn_lightning},
     level_up_plugin::LevelUpPlugin,
     loot::{
         activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
@@ -97,7 +97,8 @@ impl Plugin for RunningPlugin {
                         orbital_movement,
                         orbital_position,
                     ),
-                    (spawn_lightning),
+                    (spawn_lightning,
+                    animate_lightning),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,
