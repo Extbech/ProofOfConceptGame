@@ -22,7 +22,7 @@ use crate::{
     ui::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
     update_cursor, AppState, GameState,
 };
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
@@ -32,7 +32,13 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         const STATE: AppState = AppState::InGame;
         app.insert_state(GameState::NotStarted)
-            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()).set(WindowPlugin {
+                primary_window: Some(Window {
+                    resolution: WindowResolution::new(1000., 800.).with_scale_factor_override(1.0),
+                    ..default()
+                }),
+                ..default()
+            }))
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)

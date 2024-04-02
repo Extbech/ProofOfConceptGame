@@ -33,6 +33,7 @@ fn main() {
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
+        .insert_resource(Msaa::Off)
         .run();
 }
 
