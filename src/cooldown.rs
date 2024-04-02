@@ -117,12 +117,16 @@ pub fn reset_ingametime(mut igt: ResMut<InGameTime>) {
     igt.reset()
 }
 
-#[derive(Component)]
+#[derive(Component, Deref)]
 pub struct LifeTime(pub Duration);
 
 impl LifeTime {
+    pub fn from_secs_f32(s: f32) -> Self {
+        LifeTime(Duration::from_secs_f32(s))
+    }
+    
     pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
-        LifeTime(Duration::from_secs_f32(*rng / *spd))
+        LifeTime::from_secs_f32(*rng / *spd)
     }
 
     pub fn try_decrease(&mut self, by: Duration) -> bool {

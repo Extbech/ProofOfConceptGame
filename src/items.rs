@@ -111,8 +111,7 @@ pub fn spawn_new_orb(
 
 pub fn enable_thors_lightning_skill(
     commands: &mut Commands,
-    player_entity: Entity,
-    asset_server: &Res<AssetServer>,
+    player_entity: Entity
 ) {
     commands.entity(player_entity).with_children(|child| {
         child.spawn(ThorsLightningBundle {
@@ -120,7 +119,6 @@ pub fn enable_thors_lightning_skill(
             max_cooldown: MaxAttackCooldown(Duration::from_secs_f32(5.0)),
             damage: Damage(3),
             range: Radius(500.0),
-            texture_handle: asset_server.load("effects/lightning.png"),
             marker: ThorLightningMarker,
         });
     });
@@ -128,10 +126,10 @@ pub fn enable_thors_lightning_skill(
 
 pub fn spawn_lightning(
     mut commands: Commands,
-    player_query: Query<(Entity, &Transform), With<Player>>,
-    mut enemy_query: Query<(Entity, &mut Health, &Transform), With<Enemy>>,
-    lightning_query: Query<
-        (Entity, &mut AttackCooldown, &MaxAttackCooldown, &Radius),
+    player_query: Query<&Transform, With<Player>>,
+    mut enemy_query: Query<(&mut Health, &Transform), With<Enemy>>,
+    mut lightning_query: Query<
+        (&mut AttackCooldown, &MaxAttackCooldown, &Radius, &Damage),
         With<ThorLightningMarker>,
     >,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -141,34 +139,58 @@ pub fn spawn_lightning(
     let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 59.0), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let Some((lightning_entity, attack_cd, max_attack_cd, radius)) = lightning_query.iter().next()
+    let Some((mut attack_cd, max_attack_cd, radius, damage)) = lightning_query.iter_mut().next()
     else {
         return;
     };
-    let (player_entity, player_transform) = player_query.single();
-    for (enemy_entity, enemy_health, enemy_transform) in &mut enemy_query {
-        if is_collision(
-            player_transform.translation.xy(),
-            enemy_transform.translation.xy(),
-            0.0,
-            **radius,
-        ) {
-            commands.spawn(SpriteSheetBundle {
-                texture: texture_handle.clone(),
-                atlas: TextureAtlas {
-                    layout: texture_atlas_layout.clone(),
-                    index: 1,
-                },
-                transform: Transform::from_translation(Vec3::new(
-                    enemy_transform.translation.x,
-                    enemy_transform.translation.y,
-                    PROJECTILES_Z,
-                )),
-                ..default()
-            });
+    let player_transform = player_query.single();
+    for _ in 0..attack_cd.reset(**max_attack_cd) {
+        let found = false;
+        for (mut enemy_health, enemy_transform) in &mut enemy_query {
+            if is_collision(
+                player_transform.translation.xy(),
+                enemy_transform.translation.xy(),
+                0.0,
+                **radius,
+            ) {
+                commands.spawn((SpriteSheetBundle {
+                    texture: texture_handle.clone(),
+                    atlas: TextureAtlas {
+                        layout: texture_atlas_layout.clone(),
+                        index: 0,
+                    },
+                    transform: Transform::from_translation(Vec3::new(
+                        enemy_transform.translation.x,
+                        enemy_transform.translation.y,
+                        PROJECTILES_Z,
+                    )),
+                    ..default()
+                }, LightningEffectMarker, LifeTime::from_secs_f32(0.06)));
+                **enemy_health = enemy_health.saturating_sub(**damage);
+                break;
+            }
+        }
+        if !found {
+            attack_cd.wait();
         }
     }
 }
+
+#[derive(Component)]
+pub struct LightningEffectMarker;
+
+pub fn animate_lightning(
+    mut lightning_query: Query<(&LifeTime, &mut TextureAtlas), With<LightningEffectMarker>>,
+) {
+    for (lifetime, mut atlas) in &mut lightning_query {
+        if 0.2 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.4 {
+            atlas.index = 1;
+        } else if 0.4 <= lifetime.as_secs_f32() {
+            atlas.index = 0;
+        }
+    }
+}
+
 
 #[derive(Component, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ItemType {
@@ -206,7 +228,6 @@ pub struct ThorsLightningBundle {
     max_cooldown: MaxAttackCooldown,
     damage: Damage,
     range: Radius,
-    texture_handle: Handle<Image>,
     marker: ThorLightningMarker,
 }
 

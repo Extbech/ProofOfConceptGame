@@ -189,7 +189,7 @@ pub fn handle_selection_cursor(
                         println!("health increased to: {}", **health);
                     }
                     ItemType::ActiveThorLightning => {
-                        enable_thors_lightning_skill(&mut commands, player_entity, &asset_server);
+                        enable_thors_lightning_skill(&mut commands, player_entity);
                     }
                 }
                 game_state.set(GameState::Running);
