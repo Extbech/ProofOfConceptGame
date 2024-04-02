@@ -4,7 +4,7 @@ use rand::prelude::*;
 use crate::{
     cleanup,
     damage::Health,
-    items::{spawn_new_orb, ItemTooltips, ItemType},
+    items::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
     player::{MaxHealth, PickUpRadius, Player, PlayerDamage},
     projectiles::OrbitalRadius,
     AppState, GameRng, GameState, MovementSpeed,
@@ -165,35 +165,35 @@ pub fn handle_selection_cursor(
     ) = player_query.single_mut();
     for (interaction, item_type, mut background_color) in &mut interaction_query {
         match interaction {
-            Interaction::Pressed => match **item_type {
-                ItemType::PassiveDamageIncrease => {
-                    **player_damage += 1;
-                    println!("damage increase to: {}", **player_damage);
-                    game_state.set(GameState::Running);
+            Interaction::Pressed => {
+                match **item_type {
+                    ItemType::PassiveDamageIncrease => {
+                        **player_damage += 1;
+                        println!("damage increase to: {}", **player_damage);
+                    }
+                    ItemType::PassiveMovementSpeedIncrease => {
+                        **movement_speed *= 1.1;
+                        println!("Movement speed increased to: {}", **movement_speed);
+                    }
+                    ItemType::PassivePickUpRadiusIncrease => {
+                        **pick_up_radius *= 1.1;
+                        println!("Pickup radius increased to: {}", **pick_up_radius);
+                    }
+                    ItemType::ActiveOrbitingOrb => {
+                        println!("Orb jutsu");
+                        spawn_new_orb(&mut commands, player_entity, &mut orb_query, &asset_server);
+                    }
+                    ItemType::PassiveHealthIncrease => {
+                        **health += 1;
+                        **max_health += 1;
+                        println!("health increased to: {}", **health);
+                    }
+                    ItemType::ActiveThorLightning => {
+                        enable_thors_lightning_skill(&mut commands, player_entity, &asset_server);
+                    }
                 }
-                ItemType::PassiveMovementSpeedIncrease => {
-                    **movement_speed *= 1.1;
-                    println!("Movement speed increased to: {}", **movement_speed);
-                    game_state.set(GameState::Running);
-                }
-                ItemType::PassivePickUpRadiusIncrease => {
-                    **pick_up_radius *= 1.1;
-                    println!("Pickup radius increased to: {}", **pick_up_radius);
-                    game_state.set(GameState::Running);
-                }
-                ItemType::ActiveOrbitingOrb => {
-                    println!("Orb jutsu");
-                    spawn_new_orb(&mut commands, player_entity, &mut orb_query, &asset_server);
-                    game_state.set(GameState::Running);
-                }
-                ItemType::PassiveHealthIncrease => {
-                    **health += 1;
-                    **max_health += 1;
-                    println!("health increased to: {}", **health);
-                    game_state.set(GameState::Running);
-                }
-                ItemType::ActiveThorLightning => todo!(),
-            },
+                game_state.set(GameState::Running);
+            }
             Interaction::Hovered => {
                 *background_color = Color::GRAY.into();
             }

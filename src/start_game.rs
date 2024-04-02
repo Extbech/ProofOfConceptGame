@@ -4,7 +4,7 @@ use crate::{
     damage::{handle_enemy_damage_from_projectiles, handle_enemy_damage_to_player},
     debug::show_radius,
     enemy::{spawn_enemies, update_enemies},
-    items::pickup_loot,
+    items::{pickup_loot, spawn_lightning},
     level_up_plugin::LevelUpPlugin,
     loot::{
         activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
@@ -32,13 +32,18 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         const STATE: AppState = AppState::InGame;
         app.insert_state(GameState::NotStarted)
-            .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()).set(WindowPlugin {
-                primary_window: Some(Window {
-                    resolution: WindowResolution::new(1000., 800.).with_scale_factor_override(1.0),
-                    ..default()
-                }),
-                ..default()
-            }))
+            .add_plugins(
+                DefaultPlugins
+                    .set(ImagePlugin::default_nearest())
+                    .set(WindowPlugin {
+                        primary_window: Some(Window {
+                            resolution: WindowResolution::new(1000., 800.)
+                                .with_scale_factor_override(1.0),
+                            ..default()
+                        }),
+                        ..default()
+                    }),
+            )
             .add_plugins(TilemapPlugin)
             .add_plugins(WorldInspectorPlugin::new())
             .add_plugins(RunningPlugin)
@@ -78,18 +83,21 @@ impl Plugin for RunningPlugin {
             .add_systems(
                 Update,
                 (
-                    handle_ingametime,
-                    pickup_loot,
-                    player_attack_facing_from_mouse,
-                    handle_player_death,
-                    handle_enemy_damage_to_player,
-                    sync_player_and_camera_pos,
-                    speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
-                    spawn_enemies,
-                    handle_enemy_damage_from_projectiles,
-                    update_enemies,
-                    orbital_movement,
-                    orbital_position,
+                    (
+                        handle_ingametime,
+                        pickup_loot,
+                        player_attack_facing_from_mouse,
+                        handle_player_death,
+                        handle_enemy_damage_to_player,
+                        sync_player_and_camera_pos,
+                        speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
+                        spawn_enemies,
+                        handle_enemy_damage_from_projectiles,
+                        update_enemies,
+                        orbital_movement,
+                        orbital_position,
+                    ),
+                    (spawn_lightning),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,

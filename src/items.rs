@@ -109,12 +109,11 @@ pub fn spawn_new_orb(
     });
 }
 
-pub fn EnableThorsLightningSkill(
-    mut commands: Commands,
-    player_query: Query<Entity, With<Player>>,
-    asset_server: Res<AssetServer>,
+pub fn enable_thors_lightning_skill(
+    commands: &mut Commands,
+    player_entity: Entity,
+    asset_server: &Res<AssetServer>,
 ) {
-    let player_entity = player_query.single();
     commands.entity(player_entity).with_children(|child| {
         child.spawn(ThorsLightningBundle {
             attack_cooldown: AttackCooldown(default()),
@@ -131,19 +130,21 @@ pub fn spawn_lightning(
     mut commands: Commands,
     player_query: Query<(Entity, &Transform), With<Player>>,
     mut enemy_query: Query<(Entity, &mut Health, &Transform), With<Enemy>>,
-    time: Res<Time>,
     lightning_query: Query<
         (Entity, &mut AttackCooldown, &MaxAttackCooldown, &Radius),
         With<ThorLightningMarker>,
     >,
-    texture_atlas_layouts: &mut ResMut<Assets<TextureAtlasLayout>>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     asset_server: Res<AssetServer>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("effects/lightning.png");
+    let texture_handle: Handle<Image> = asset_server.load("effects/lightning-strike.png");
     let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 59.0), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
-    let (lightning_entity, attack_cd, max_attack_cd, radius) = lightning_query.single();
+    let Some((lightning_entity, attack_cd, max_attack_cd, radius)) = lightning_query.iter().next()
+    else {
+        return;
+    };
     let (player_entity, player_transform) = player_query.single();
     for (enemy_entity, enemy_health, enemy_transform) in &mut enemy_query {
         if is_collision(
