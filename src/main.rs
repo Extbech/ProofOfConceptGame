@@ -29,6 +29,7 @@ fn main() {
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
         })
+        .insert_resource(Msaa::Off)
         .add_plugins(GamePlugin)
         .add_systems(Startup, setup)
         .add_systems(OnExit(AppState::InGame), set_state_not_started)

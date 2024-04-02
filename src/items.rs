@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use std::{f32::consts::TAU, time::Duration};
-use test_game::LOOT_DROPS_Z;
+use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
 
 use crate::{
-    cooldown::LifeTime,
+    cooldown::{Cooldown, LifeTime},
     damage::{is_collision, Damage, DamagingBundle, Health, HitList, Radius},
+    enemy::Enemy,
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
-    player::{MaxHealth, Player},
+    player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
     projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
 };
 
@@ -108,6 +109,66 @@ pub fn spawn_new_orb(
     });
 }
 
+pub fn EnableThorsLightningSkill(
+    mut commands: Commands,
+    player_query: Query<Entity, With<Player>>,
+    asset_server: Res<AssetServer>,
+) {
+    let player_entity = player_query.single();
+    commands.entity(player_entity).with_children(|child| {
+        child.spawn(ThorsLightningBundle {
+            attack_cooldown: AttackCooldown(default()),
+            max_cooldown: MaxAttackCooldown(Duration::from_secs_f32(5.0)),
+            damage: Damage(3),
+            range: Radius(500.0),
+            texture_handle: asset_server.load("effects/lightning.png"),
+            marker: ThorLightningMarker,
+        });
+    });
+}
+
+pub fn spawn_lightning(
+    mut commands: Commands,
+    player_query: Query<(Entity, &Transform), With<Player>>,
+    mut enemy_query: Query<(Entity, &mut Health, &Transform), With<Enemy>>,
+    time: Res<Time>,
+    lightning_query: Query<
+        (Entity, &mut AttackCooldown, &MaxAttackCooldown, &Radius),
+        With<ThorLightningMarker>,
+    >,
+    texture_atlas_layouts: &mut ResMut<Assets<TextureAtlasLayout>>,
+    asset_server: Res<AssetServer>,
+) {
+    let texture_handle: Handle<Image> = asset_server.load("effects/lightning.png");
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 59.0), 2, 1, None, None);
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+
+    let (lightning_entity, attack_cd, max_attack_cd, radius) = lightning_query.single();
+    let (player_entity, player_transform) = player_query.single();
+    for (enemy_entity, enemy_health, enemy_transform) in &mut enemy_query {
+        if is_collision(
+            player_transform.translation.xy(),
+            enemy_transform.translation.xy(),
+            0.0,
+            **radius,
+        ) {
+            commands.spawn(SpriteSheetBundle {
+                texture: texture_handle.clone(),
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout.clone(),
+                    index: 1,
+                },
+                transform: Transform::from_translation(Vec3::new(
+                    enemy_transform.translation.x,
+                    enemy_transform.translation.y,
+                    PROJECTILES_Z,
+                )),
+                ..default()
+            });
+        }
+    }
+}
+
 #[derive(Component, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ItemType {
     PassiveDamageIncrease,
@@ -115,6 +176,7 @@ pub enum ItemType {
     PassivePickUpRadiusIncrease,
     PassiveHealthIncrease,
     ActiveOrbitingOrb,
+    ActiveThorLightning,
 }
 #[derive(Component)]
 pub struct PassiveDamageIncrease(pub u8);
@@ -131,8 +193,24 @@ pub struct PassiveHealthIncrease(pub u8);
 #[derive(Component)]
 pub struct ActiveOrbitingOrb(pub u8);
 
+#[derive(Component)]
+pub struct ActiveThorLightning(pub u8);
+
+#[derive(Component)]
+pub struct ThorLightningMarker;
+
+#[derive(Bundle)]
+pub struct ThorsLightningBundle {
+    attack_cooldown: AttackCooldown,
+    max_cooldown: MaxAttackCooldown,
+    damage: Damage,
+    range: Radius,
+    texture_handle: Handle<Image>,
+    marker: ThorLightningMarker,
+}
+
 #[derive(Resource, Deref)]
-pub struct ItemTooltips(pub [(ItemType, &'static str, &'static str); 5]);
+pub struct ItemTooltips(pub [(ItemType, &'static str, &'static str); 6]);
 
 impl Default for ItemTooltips {
     fn default() -> Self {
@@ -161,6 +239,11 @@ impl Default for ItemTooltips {
                 ItemType::PassiveHealthIncrease,
                 "Vitality",
                 "Increase max health by 1.",
+            ),
+            (
+                ItemType::ActiveThorLightning,
+                "Thor's Lightning",
+                "Lightning randomly strikes nearby enemies.",
             ),
         ])
     }

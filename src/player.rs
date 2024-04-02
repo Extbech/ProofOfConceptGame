@@ -19,10 +19,10 @@ pub struct Player;
 pub struct ProjectileSpeed(f32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct MaxAttackCooldown(Duration);
+pub struct MaxAttackCooldown(pub Duration);
 
 #[derive(Component, Deref, DerefMut, Clone)]
-pub struct AttackCooldown(Cooldown);
+pub struct AttackCooldown(pub Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Range(pub f32);
@@ -150,9 +150,9 @@ pub fn sync_player_and_camera_pos(
 
 pub fn player_movement(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut TextureAtlas, &mut Transform, &mut Heading, &mut Sprite, &AttackDirection), With<Player>>,
+    mut player: Query<(&mut TextureAtlas, &mut Transform, &mut Heading, &mut Sprite), With<Player>>,
 ) {
-    let (mut atlas, mut player_trans, mut player_dir, mut player_sprite, attack_dir) = player.single_mut();
+    let (mut atlas, mut player_trans, mut player_dir, mut player_sprite) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };

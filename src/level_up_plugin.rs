@@ -192,6 +192,7 @@ pub fn handle_selection_cursor(
                     println!("health increased to: {}", **health);
                     game_state.set(GameState::Running);
                 }
+                ItemType::ActiveThorLightning => todo!(),
             },
             Interaction::Hovered => {
                 *background_color = Color::GRAY.into();
