@@ -109,18 +109,13 @@ pub fn spawn_new_orb(
     });
 }
 
-pub fn enable_thors_lightning_skill(
-    commands: &mut Commands,
-    player_entity: Entity,
-    asset_server: &Res<AssetServer>,
-) {
+pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Entity) {
     commands.entity(player_entity).with_children(|child| {
         child.spawn(ThorsLightningBundle {
             attack_cooldown: AttackCooldown(default()),
             max_cooldown: MaxAttackCooldown(Duration::from_secs_f32(5.0)),
             damage: Damage(3),
             range: Radius(500.0),
-            texture_handle: asset_server.load("effects/lightning.png"),
             marker: ThorLightningMarker,
         });
     });
@@ -206,7 +201,6 @@ pub struct ThorsLightningBundle {
     max_cooldown: MaxAttackCooldown,
     damage: Damage,
     range: Radius,
-    texture_handle: Handle<Image>,
     marker: ThorLightningMarker,
 }
 
