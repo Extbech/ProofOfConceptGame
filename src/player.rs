@@ -116,8 +116,8 @@ pub fn spawn_player_hero(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("models/cowboy_hero.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(45.0, 45.0), 8, 4, None, None);
+    let texture_handle: Handle<Image> = asset_server.load("viking.png");
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(16.0, 20.0), 4, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.spawn((
         PlayerStatBundle::new(),
@@ -150,21 +150,29 @@ pub fn sync_player_and_camera_pos(
 
 pub fn player_movement(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Heading, &mut Sprite, &AttackDirection), With<Player>>,
+    mut player: Query<(&mut TextureAtlas, &mut Transform, &mut Heading, &mut Sprite, &AttackDirection), With<Player>>,
 ) {
-    let (mut player_trans, mut player_dir, mut player_sprite, attack_dir) = player.single_mut();
+    let (mut atlas, mut player_trans, mut player_dir, mut player_sprite, attack_dir) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };
     let keyboard_dir_y = if keys.pressed(KeyCode::KeyW) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyS) { 1. } else { 0. };
     const BOUND: f32 = 1900.;
+
+    if keyboard_dir_x != 0. {
+        atlas.index = 3;
+        player_sprite.flip_x = keyboard_dir_x == -1.;
+    } else if keyboard_dir_y == 1. {
+        atlas.index = 2;
+    } else if keyboard_dir_y == -1. {
+        atlas.index = 1;
+    }
     (player_position.x, player_position.y) = player_position
         .xy()
         .clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND))
         .into();
     *player_dir = Heading::new(Vec2::new(keyboard_dir_x, keyboard_dir_y));
-    player_sprite.flip_x = attack_dir.x <= 0.;
 }
 
 pub fn player_attack_facing_from_mouse(
