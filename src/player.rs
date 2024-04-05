@@ -230,7 +230,6 @@ pub fn player_shooting(
     }
 }
 
-/// Bullet Asset source: https://opengameart.org/content/assets-free-laser-bullets-pack-2020
 fn player_shoot(
     commands: &mut Commands,
     player_position: Vec2,
@@ -258,7 +257,7 @@ fn player_shoot(
                     Vec3::new(0., 0., 1.0),
                     diff.y.atan2(diff.x),
                 )),
-            texture: asset_server.load("models/bullet.png"),
+            texture: asset_server.load("axe.png"),
             ..default()
         },
         HitList(vec![]),
