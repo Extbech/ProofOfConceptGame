@@ -134,8 +134,8 @@ pub fn update_health_ui(
                     child.spawn((
                         NodeBundle {
                             style: Style {
-                                width: Val::Px(32.0 / SCALE),
-                                height: Val::Px(32.0 / SCALE),
+                                width: Val::Px(21.0 / SCALE),
+                                height: Val::Px(20.0 / SCALE),
                                 margin: UiRect {
                                     left: Val::Px(5.0),
                                     top: Val::Px(5.0),
@@ -146,14 +146,15 @@ pub fn update_health_ui(
                             background_color: Color::WHITE.into(),
                             ..default()
                         },
-                        UiImage::new(asset_server.load("ui/heart-pixel.png")),
+                        UiImage::new(asset_server.load("ui/heart.png")),
+                        HealthUiSprite,
                     ));
                 } else {
                     child.spawn((
                         NodeBundle {
                             style: Style {
-                                width: Val::Px(32.0 / SCALE),
-                                height: Val::Px(32.0 / SCALE),
+                                width: Val::Px(21.0 / SCALE),
+                                height: Val::Px(20.0 / SCALE),
                                 margin: UiRect {
                                     left: Val::Px(5.0),
                                     top: Val::Px(5.0),
@@ -164,7 +165,8 @@ pub fn update_health_ui(
                             background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
                             ..default()
                         },
-                        UiImage::new(asset_server.load("ui/heart-pixel.png")),
+                        UiImage::new(asset_server.load("ui/heart.png")),
+                        HealthUiSprite,
                     ));
                 }
             }
