@@ -97,7 +97,7 @@ pub fn spawn_new_orb(
                 },
                 DamagingBundle {
                     damage: Damage(2),
-                    radius: Radius(50.),
+                    radius: Radius(20.),
                 },
                 HitList(vec![]), // TODO: Remove this and add a timing based system for orbiting damagers instead
             ));
