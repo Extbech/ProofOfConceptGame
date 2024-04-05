@@ -26,6 +26,9 @@ pub struct EnemyBundle {
     radius: Radius,
 }
 
+const ENEMY_HEIGHT: f32 = 20.;
+const ENEMY_WIDTH: f32 = 22.;
+
 impl EnemyBundle {
     pub fn new(texture: SpriteSheetBundle) -> Self {
         EnemyBundle {
@@ -33,8 +36,8 @@ impl EnemyBundle {
             marker: Enemy,
             health: Health(2),
             speed: MovementSpeed(100.),
+            radius: Radius(Vec2::new(ENEMY_HEIGHT, ENEMY_WIDTH).length()/2.),
             texture,
-            radius: Radius(50.),
         }
     }
 }
@@ -74,7 +77,7 @@ pub fn spawn_enemies(
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let texture_handle: Handle<Image> = asset_server.load("jotun.png");
-        let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 20.0), 4, 1, None, None);
+        let layout = TextureAtlasLayout::from_grid(Vec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);

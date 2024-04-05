@@ -91,7 +91,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
             projection: OrthographicProjection {
                 far: 1000.,
                 near: -1000.,
-                scale: 0.5,
+                scale: 1./3.,
                 ..Default::default()
             },
             ..Default::default()

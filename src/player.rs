@@ -12,6 +12,7 @@ use crate::Heading;
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;
+
 #[derive(Component)]
 pub struct Player;
 
@@ -111,13 +112,17 @@ impl PlayerStatBundle {
     }
 }
 
+
+const PLAYER_HEIGHT: f32 = 20.;
+const PLAYER_WIDTH: f32 = 16.;
+
 pub fn spawn_player_hero(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("viking.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(16.0, 20.0), 4, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT), 4, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.spawn((
         PlayerStatBundle::new(),
@@ -130,7 +135,7 @@ pub fn spawn_player_hero(
             transform: Transform::from_xyz(0.0, 0.0, PLAYER_Z),
             ..default()
         },
-        Radius(25.),
+        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length()/2.),
     ));
 }
 
