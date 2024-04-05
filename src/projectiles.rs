@@ -1,4 +1,4 @@
-use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed};
+use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed, SCALE};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -53,7 +53,7 @@ pub fn speed_to_movement(
 ) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
-        (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * time.delta_seconds() * dir.v).into();
+        (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * SCALE * time.delta_seconds() * dir.v).into();
     }
 }
 

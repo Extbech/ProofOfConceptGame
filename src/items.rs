@@ -8,7 +8,7 @@ use crate::{
     enemy::Enemy,
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
     player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
-    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle}, SCALE,
 };
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
@@ -85,7 +85,7 @@ pub fn spawn_new_orb(
             parent.spawn((
                 OrbitingBundle {
                     vel: AngularVelocity(3.),
-                    radius: OrbitalRadius(200.),
+                    radius: OrbitalRadius(200. * SCALE),
                     angle,
                     sprite: {
                         SpriteBundle {

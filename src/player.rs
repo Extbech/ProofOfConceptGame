@@ -249,7 +249,7 @@ fn player_shoot(
         ),
         DamagingBundle {
             damage: Damage(*damage),
-            radius: Radius(20.),
+            radius: Radius(10.),
         },
         SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z)
