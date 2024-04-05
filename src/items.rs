@@ -90,10 +90,6 @@ pub fn spawn_new_orb(
                     sprite: {
                         SpriteBundle {
                             texture: asset_server.load("loot/orb_purple.png"),
-                            sprite: Sprite {
-                                custom_size: Some(Vec2::new(70., 70.)),
-                                ..Default::default()
-                            },
                             ..default()
                         }
                     },

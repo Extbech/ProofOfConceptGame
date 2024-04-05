@@ -136,10 +136,6 @@ pub fn try_spawn_loot(
                     index: index.unwrap(),
                 },
                 transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(40., 40.)),
-                    ..Default::default()
-                },
                 ..default()
             },
             LootId(loot_id),
@@ -149,10 +145,6 @@ pub fn try_spawn_loot(
             SpriteBundle {
                 transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
                 texture: loot_texture_handle,
-                sprite: Sprite {
-                    custom_size: Some(Vec2::new(40., 40.)),
-                    ..Default::default()
-                },
                 ..default()
             },
             LootId(loot_id),
@@ -183,10 +175,6 @@ pub fn spawn_xp_orb(
                 index: animation_indices.first,
             },
             transform: Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(30., 30.)),
-                ..Default::default()
-            },
             ..default()
         },
         AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),

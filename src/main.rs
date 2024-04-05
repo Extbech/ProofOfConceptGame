@@ -88,6 +88,12 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.spawn((
         Camera2dBundle {
             transform: Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+            projection: OrthographicProjection {
+                far: 1000.,
+                near: -1000.,
+                scale: 0.5,
+                ..Default::default()
+            },
             ..Default::default()
         },
         MyGameCamera,

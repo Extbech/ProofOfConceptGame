@@ -128,10 +128,6 @@ pub fn spawn_player_hero(
                 index: 0,
             },
             transform: Transform::from_xyz(0.0, 0.0, PLAYER_Z),
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(70.0, 70.0)),
-                ..Default::default()
-            },
             ..default()
         },
         Radius(25.),
@@ -258,10 +254,6 @@ fn player_shoot(
                     diff.y.atan2(diff.x),
                 )),
             texture: asset_server.load("models/bullet.png"),
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(50., 50.)),
-                ..Default::default()
-            },
             ..default()
         },
         HitList(vec![]),

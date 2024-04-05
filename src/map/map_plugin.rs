@@ -134,10 +134,6 @@ fn spawn_decoration_layer(
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::Tree as usize,
                                     },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(80.0, 80.0)),
-                                        ..Default::default()
-                                    },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
@@ -172,10 +168,6 @@ fn spawn_decoration_layer(
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::Rock as usize,
                                     },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(50.0, 50.0)),
-                                        ..Default::default()
-                                    },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
@@ -190,10 +182,6 @@ fn spawn_decoration_layer(
                                     atlas: TextureAtlas {
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::Cactus as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(50.0, 50.0)),
-                                        ..Default::default()
                                     },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),

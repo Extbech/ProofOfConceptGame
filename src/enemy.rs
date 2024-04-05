@@ -78,10 +78,6 @@ pub fn spawn_enemies(
         commands.spawn(EnemyBundle::new(SpriteBundle {
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
             texture: enemy_sprite,
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(70., 70.)),
-                ..default()
-            },
             ..default()
         }));
     }
