@@ -112,7 +112,6 @@ impl PlayerStatBundle {
     }
 }
 
-
 const PLAYER_HEIGHT: f32 = 20.;
 const PLAYER_WIDTH: f32 = 16.;
 
@@ -121,8 +120,9 @@ pub fn spawn_player_hero(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("viking.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT), 4, 1, None, None);
+    let texture_handle: Handle<Image> = asset_server.load("characters/viking.png");
+    let layout =
+        TextureAtlasLayout::from_grid(Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT), 4, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.spawn((
         PlayerStatBundle::new(),
@@ -135,7 +135,7 @@ pub fn spawn_player_hero(
             transform: Transform::from_xyz(0.0, 0.0, PLAYER_Z),
             ..default()
         },
-        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length()/2.),
+        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
     ));
 }
 
@@ -257,7 +257,7 @@ fn player_shoot(
                     Vec3::new(0., 0., 1.0),
                     diff.y.atan2(diff.x),
                 )),
-            texture: asset_server.load("axe.png"),
+            texture: asset_server.load("skills/axe.png"),
             ..default()
         },
         HitList(vec![]),

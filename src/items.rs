@@ -8,7 +8,8 @@ use crate::{
     enemy::Enemy,
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
     player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
-    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle}, SCALE,
+    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+    SCALE,
 };
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
@@ -128,7 +129,7 @@ pub fn spawn_lightning(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     asset_server: Res<AssetServer>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("effects/lightning-strike.png");
+    let texture_handle: Handle<Image> = asset_server.load("skills/lightning-strike.png");
     let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 59.0), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 

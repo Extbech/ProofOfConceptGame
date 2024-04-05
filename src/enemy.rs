@@ -4,7 +4,6 @@ use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
-use std::cmp::max_by;
 use std::time::Duration;
 use test_game::ENEMY_Z;
 
@@ -91,7 +90,7 @@ pub fn spawn_enemies(
     in_game_time: Res<InGameTime>,
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
-        let texture_handle: Handle<Image> = asset_server.load("jotun.png");
+        let texture_handle: Handle<Image> = asset_server.load("characters/jotun.png");
         let layout =
             TextureAtlasLayout::from_grid(Vec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
