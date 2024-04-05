@@ -22,18 +22,18 @@ pub struct EnemyBundle {
     marker: Enemy,
     health: Health,
     speed: MovementSpeed,
-    sprite: SpriteBundle,
+    texture: SpriteSheetBundle,
     radius: Radius,
 }
 
 impl EnemyBundle {
-    pub fn new(sprite: SpriteBundle) -> Self {
+    pub fn new(texture: SpriteSheetBundle) -> Self {
         EnemyBundle {
             cleanup: cleanup::ExitGame,
             marker: Enemy,
             health: Health(2),
             speed: MovementSpeed(100.),
-            sprite,
+            texture,
             radius: Radius(50.),
         }
     }
@@ -70,14 +70,21 @@ pub fn spawn_enemies(
     mut spawncooldown: ResMut<SpawnCooldown>,
     spawnrate: Res<SpawnRate>,
     mut rng: ResMut<GameRng>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
-        let enemy_sprite: Handle<Image> = asset_server.load("models/spiky_blob_enemy.png");
+        let texture_handle: Handle<Image> = asset_server.load("jotun.png");
+        let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 20.0), 4, 1, None, None);
+        let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(EnemyBundle::new(SpriteBundle {
+        commands.spawn(EnemyBundle::new(SpriteSheetBundle {
             transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
-            texture: enemy_sprite,
+            texture: texture_handle,
+            atlas: TextureAtlas {
+                layout: texture_atlas_layout,
+                index: 0,
+            },
             ..default()
         }));
     }
