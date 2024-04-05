@@ -149,10 +149,6 @@ fn spawn_decoration_layer(
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::Bush as usize,
                                     },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
-                                    },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
@@ -228,10 +224,6 @@ fn spawn_ground_layer(
                             layout: texture_atlas_layout.clone(),
                             index: tile_sheet_index as usize,
                         },
-                        sprite: Sprite {
-                            custom_size: Some(TILE_SIZE),
-                            ..Default::default()
-                        },
                         transform: Transform::from_translation(Vec3::new(
                             START_X + (x as f32 * TILE_SIZE.x),
                             START_Y + (y as f32 * TILE_SIZE.y),
@@ -283,10 +275,6 @@ fn spawn_rounded_edges_layer(
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::DownGrassTile as usize,
                                     },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
-                                    },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
@@ -307,10 +295,6 @@ fn spawn_rounded_edges_layer(
                                     atlas: TextureAtlas {
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::TopGrassTile as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
                                     },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
@@ -333,10 +317,6 @@ fn spawn_rounded_edges_layer(
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::LeftGrassTile as usize,
                                     },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
-                                    },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
@@ -357,10 +337,6 @@ fn spawn_rounded_edges_layer(
                                     atlas: TextureAtlas {
                                         layout: texture_atlas_layout.clone(),
                                         index: TileSheetIndex::RightGrassTile as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
                                     },
                                     transform: Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
