@@ -1,11 +1,10 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 
 use crate::{
     cleanup::{self, ExitGame},
     cooldown::InGameTime,
     damage::Health,
     player::{CurrentLevel, CurrentXP, MaxHealth, Player, RequiredXP},
-    MyGameCamera,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -108,58 +107,67 @@ pub fn update_xp_bar_and_level(
 pub fn update_health_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    q_window: Query<&Window, With<PrimaryWindow>>,
-    q_camera: Query<&Transform, (With<MyGameCamera>, Without<HealthUiSprite>)>,
     mut q_health: Query<(&mut Transform, Entity), (With<HealthUiSprite>, Without<Player>)>,
     q_player_health: Query<(&Health, &MaxHealth), (With<Player>, Without<HealthUiSprite>)>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("ui/heart-pixel.png");
-    let window = q_window.single();
-    let camera_pos = q_camera.single().translation;
     let (player_health, player_max_health) = q_player_health.single();
     for (mut _transform, entity) in q_health.iter_mut() {
         commands.entity(entity).despawn();
     }
-    for i in 0..**player_max_health {
-        if i < **player_health {
-            commands.spawn((
-                SpriteBundle {
-                    transform: Transform::from_xyz(
-                        (camera_pos.x - (window.width() / 2.0)) + 50.0 + (i as f32 * 60.0),
-                        (camera_pos.y + (window.height() / 2.0)) - 50.0,
-                        2.0,
-                    ),
-                    texture: texture_handle.clone(),
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(5.0),
                     ..default()
                 },
-                HealthUiSprite,
-                cleanup::ExitGame,
-            ));
-        } else {
-            commands.spawn((
-                SpriteBundle {
-                    transform: Transform::from_xyz(
-                        (camera_pos.x - (window.width() / 2.0)) + 50.0 + (i as f32 * 60.0),
-                        (camera_pos.y + (window.height() / 2.0)) - 50.0,
-                        2.0,
-                    ),
-                    texture: texture_handle.clone(),
-                    sprite: Sprite {
-                        color: Color::Rgba {
-                            red: 0.,
-                            green: 0.,
-                            blue: 0.,
-                            alpha: 0.8,
+                ..default()
+            },
+            HealthUiSprite,
+            cleanup::ExitGame,
+        ))
+        .with_children(|child| {
+            for i in 0..**player_max_health {
+                if i < **player_health {
+                    child.spawn((
+                        NodeBundle {
+                            style: Style {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                margin: UiRect {
+                                    left: Val::Px(5.0),
+                                    top: Val::Px(5.0),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
                         },
-                        ..default()
-                    },
-                    ..default()
-                },
-                HealthUiSprite,
-                cleanup::ExitGame,
-            ));
-        }
-    }
+                        UiImage::new(asset_server.load("ui/heart-pixel.png")),
+                    ));
+                } else {
+                    child.spawn((
+                        NodeBundle {
+                            style: Style {
+                                width: Val::Px(32.0),
+                                height: Val::Px(32.0),
+                                margin: UiRect {
+                                    left: Val::Px(5.0),
+                                    top: Val::Px(5.0),
+                                    ..default()
+                                },
+                                ..default()
+                            },
+                            background_color: Color::WHITE.into(),
+                            ..default()
+                        },
+                        UiImage::new(asset_server.load("ui/heart-pixel.png")),
+                    ));
+                }
+            }
+        });
 }
 
 #[derive(Component)]
