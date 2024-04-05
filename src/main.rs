@@ -84,6 +84,8 @@ struct GameRng(SmallRng);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
+const SCALE: f32 = 1. / 3.;
+
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn((
         Camera2dBundle {
@@ -91,7 +93,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
             projection: OrthographicProjection {
                 far: 1000.,
                 near: -1000.,
-                scale: 1. / 3.,
+                scale: SCALE,
                 ..Default::default()
             },
             ..Default::default()
