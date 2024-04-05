@@ -37,13 +37,6 @@ pub enum TileSheetIndex {
     RightGrassTile = 1238,
     TopGrassTile = 1239,
 }
-#[derive(PartialEq, Eq)]
-pub enum DecorationSpawner {
-    Tree,
-    Bush,
-    Rock,
-    Cactus,
-}
 
 #[derive(Resource)]
 /// Generation seed used strictly for the Perlin grid for map generation.
@@ -104,7 +97,10 @@ fn spawn_decoration_layer(
     map: &Perlin,
     seed: Res<GenerationSeed>,
 ) {
-    let decoration_map = generate_noise_map(seed.0.wrapping_add(1));
+    let tree_map = generate_noise_map(seed.0.wrapping_add(1));
+    let bush_map = generate_noise_map(seed.0.wrapping_add(2));
+    let rock_map = generate_noise_map(seed.0.wrapping_add(3));
+    let cactus_map = generate_noise_map(seed.0.wrapping_add(4));
 
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
     let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
@@ -119,92 +115,98 @@ fn spawn_decoration_layer(
         .with_children(|child| {
             for x in 0..MAP_SIZE.0 {
                 for y in 0..MAP_SIZE.1 {
-                    match should_spawn_decoration(
+                    if should_spawn_tree(
                         map.get([
                             x as f64 / PERLIN_SCALE_FACTOR,
                             y as f64 / PERLIN_SCALE_FACTOR,
                         ]),
-                        decoration_map.get([x as f64 / 30.0, y as f64 / 30.0]),
+                        tree_map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
                     ) {
-                        Some(decoration) => match decoration {
-                            DecorationSpawner::Tree => {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::Tree as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(80.0, 80.0)),
-                                        ..Default::default()
-                                    },
-                                    transform: Transform::from_translation(Vec3::new(
-                                        START_X + (x as f32 * TILE_SIZE.x),
-                                        START_Y + (y as f32 * TILE_SIZE.y),
-                                        TILE_LAYER_3_Z,
-                                    )),
-                                    ..default()
-                                });
-                            }
-                            DecorationSpawner::Bush => {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::Bush as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(TILE_SIZE),
-                                        ..Default::default()
-                                    },
-                                    transform: Transform::from_translation(Vec3::new(
-                                        START_X + (x as f32 * TILE_SIZE.x),
-                                        START_Y + (y as f32 * TILE_SIZE.y),
-                                        TILE_LAYER_3_Z,
-                                    )),
-                                    ..default()
-                                });
-                            }
-                            DecorationSpawner::Rock => {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::Rock as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(50.0, 50.0)),
-                                        ..Default::default()
-                                    },
-                                    transform: Transform::from_translation(Vec3::new(
-                                        START_X + (x as f32 * TILE_SIZE.x),
-                                        START_Y + (y as f32 * TILE_SIZE.y),
-                                        TILE_LAYER_3_Z,
-                                    )),
-                                    ..default()
-                                });
-                            }
-                            DecorationSpawner::Cactus => {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::Cactus as usize,
-                                    },
-                                    sprite: Sprite {
-                                        custom_size: Some(Vec2::new(50.0, 50.0)),
-                                        ..Default::default()
-                                    },
-                                    transform: Transform::from_translation(Vec3::new(
-                                        START_X + (x as f32 * TILE_SIZE.x),
-                                        START_Y + (y as f32 * TILE_SIZE.y),
-                                        TILE_LAYER_3_Z,
-                                    )),
-                                    ..default()
-                                });
-                            }
-                        },
-                        None => continue,
+                        child.spawn(SpriteSheetBundle {
+                            texture: texture_handle.clone(),
+                            atlas: TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: TileSheetIndex::Tree as usize,
+                            },
+                            transform: Transform::from_translation(Vec3::new(
+                                START_X + (x as f32 * TILE_SIZE.x),
+                                START_Y + (y as f32 * TILE_SIZE.y),
+                                TILE_LAYER_3_Z,
+                            )),
+                            ..default()
+                        });
+                    } else if should_spawn_bush(
+                        map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                        bush_map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                    ) {
+                        child.spawn(SpriteSheetBundle {
+                            texture: texture_handle.clone(),
+                            atlas: TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: TileSheetIndex::Bush as usize,
+                            },
+                            transform: Transform::from_translation(Vec3::new(
+                                START_X + (x as f32 * TILE_SIZE.x),
+                                START_Y + (y as f32 * TILE_SIZE.y),
+                                TILE_LAYER_3_Z,
+                            )),
+                            ..default()
+                        });
+                    } else if should_spawn_rock(
+                        map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                        rock_map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                    ) {
+                        child.spawn(SpriteSheetBundle {
+                            texture: texture_handle.clone(),
+                            atlas: TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: TileSheetIndex::Rock as usize,
+                            },
+                            transform: Transform::from_translation(Vec3::new(
+                                START_X + (x as f32 * TILE_SIZE.x),
+                                START_Y + (y as f32 * TILE_SIZE.y),
+                                TILE_LAYER_3_Z,
+                            )),
+                            ..default()
+                        });
+                    } else if should_spawn_cactus(
+                        map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                        cactus_map.get([
+                            x as f64 / PERLIN_SCALE_FACTOR,
+                            y as f64 / PERLIN_SCALE_FACTOR,
+                        ]),
+                    ) {
+                        child.spawn(SpriteSheetBundle {
+                            texture: texture_handle.clone(),
+                            atlas: TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: TileSheetIndex::Cactus as usize,
+                            },
+                            transform: Transform::from_translation(Vec3::new(
+                                START_X + (x as f32 * TILE_SIZE.x),
+                                START_Y + (y as f32 * TILE_SIZE.y),
+                                TILE_LAYER_3_Z,
+                            )),
+                            ..default()
+                        });
                     }
                 }
             }
@@ -393,19 +395,43 @@ fn generate_noise_map(seed: u32) -> Perlin {
     Perlin::new(seed)
 }
 
-fn should_spawn_decoration(ground_val: f64, decoration_val: f64) -> Option<DecorationSpawner> {
+fn should_spawn_tree(ground_val: f64, decoration_val: f64) -> bool {
     match ground_val.abs() {
-        v if v < 0.3 => match decoration_val.abs() {
-            dv if dv > 0.5 && dv < 0.55 => Some(DecorationSpawner::Tree),
-            dv if dv < 0.9 && dv > 0.85 => Some(DecorationSpawner::Bush),
-            _ => None,
+        v if v < 0.4 => match decoration_val.abs() {
+            vd if vd > 0.9 => true,
+            _ => false,
         },
-        v if v > 0.7 => match decoration_val.abs() {
-            dv if dv < 0.05 => Some(DecorationSpawner::Cactus),
-            dv if dv > 0.35 && dv < 0.4 => Some(DecorationSpawner::Rock),
-            _ => None,
+        _ => false,
+    }
+}
+
+fn should_spawn_bush(ground_val: f64, decoration_val: f64) -> bool {
+    match ground_val.abs() {
+        v if v < 0.4 => match decoration_val.abs() {
+            vd if vd > 0.8 && vd < 0.9 => true,
+            _ => false,
         },
-        _ => None,
+        _ => false,
+    }
+}
+
+fn should_spawn_rock(ground_val: f64, decoration_val: f64) -> bool {
+    match ground_val.abs() {
+        v if v > 0.6 => match decoration_val.abs() {
+            vd if vd > 0.9 => true,
+            _ => false,
+        },
+        _ => false,
+    }
+}
+
+fn should_spawn_cactus(ground_val: f64, decoration_val: f64) -> bool {
+    match ground_val.abs() {
+        v if v > 0.6 => match decoration_val.abs() {
+            vd if vd > 0.8 && vd < 0.9 => true,
+            _ => false,
+        },
+        _ => false,
     }
 }
 
