@@ -5,7 +5,7 @@ use crate::{
     cleanup,
     damage::Health,
     items::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
-    player::{MaxHealth, PickUpRadius, Player, PlayerDamage},
+    player::{MaxHealth, XpPickUpRadius, Player, PlayerDamage},
     projectiles::OrbitalRadius,
     AppState, GameRng, GameState, MovementSpeed,
 };
@@ -142,7 +142,7 @@ pub fn handle_selection_cursor(
     >,
     mut player_query: Query<
         (
-            &mut PickUpRadius,
+            &mut XpPickUpRadius,
             &mut MovementSpeed,
             &mut PlayerDamage,
             &mut Health,

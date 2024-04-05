@@ -3,7 +3,7 @@ use crate::{
     cleanup,
     damage::is_collision,
     enemy::Enemy,
-    player::{CurrentXP, PickUpRadius, Player},
+    player::{CurrentXP, XpPickUpRadius, Player},
     GameRng, MovementSpeed,
 };
 use bevy::prelude::*;
@@ -99,55 +99,24 @@ pub fn try_spawn_loot(
     rng: &mut ResMut<GameRng>,
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
-    texture_atlas_layouts: &mut ResMut<Assets<TextureAtlasLayout>>,
     pos: Vec3,
 ) {
     let loot_id = rng.gen_range(0..10);
-    let (image_path, col, row, index, size) = match loot_id {
-        0 => (
-            "potion.png",
-            None,
-            None,
-            None,
-            None,
-        ),
-        1 => (
-            "loot/bomb.png",
-            Some(3),
-            Some(1),
-            Some(1),
-            Some(Vec2::new(80.0, 80.0)),
-        ),
-        2 => ("loot/xp_orb_toggler.png", None, None, None, None),
+    let image_path = match loot_id {
+        0 => "loot/potion.png",
+        1 => "loot/hammeritem.png",
+        2 => "loot/magnet.png",
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
-    if index.is_some() {
-        let layout =
-            TextureAtlasLayout::from_grid(size.unwrap(), col.unwrap(), row.unwrap(), None, None);
-        let texture_atlas_layout = texture_atlas_layouts.add(layout);
-        commands.spawn(LootBundleSheet::new(
-            SpriteSheetBundle {
-                texture: loot_texture_handle,
-                atlas: TextureAtlas {
-                    layout: texture_atlas_layout,
-                    index: index.unwrap(),
-                },
-                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
-                ..default()
-            },
-            LootId(loot_id),
-        ));
-    } else {
-        commands.spawn(LootBundle::new(
-            SpriteBundle {
-                transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
-                texture: loot_texture_handle,
-                ..default()
-            },
-            LootId(loot_id),
-        ));
-    }
+    commands.spawn(LootBundle::new(
+        SpriteBundle {
+            transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
+            texture: loot_texture_handle,
+            ..default()
+        },
+        LootId(loot_id),
+    ));
 }
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
 pub fn spawn_xp_orb(
@@ -203,7 +172,6 @@ pub fn check_for_dead_enemies(
                 &mut rng,
                 &mut commands,
                 &asset_server,
-                &mut texture_atlas_layouts,
                 transform.translation,
             );
         }
@@ -250,7 +218,7 @@ pub fn xp_orbs_collision(
 /// Causes xp orb entities to start moving towards the player if they are within pick up radius.
 /// **NB** Make sure xp_orb movement speed is greater than the players, if not theoretically the player can always outrun the orbs.
 pub fn activate_xp_orb_movement(
-    mut player_query: Query<(&Transform, &PickUpRadius), With<Player>>,
+    mut player_query: Query<(&Transform, &XpPickUpRadius), With<Player>>,
     mut xp_query: Query<(&Transform, &mut XPActive), (With<XP>, Without<Player>)>,
 ) {
     let (player_trasnform, pick_up_radius) = player_query.single_mut();

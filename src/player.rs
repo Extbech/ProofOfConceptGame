@@ -8,7 +8,7 @@ use crate::damage::Radius;
 use crate::damage::{Damage, DamagingBundle};
 use crate::damage::{Health, HitList};
 use crate::projectiles::{ProjectileBundle, ShouldRotate};
-use crate::Heading;
+use crate::{Heading, SCALE};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;
@@ -41,7 +41,7 @@ pub struct CurrentLevel(usize);
 pub struct MaxLevel(usize);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct PickUpRadius(f32);
+pub struct XpPickUpRadius(f32);
 
 #[derive(Component, Deref, DerefMut)]
 pub struct Vulnerability(Cooldown);
@@ -80,7 +80,7 @@ pub struct PlayerStatBundle {
     current_level: CurrentLevel,
     max_level: MaxLevel,
     max_attack_cooldown: MaxAttackCooldown,
-    pick_up_radius: PickUpRadius,
+    pick_up_radius: XpPickUpRadius,
     health: Health,
     max_health: MaxHealth,
 }
@@ -105,7 +105,7 @@ impl PlayerStatBundle {
             required_xp: RequiredXP(100.0),
             current_level: CurrentLevel(1),
             max_level: MaxLevel(100),
-            pick_up_radius: PickUpRadius(100.0),
+            pick_up_radius: XpPickUpRadius(100.0 * SCALE),
             health: Health(2),
             max_health: MaxHealth(2),
         }

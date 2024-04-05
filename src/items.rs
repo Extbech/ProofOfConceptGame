@@ -41,7 +41,8 @@ pub fn pickup_loot(
     let player_pos = player_trans.translation.xy();
     for (loot_trans, loot, ent) in &query_loot {
         let loot_position = loot_trans.translation.xy();
-        if is_collision(player_pos, loot_position, 100., 0.) {
+        const ITEM_PICKUP_RANGE: f32 = 50.;
+        if is_collision(player_pos, loot_position, ITEM_PICKUP_RANGE * SCALE, 0.) {
             match **loot {
                 0 => {
                     if **health < **max_health {
