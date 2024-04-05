@@ -94,8 +94,6 @@ pub struct AnimationTimer(Timer);
 
 /// Spawns loot.
 ///
-/// Health potion sprite sheet: https://opengameart.org/content/icons32x32
-///
 /// Bomb sprite sheet (needs update): https://opengameart.org/content/pixel-art-bomb-animation
 pub fn try_spawn_loot(
     rng: &mut ResMut<GameRng>,
@@ -107,11 +105,11 @@ pub fn try_spawn_loot(
     let loot_id = rng.gen_range(0..10);
     let (image_path, col, row, index, size) = match loot_id {
         0 => (
-            "loot/potions.png",
-            Some(4),
-            Some(2),
-            Some(5),
-            Some(Vec2::new(32.0, 32.0)),
+            "potion.png",
+            None,
+            None,
+            None,
+            None,
         ),
         1 => (
             "loot/bomb.png",
