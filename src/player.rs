@@ -43,7 +43,7 @@ pub struct MaxLevel(usize);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct XpPickUpRadius(f32);
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Default)]
 pub struct Vulnerability(Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -90,7 +90,7 @@ impl PlayerStatBundle {
         PlayerStatBundle {
             cleanup: cleanup::ExitGame,
             marker: Player,
-            vulnerability: Vulnerability(Cooldown::waiting()),
+            vulnerability: Vulnerability(default()),
             dir: default(),
             attack_direction: AttackDirection(Heading::new(Vec2::new(0., 1.))),
             speed: MovementSpeed(300.),
@@ -260,7 +260,7 @@ fn player_shoot(
             texture: asset_server.load("skills/axe.png"),
             ..default()
         },
-        HitList(vec![]),
+        HitList::default(),
     ));
     commands
         .spawn(AudioBundle {

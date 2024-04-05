@@ -93,8 +93,6 @@ pub struct AnimationIndices {
 pub struct AnimationTimer(Timer);
 
 /// Spawns loot.
-///
-/// Bomb sprite sheet (needs update): https://opengameart.org/content/pixel-art-bomb-animation
 pub fn try_spawn_loot(
     rng: &mut ResMut<GameRng>,
     commands: &mut Commands,

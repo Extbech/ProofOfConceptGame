@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use std::{f32::consts::TAU, time::Duration};
+use std::{collections::HashMap, f32::consts::TAU, time::Duration};
 use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
 
 use crate::{
-    cooldown::LifeTime,
-    damage::{is_collision, Damage, DamagingBundle, Health, HitList, Radius},
+    cooldown::{Cooldown, LifeTime},
+    damage::{is_collision, Damage, DamagingBundle, EntityHitCooldown, Health, HitList, Radius},
     enemy::Enemy,
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
     player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
@@ -19,7 +19,7 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
             radius: Radius(1000.),
         },
         LifeTime(Duration::from_secs_f32(1.)),
-        HitList(vec![]),
+        HitList::default(),
         SpatialBundle {
             transform: Transform {
                 translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
@@ -63,6 +63,7 @@ pub fn pickup_loot(
         }
     }
 }
+
 /// This func handles correct angle distance between orb projectiles.
 pub fn spawn_new_orb(
     commands: &mut Commands,
@@ -101,7 +102,7 @@ pub fn spawn_new_orb(
                     damage: Damage(2),
                     radius: Radius(20.),
                 },
-                HitList(vec![]), // TODO: Remove this and add a timing based system for orbiting damagers instead
+                EntityHitCooldown::default(),
             ));
         }
     });

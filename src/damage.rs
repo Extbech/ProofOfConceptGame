@@ -1,13 +1,10 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    enemy::Enemy,
-    player::{Player, Range, Vulnerability},
-    projectiles::{ProjectileBundle, ShouldRotate},
-    Heading, MovementSpeed,
+    cooldown::Cooldown, enemy::Enemy, player::{Player, Range, Vulnerability}, projectiles::{ProjectileBundle, ShouldRotate}, Heading, MovementSpeed
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -26,14 +23,10 @@ pub struct DamagingBundle {
 pub struct Health(pub u32);
 
 /// Damaging entities with a [HitList] can only hit another entity once
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Default)]
 pub struct HitList(pub Vec<Entity>);
 
-/// Damaging entities with a [HitTimer] can only hit another entity once in a while
-#[derive(Component)]
-pub struct HitTimer;
-
-pub fn handle_enemy_damage_from_projectiles(
+pub fn handle_enemy_damage_from_projectiles_with_hitlist(
     mut damager_query: Query<(&GlobalTransform, &Damage, &mut HitList, &Radius)>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
@@ -58,6 +51,51 @@ pub fn handle_enemy_damage_from_projectiles(
                 );
                 hitlist.push(ent)
             }
+        }
+    }
+}
+
+/// Damaging entities with a [EntityHitCooldown] can only hit another entity once in a while
+#[derive(Component, Default, Deref, DerefMut)]
+pub struct EntityHitCooldown(HashMap<Entity,Cooldown>);
+
+pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
+    mut damager_query: Query<(&GlobalTransform, &Damage, &mut EntityHitCooldown, &Radius)>,
+    mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+) {
+    const MAXHITCOOLDOWN: f32 = 1.;
+    for (projectile_transform, damage, mut hitcd, radius) in damager_query.iter_mut() {
+        for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
+            if is_collision(
+                projectile_transform.translation().xy(),
+                enemy_transform.translation().xy(),
+                **radius,
+                **enemy_rad,
+            ) {
+                let cd = hitcd.entry(ent).or_default();
+                for _ in 0..cd.reset(Duration::from_secs_f32(MAXHITCOOLDOWN)) {
+                    **health = health.saturating_sub(**damage);
+                    spawn_damage_text(
+                        &mut commands,
+                        damage,
+                        &asset_server,
+                        enemy_transform.translation().xy(),
+                    );
+                }
+            }
+        }
+    }
+}
+
+pub fn tick_entity_hit_cooldown(
+    mut ent_hit: Query<&mut EntityHitCooldown>,
+    time: Res<Time>
+) {
+    for mut cd_hm in &mut ent_hit {
+        for cd in cd_hm.values_mut() {
+            cd.tick(&time)
         }
     }
 }

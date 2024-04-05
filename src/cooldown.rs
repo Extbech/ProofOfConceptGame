@@ -12,20 +12,20 @@ use crate::{
 /// The cooldown timer can be paused and scales to any length of cooldown, even short ones.
 /// For short cooldowns the output of [Cooldown::reset] should be used to trigger multiple occurences.
 /// It also supports a waiting state for when additional conditions to be met to trigger the event.
-#[derive(Resource, Component, Clone, Default)]
+#[derive(Resource, Component, Clone)]
 pub struct Cooldown {
     timer: Duration,
     waiting: bool,
 }
 
-impl Cooldown {
-    pub fn waiting() -> Self {
-        Cooldown {
-            waiting: true,
-            ..default()
-        }
+impl Default for Cooldown {
+    /// defaults to being ready for almost any length of cooldown, but only processing one duration
+    fn default() -> Self {
+        Self { timer: Duration::from_secs_f32(10000000.), waiting: true }
     }
+}
 
+impl Cooldown {
     /// Resets the cooldown with `period_length` waiting time per period and returns the number of periods elapsed.
     /// Also resets the waiting status of the timer.
     /// When waiting additional conditions only one cooldown period can pass.
