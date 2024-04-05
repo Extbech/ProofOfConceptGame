@@ -1,4 +1,4 @@
-use crate::cooldown::Cooldown;
+use crate::cooldown::{Cooldown, InGameTime};
 use crate::damage::{Health, Radius};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
@@ -32,11 +32,11 @@ const ENEMY_HEIGHT: f32 = 20.;
 const ENEMY_WIDTH: f32 = 22.;
 
 impl EnemyBundle {
-    pub fn new(texture: SpriteSheetBundle) -> Self {
+    pub fn new(texture: SpriteSheetBundle, health: Health) -> Self {
         EnemyBundle {
             cleanup: cleanup::ExitGame,
             marker: Enemy,
-            health: Health(2),
+            health,
             speed: MovementSpeed(100.),
             heading: Heading::new(Vec2::new(0., 0.)),
             radius: Radius(Vec2::new(ENEMY_HEIGHT, ENEMY_WIDTH).length() / 2.),
@@ -88,6 +88,7 @@ pub fn spawn_enemies(
     spawnrate: Res<SpawnRate>,
     mut rng: ResMut<GameRng>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    in_game_time: Res<InGameTime>,
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let texture_handle: Handle<Image> = asset_server.load("jotun.png");
@@ -96,14 +97,22 @@ pub fn spawn_enemies(
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(EnemyBundle::new(SpriteSheetBundle {
-            transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
-            texture: texture_handle,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
+        commands.spawn(EnemyBundle::new(
+            SpriteSheetBundle {
+                transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
+                texture: texture_handle,
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: 0,
+                },
+                ..default()
             },
-            ..default()
-        }));
+            get_enemy_health(&in_game_time),
+        ));
     }
+}
+
+pub fn get_enemy_health(in_game_time: &Res<InGameTime>) -> Health {
+    let health = 10 + (in_game_time.time().as_secs_f32() / 30.0).floor() as u32;
+    return Health(health);
 }
