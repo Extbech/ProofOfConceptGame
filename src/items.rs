@@ -161,7 +161,7 @@ pub fn spawn_lightning(
                         ..default()
                     },
                     LightningEffectMarker,
-                    LifeTime::from_secs_f32(0.06),
+                    LifeTime::from_secs_f32(0.3),
                 ));
                 **enemy_health = enemy_health.saturating_sub(**damage);
                 break;
@@ -180,9 +180,9 @@ pub fn animate_lightning(
     mut lightning_query: Query<(&LifeTime, &mut TextureAtlas), With<LightningEffectMarker>>,
 ) {
     for (lifetime, mut atlas) in &mut lightning_query {
-        if 0.2 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.4 {
+        if 0.1 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.2 {
             atlas.index = 1;
-        } else if 0.4 <= lifetime.as_secs_f32() {
+        } else if 0.2 <= lifetime.as_secs_f32() {
             atlas.index = 0;
         }
     }
