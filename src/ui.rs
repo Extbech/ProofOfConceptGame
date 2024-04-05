@@ -5,6 +5,7 @@ use crate::{
     cooldown::InGameTime,
     damage::Health,
     player::{CurrentLevel, CurrentXP, MaxHealth, Player, RequiredXP},
+    SCALE,
 };
 #[derive(Component)]
 pub struct HealthUiSprite;
@@ -133,8 +134,8 @@ pub fn update_health_ui(
                     child.spawn((
                         NodeBundle {
                             style: Style {
-                                width: Val::Px(32.0),
-                                height: Val::Px(32.0),
+                                width: Val::Px(32.0 / SCALE),
+                                height: Val::Px(32.0 / SCALE),
                                 margin: UiRect {
                                     left: Val::Px(5.0),
                                     top: Val::Px(5.0),
@@ -151,8 +152,8 @@ pub fn update_health_ui(
                     child.spawn((
                         NodeBundle {
                             style: Style {
-                                width: Val::Px(32.0),
-                                height: Val::Px(32.0),
+                                width: Val::Px(32.0 / SCALE),
+                                height: Val::Px(32.0 / SCALE),
                                 margin: UiRect {
                                     left: Val::Px(5.0),
                                     top: Val::Px(5.0),
@@ -160,7 +161,7 @@ pub fn update_health_ui(
                                 },
                                 ..default()
                             },
-                            background_color: Color::WHITE.into(),
+                            background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
                             ..default()
                         },
                         UiImage::new(asset_server.load("ui/heart-pixel.png")),
