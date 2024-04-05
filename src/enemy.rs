@@ -1,9 +1,10 @@
 use crate::cooldown::Cooldown;
 use crate::damage::{Health, Radius};
-use crate::Player;
 use crate::{cleanup, GameRng, MovementSpeed};
+use crate::{Heading, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
+use std::cmp::max_by;
 use std::time::Duration;
 use test_game::ENEMY_Z;
 
@@ -22,6 +23,7 @@ pub struct EnemyBundle {
     marker: Enemy,
     health: Health,
     speed: MovementSpeed,
+    heading: Heading,
     texture: SpriteSheetBundle,
     radius: Radius,
 }
@@ -36,7 +38,8 @@ impl EnemyBundle {
             marker: Enemy,
             health: Health(2),
             speed: MovementSpeed(100.),
-            radius: Radius(Vec2::new(ENEMY_HEIGHT, ENEMY_WIDTH).length()/2.),
+            heading: Heading::new(Vec2::new(0., 0.)),
+            radius: Radius(Vec2::new(ENEMY_HEIGHT, ENEMY_WIDTH).length() / 2.),
             texture,
         }
     }
@@ -44,15 +47,26 @@ impl EnemyBundle {
 
 pub fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<(&mut Transform, &MovementSpeed), (With<Enemy>, Without<Player>)>,
-    time: Res<Time>,
+    mut q_enmy: Query<
+        (&Transform, &mut Heading, &mut TextureAtlas),
+        (With<Enemy>, Without<Player>),
+    >,
 ) {
     let player_position = q_pl.single().translation.xy();
-    for (mut enmy_trans, &speed) in &mut q_enmy {
+    for (enmy_trans, mut heading, mut atlas) in &mut q_enmy {
         let enemy_pos = enmy_trans.translation.xy();
-        enmy_trans.translation = (enemy_pos
-            - (enemy_pos - player_position).normalize_or_zero() * time.delta_seconds() * *speed)
-            .extend(enmy_trans.translation.z);
+        *heading = Heading::new(-(enemy_pos - player_position));
+        atlas.index = [
+            Vec2::new(0., -1.),
+            Vec2::new(0., 1.),
+            Vec2::new(1., 0.),
+            Vec2::new(-1., 0.),
+        ]
+        .into_iter()
+        .enumerate()
+        .max_by(|(_, v1), (_, v2)| v1.dot(**heading).partial_cmp(&v2.dot(**heading)).unwrap())
+        .unwrap()
+        .0;
     }
 }
 
@@ -77,7 +91,8 @@ pub fn spawn_enemies(
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let texture_handle: Handle<Image> = asset_server.load("jotun.png");
-        let layout = TextureAtlasLayout::from_grid(Vec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
+        let layout =
+            TextureAtlasLayout::from_grid(Vec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
