@@ -1,11 +1,11 @@
-use bevy::{app::Plugin, prelude::*};
+use bevy::{app::Plugin, color::palettes::css, prelude::*};
 use rand::prelude::*;
 
 use crate::{
     cleanup,
     damage::Health,
     items::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
-    player::{MaxHealth, XpPickUpRadius, Player, PlayerDamage},
+    player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
     projectiles::OrbitalRadius,
     AppState, GameRng, GameState, MovementSpeed,
 };
@@ -67,19 +67,23 @@ pub fn spawn_upgrade_selection_ui(
         .collect();
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    flex_direction: FlexDirection::Row,
-
-                    ..default()
-                },
-                background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::Row,
                 ..default()
             },
+            BackgroundColor(
+                Color::Srgba(Srgba {
+                    red: 0.0,
+                    green: 0.0,
+                    blue: 0.0,
+                    alpha: 0.7,
+                })
+                .into(),
+            ),
             LevelUpUi,
             cleanup::ExitLevelUpScreen,
         ))
@@ -89,46 +93,37 @@ pub fn spawn_upgrade_selection_ui(
                 .for_each(|(item_type, title, description)| {
                     child
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Percent(20.0),
-                                    height: Val::Percent(40.0),
-                                    align_items: AlignItems::Center,
-                                    margin: UiRect::all(Val::Px(40.0)),
-                                    flex_direction: FlexDirection::Column,
-                                    ..default()
-                                },
-                                background_color: Color::DARK_GRAY.into(),
+                            Node {
+                                width: Val::Percent(20.0),
+                                height: Val::Percent(40.0),
+                                align_items: AlignItems::Center,
+                                margin: UiRect::all(Val::Px(40.0)),
+                                flex_direction: FlexDirection::Column,
                                 ..default()
                             },
+                            Button,
+                            BackgroundColor(css::DARK_GRAY.into()),
                             SelectedItemType(*item_type),
                         ))
                         .with_children(|text_child| {
-                            text_child.spawn(
-                                TextBundle::from_section(
-                                    *title,
-                                    TextStyle {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        font_size: 28.0,
-                                        color: Color::WHITE,
-                                    },
-                                )
-                                .with_text_justify(JustifyText::Center),
-                            );
-                            text_child.spawn(
-                                TextBundle::from_section(
-                                    *description,
-                                    TextStyle {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        font_size: 18.0,
-                                        color: Color::WHITE,
-                                    },
-                                )
-                                .with_style(Style {
-                                    margin: UiRect::top(Val::Px(30.0)),
-                                    ..default()
-                                }),
-                            );
+                            text_child.spawn((
+                                Text::new(*title),
+                                TextFont {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 28.0,
+                                    ..Default::default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
+                            text_child.spawn((
+                                Text::new(*description),
+                                TextFont {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 18.0,
+                                    ..Default::default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
                         });
                 });
         });
@@ -195,9 +190,9 @@ pub fn handle_selection_cursor(
                 game_state.set(GameState::Running);
             }
             Interaction::Hovered => {
-                *background_color = Color::GRAY.into();
+                *background_color = css::GRAY.into();
             }
-            Interaction::None => *background_color = Color::DARK_GRAY.into(),
+            Interaction::None => *background_color = css::DARK_GRAY.into(),
         }
     }
 }

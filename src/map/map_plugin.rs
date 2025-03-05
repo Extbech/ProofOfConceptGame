@@ -5,8 +5,8 @@ use test_game::{TILE_LAYER_1_Z, TILE_LAYER_2_Z, TILE_LAYER_3_Z};
 
 const MAP_SIZE: (usize, usize) = (128, 128);
 const TILE_SIZE: Vec2 = Vec2::new(32.0, 32.0);
-const GRID_COL: usize = 56;
-const GRID_ROW: usize = 24;
+const GRID_COL: u32 = 56;
+const GRID_ROW: u32 = 24;
 const START_X: f32 = -(MAP_SIZE.0 as f32 * TILE_SIZE.x) / 2.0;
 const START_Y: f32 = -(MAP_SIZE.1 as f32 * TILE_SIZE.y) / 2.0;
 const PERLIN_SCALE_FACTOR: f64 = 15.0;
@@ -103,7 +103,13 @@ fn spawn_decoration_layer(
     let cactus_map = generate_noise_map(seed.0.wrapping_add(4));
 
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
-    let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::new(TILE_SIZE.x as u32, TILE_SIZE.y as u32),
+        GRID_COL,
+        GRID_ROW,
+        None,
+        None,
+    );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands
         .spawn(())
@@ -125,19 +131,21 @@ fn spawn_decoration_layer(
                             y as f64 / PERLIN_SCALE_FACTOR,
                         ]),
                     ) {
-                        child.spawn(SpriteSheetBundle {
-                            texture: texture_handle.clone(),
-                            atlas: TextureAtlas {
-                                layout: texture_atlas_layout.clone(),
-                                index: TileSheetIndex::Tree as usize,
+                        child.spawn((
+                            Sprite {
+                                image: texture_handle.clone(),
+                                texture_atlas: Some(TextureAtlas {
+                                    layout: texture_atlas_layout.clone(),
+                                    index: TileSheetIndex::Tree as usize,
+                                }),
+                                ..default()
                             },
-                            transform: Transform::from_translation(Vec3::new(
+                            Transform::from_translation(Vec3::new(
                                 START_X + (x as f32 * TILE_SIZE.x),
                                 START_Y + (y as f32 * TILE_SIZE.y),
                                 TILE_LAYER_3_Z,
                             )),
-                            ..default()
-                        });
+                        ));
                     } else if should_spawn_bush(
                         map.get([
                             x as f64 / PERLIN_SCALE_FACTOR,
@@ -148,19 +156,21 @@ fn spawn_decoration_layer(
                             y as f64 / PERLIN_SCALE_FACTOR,
                         ]),
                     ) {
-                        child.spawn(SpriteSheetBundle {
-                            texture: texture_handle.clone(),
-                            atlas: TextureAtlas {
-                                layout: texture_atlas_layout.clone(),
-                                index: TileSheetIndex::Bush as usize,
+                        child.spawn((
+                            Sprite {
+                                image: texture_handle.clone(),
+                                texture_atlas: Some(TextureAtlas {
+                                    layout: texture_atlas_layout.clone(),
+                                    index: TileSheetIndex::Bush as usize,
+                                }),
+                                ..default()
                             },
-                            transform: Transform::from_translation(Vec3::new(
+                            Transform::from_translation(Vec3::new(
                                 START_X + (x as f32 * TILE_SIZE.x),
                                 START_Y + (y as f32 * TILE_SIZE.y),
                                 TILE_LAYER_3_Z,
                             )),
-                            ..default()
-                        });
+                        ));
                     } else if should_spawn_rock(
                         map.get([
                             x as f64 / PERLIN_SCALE_FACTOR,
@@ -171,19 +181,21 @@ fn spawn_decoration_layer(
                             y as f64 / PERLIN_SCALE_FACTOR,
                         ]),
                     ) {
-                        child.spawn(SpriteSheetBundle {
-                            texture: texture_handle.clone(),
-                            atlas: TextureAtlas {
-                                layout: texture_atlas_layout.clone(),
-                                index: TileSheetIndex::Rock as usize,
+                        child.spawn((
+                            Sprite {
+                                image: texture_handle.clone(),
+                                texture_atlas: Some(TextureAtlas {
+                                    layout: texture_atlas_layout.clone(),
+                                    index: TileSheetIndex::Rock as usize,
+                                }),
+                                ..default()
                             },
-                            transform: Transform::from_translation(Vec3::new(
+                            Transform::from_translation(Vec3::new(
                                 START_X + (x as f32 * TILE_SIZE.x),
                                 START_Y + (y as f32 * TILE_SIZE.y),
                                 TILE_LAYER_3_Z,
                             )),
-                            ..default()
-                        });
+                        ));
                     } else if should_spawn_cactus(
                         map.get([
                             x as f64 / PERLIN_SCALE_FACTOR,
@@ -194,19 +206,21 @@ fn spawn_decoration_layer(
                             y as f64 / PERLIN_SCALE_FACTOR,
                         ]),
                     ) {
-                        child.spawn(SpriteSheetBundle {
-                            texture: texture_handle.clone(),
-                            atlas: TextureAtlas {
-                                layout: texture_atlas_layout.clone(),
-                                index: TileSheetIndex::Cactus as usize,
+                        child.spawn((
+                            Sprite {
+                                image: texture_handle.clone(),
+                                texture_atlas: Some(TextureAtlas {
+                                    layout: texture_atlas_layout.clone(),
+                                    index: TileSheetIndex::Cactus as usize,
+                                }),
+                                ..default()
                             },
-                            transform: Transform::from_translation(Vec3::new(
+                            Transform::from_translation(Vec3::new(
                                 START_X + (x as f32 * TILE_SIZE.x),
                                 START_Y + (y as f32 * TILE_SIZE.y),
                                 TILE_LAYER_3_Z,
                             )),
-                            ..default()
-                        });
+                        ));
                     }
                 }
             }
@@ -220,7 +234,13 @@ fn spawn_ground_layer(
     map: &Perlin,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
-    let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::new(TILE_SIZE.x as u32, TILE_SIZE.y as u32),
+        GRID_COL,
+        GRID_ROW,
+        None,
+        None,
+    );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands
         .spawn(())
@@ -236,19 +256,21 @@ fn spawn_ground_layer(
                         x as f64 / PERLIN_SCALE_FACTOR,
                         y as f64 / PERLIN_SCALE_FACTOR,
                     ]));
-                    child.spawn(SpriteSheetBundle {
-                        texture: texture_handle.clone(),
-                        atlas: TextureAtlas {
-                            layout: texture_atlas_layout.clone(),
-                            index: tile_sheet_index as usize,
+                    child.spawn((
+                        Sprite {
+                            image: texture_handle.clone(),
+                            texture_atlas: Some(TextureAtlas {
+                                layout: texture_atlas_layout.clone(),
+                                index: tile_sheet_index as usize,
+                            }),
+                            ..default()
                         },
-                        transform: Transform::from_translation(Vec3::new(
+                        Transform::from_translation(Vec3::new(
                             START_X + (x as f32 * TILE_SIZE.x),
                             START_Y + (y as f32 * TILE_SIZE.y),
                             TILE_LAYER_1_Z,
                         )),
-                        ..default()
-                    });
+                    ));
                 }
             }
         });
@@ -261,7 +283,13 @@ fn spawn_rounded_edges_layer(
     map: &Perlin,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("environment/map_tilesheet.png");
-    let layout = TextureAtlasLayout::from_grid(TILE_SIZE, GRID_COL, GRID_ROW, None, None);
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::new(TILE_SIZE.x as u32, TILE_SIZE.y as u32),
+        GRID_COL,
+        GRID_ROW,
+        None,
+        None,
+    );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     commands
@@ -287,19 +315,21 @@ fn spawn_rounded_edges_layer(
                                     (y + 1) as f64 / PERLIN_SCALE_FACTOR,
                                 ])) == TileSheetIndex::MiddleGrassTile
                             {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::DownGrassTile as usize,
+                                child.spawn((
+                                    Sprite {
+                                        image: texture_handle.clone(),
+                                        texture_atlas: Some(TextureAtlas {
+                                            layout: texture_atlas_layout.clone(),
+                                            index: TileSheetIndex::DownGrassTile as usize,
+                                        }),
+                                        ..default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(
+                                    Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
                                         TILE_LAYER_2_Z,
                                     )),
-                                    ..default()
-                                });
+                                ));
                             }
                             // Check for Top
                             if y > 0
@@ -308,19 +338,21 @@ fn spawn_rounded_edges_layer(
                                     (y - 1) as f64 / PERLIN_SCALE_FACTOR,
                                 ])) == TileSheetIndex::MiddleGrassTile
                             {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::TopGrassTile as usize,
+                                child.spawn((
+                                    Sprite {
+                                        image: texture_handle.clone(),
+                                        texture_atlas: Some(TextureAtlas {
+                                            layout: texture_atlas_layout.clone(),
+                                            index: TileSheetIndex::TopGrassTile as usize,
+                                        }),
+                                        ..default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(
+                                    Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
                                         TILE_LAYER_2_Z,
                                     )),
-                                    ..default()
-                                });
+                                ));
                             }
                             // Check for Left
                             if x < MAP_SIZE.0
@@ -329,19 +361,21 @@ fn spawn_rounded_edges_layer(
                                     y as f64 / PERLIN_SCALE_FACTOR,
                                 ])) == TileSheetIndex::MiddleGrassTile
                             {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::LeftGrassTile as usize,
+                                child.spawn((
+                                    Sprite {
+                                        image: texture_handle.clone(),
+                                        texture_atlas: Some(TextureAtlas {
+                                            layout: texture_atlas_layout.clone(),
+                                            index: TileSheetIndex::LeftGrassTile as usize,
+                                        }),
+                                        ..default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(
+                                    Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
                                         TILE_LAYER_2_Z,
                                     )),
-                                    ..default()
-                                });
+                                ));
                             }
                             // Check for Right.
                             if x > 0
@@ -350,19 +384,21 @@ fn spawn_rounded_edges_layer(
                                     y as f64 / PERLIN_SCALE_FACTOR,
                                 ])) == TileSheetIndex::MiddleGrassTile
                             {
-                                child.spawn(SpriteSheetBundle {
-                                    texture: texture_handle.clone(),
-                                    atlas: TextureAtlas {
-                                        layout: texture_atlas_layout.clone(),
-                                        index: TileSheetIndex::RightGrassTile as usize,
+                                child.spawn((
+                                    Sprite {
+                                        image: texture_handle.clone(),
+                                        texture_atlas: Some(TextureAtlas {
+                                            layout: texture_atlas_layout.clone(),
+                                            index: TileSheetIndex::RightGrassTile as usize,
+                                        }),
+                                        ..default()
                                     },
-                                    transform: Transform::from_translation(Vec3::new(
+                                    Transform::from_translation(Vec3::new(
                                         START_X + (x as f32 * TILE_SIZE.x),
                                         START_Y + (y as f32 * TILE_SIZE.y),
                                         TILE_LAYER_2_Z,
                                     )),
-                                    ..default()
-                                });
+                                ));
                             }
                         }
                         _ => continue,

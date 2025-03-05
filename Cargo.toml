@@ -6,12 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.13.0", features = ["wav"] }
+bevy = { version = "0.15.3", features = ["wav"] }
 rand = { version = "0.8.5", features = ["small_rng"] }
-bevy_ecs_tilemap = { git = "https://github.com/rparrett/bevy_ecs_tilemap", branch = "bevy13" }
+bevy_ecs_tilemap = "0.15"
 bevy-inspector-egui = "0.23.4"
 noise = "0.9.0"
-winit = "0.29"
+winit = "0.30"
 image = "0.24"
 
 [profile.dev.package."*"]
