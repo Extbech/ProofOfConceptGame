@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::{prelude::*, utils::HashMap};
+use bevy::color::palettes::css;
 use test_game::PROJECTILES_Z;
 
 use crate::{
@@ -113,21 +114,18 @@ fn spawn_damage_text(
             Range(15.),
             ShouldRotate(false),
         ))
-        .insert(Text2dBundle {
-            text: Text::from_section(
-                format!("{:.1}", **damage),
-                TextStyle {
-                    font_size: 40.0,
-                    color: Color::WHITE,
-                    font: asset_server.load("font/pixel-font.ttf"),
-                },
-            ),
-            transform: Transform {
-                translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., PROJECTILES_Z),
+        .insert((
+            Text2d::new(format!("{:.1}", **damage)),
+            TextFont {
+                font_size: 40.0,
+                font: asset_server.load("font/pixel-font.ttf"),
                 ..default()
             },
-            ..default()
-        });
+            TextColor(css::WHITE.into()),
+            Transform {
+                translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., PROJECTILES_Z),
+                ..default()
+            }));
 }
 
 pub fn handle_enemy_damage_to_player(
@@ -148,7 +146,7 @@ pub fn handle_enemy_damage_to_player(
     let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(2.);
     if vulnerability.is_ready(invuln_timer) {
-        sprite.color = sprite.color.with_a(1.0);
+        sprite.color = sprite.color.with_alpha(1.0);
         for (enemy_trans, enemy_rad) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
             if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
@@ -158,7 +156,7 @@ pub fn handle_enemy_damage_to_player(
             }
         }
     } else {
-        sprite.color = sprite.color.with_a(0.6);
+        sprite.color = sprite.color.with_alpha(0.6);
     }
 }
 
