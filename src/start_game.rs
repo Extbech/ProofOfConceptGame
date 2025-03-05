@@ -35,38 +35,38 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         const STATE: AppState = AppState::InGame;
-        app.insert_state(GameState::NotStarted)
-            .add_plugins(
-                DefaultPlugins
-                    .set(ImagePlugin::default_nearest())
-                    .set(WindowPlugin {
-                        primary_window: Some(Window {
-                            resolution: WindowResolution::new(1000., 800.)
-                                .with_scale_factor_override(1.0),
-                            ..default()
-                        }),
+        app.add_plugins(
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        resolution: WindowResolution::new(1000., 800.)
+                            .with_scale_factor_override(1.0),
                         ..default()
                     }),
+                    ..default()
+                }),
+        )
+        .insert_state(GameState::NotStarted)
+        .add_plugins(TilemapPlugin)
+        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(RunningPlugin)
+        .add_plugins(LevelUpPlugin)
+        .add_plugins(PauseGamePlugin)
+        .add_plugins(MapPlugin)
+        .add_systems(
+            OnEnter(STATE),
+            (reset_ingametime, start_game, spawn_player_hero),
+        )
+        .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
+        .add_systems(
+            Update,
+            (
+                animate_sprite,
+                update_health_ui.after(sync_player_and_camera_pos),
             )
-            .add_plugins(TilemapPlugin)
-            .add_plugins(WorldInspectorPlugin::new())
-            .add_plugins(RunningPlugin)
-            .add_plugins(LevelUpPlugin)
-            .add_plugins(PauseGamePlugin)
-            .add_plugins(MapPlugin)
-            .add_systems(
-                OnEnter(STATE),
-                (reset_ingametime, start_game, spawn_player_hero),
-            )
-            .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
-            .add_systems(
-                Update,
-                (
-                    animate_sprite,
-                    update_health_ui.after(sync_player_and_camera_pos),
-                )
-                    .run_if(in_state(STATE)),
-            );
+                .run_if(in_state(STATE)),
+        );
     }
 }
 

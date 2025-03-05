@@ -1,7 +1,6 @@
-use bevy::{app::Plugin, prelude::*};
-
 use crate::{cleanup, AppState};
 use crate::{cleanup::ExitPauseScreen, GameState};
+use bevy::{app::Plugin, color::palettes::css, prelude::*};
 pub struct PauseGamePlugin;
 
 impl Plugin for PauseGamePlugin {
@@ -43,23 +42,28 @@ pub fn render_pause_options_node(
     }
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: Color::rgba(0.0, 0.0, 0.0, 0.8).into(),
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
+            BackgroundColor(
+                Color::Srgba(Srgba {
+                    red: 0.0,
+                    green: 0.0,
+                    blue: 0.0,
+                    alpha: 0.8,
+                })
+                .into(),
+            ),
             ExitPauseScreen,
         ))
         .with_children(|child| {
             child
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         width: Val::Percent(35.0),
                         height: Val::Percent(70.0),
                         align_items: AlignItems::Center,
@@ -67,97 +71,84 @@ pub fn render_pause_options_node(
                         flex_direction: FlexDirection::Column,
                         ..default()
                     },
-                    background_color: Color::DARK_GRAY.into(),
-                    ..default()
-                })
+                    BackgroundColor(css::DARK_GRAY.into()),
+                ))
                 .with_children(|grandchild| {
                     grandchild
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Percent(60.0),
-                                    height: Val::Percent(20.0),
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    ..default()
-                                },
-                                background_color: Color::MIDNIGHT_BLUE.into(),
+                            Node {
+                                width: Val::Percent(60.0),
+                                height: Val::Percent(20.0),
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::Center,
+                                margin: UiRect::all(Val::Px(10.0)),
                                 ..default()
                             },
+                            Button,
+                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
                             OptionsButtonAction::Continue,
                         ))
                         .with_children(|text_child| {
-                            text_child.spawn(
-                                TextBundle::from_section(
-                                    "Continue",
-                                    TextStyle {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        color: Color::WHITE,
-                                        font_size: 38.0,
-                                    },
-                                )
-                                .with_text_justify(JustifyText::Center),
-                            );
+                            text_child.spawn((
+                                Text::new("Continue"),
+                                TextFont {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 38.0,
+                                    ..Default::default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
                         });
                     grandchild
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Percent(60.0),
-                                    height: Val::Percent(20.0),
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    ..default()
-                                },
-                                background_color: Color::MIDNIGHT_BLUE.into(),
+                            Node {
+                                width: Val::Percent(60.0),
+                                height: Val::Percent(20.0),
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::Center,
+                                margin: UiRect::all(Val::Px(10.0)),
                                 ..default()
                             },
+                            Button,
+                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
                             OptionsButtonAction::Settings,
                         ))
                         .with_children(|text_child| {
-                            text_child.spawn(
-                                TextBundle::from_section(
-                                    "Settings",
-                                    TextStyle {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        color: Color::WHITE,
-                                        font_size: 38.0,
-                                    },
-                                )
-                                .with_text_justify(JustifyText::Center),
-                            );
+                            text_child.spawn((
+                                Text::new("Settings"),
+                                TextFont {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 38.0,
+                                    ..Default::default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
                         });
 
                     grandchild
                         .spawn((
-                            ButtonBundle {
-                                style: Style {
-                                    width: Val::Percent(60.0),
-                                    height: Val::Percent(20.0),
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
-                                    margin: UiRect::all(Val::Px(10.0)),
-                                    ..default()
-                                },
-                                background_color: Color::MIDNIGHT_BLUE.into(),
+                            Node {
+                                width: Val::Percent(60.0),
+                                height: Val::Percent(20.0),
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::Center,
+                                margin: UiRect::all(Val::Px(10.0)),
                                 ..default()
                             },
+                            Button,
+                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
                             OptionsButtonAction::Exit,
                         ))
                         .with_children(|text_child| {
-                            text_child.spawn(
-                                TextBundle::from_section(
-                                    "Exit Game",
-                                    TextStyle {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        color: Color::WHITE,
-                                        font_size: 38.0,
-                                    },
-                                )
-                                .with_text_justify(JustifyText::Center),
-                            );
+                            text_child.spawn((
+                                Text::new("Exit Game"),
+                                TextFont {
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    font_size: 38.0,
+                                    ..Default::default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
                         });
                 });
         });
@@ -179,10 +170,10 @@ pub fn handle_options_interaction(
                 OptionsButtonAction::Exit => app_state.set(AppState::MainMenu),
             },
             Interaction::Hovered => {
-                *background_color = Color::ORANGE.into();
+                *background_color = css::ORANGE.into();
             }
             Interaction::None => {
-                *background_color = Color::MIDNIGHT_BLUE.into();
+                *background_color = css::MIDNIGHT_BLUE.into();
             }
         }
     }

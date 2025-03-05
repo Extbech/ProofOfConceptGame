@@ -26,11 +26,11 @@ use winit::window::Icon;
 
 fn main() {
     App::new()
+        .add_plugins(GamePlugin)
         .insert_state(AppState::MainMenu)
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
         })
-        .add_plugins(GamePlugin)
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .run();
