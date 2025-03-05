@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, utils::HashMap};
 use bevy::color::palettes::css;
+use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::{
@@ -126,7 +126,8 @@ fn spawn_damage_text(
             Transform {
                 translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., PROJECTILES_Z),
                 ..default()
-            }));
+            },
+        ));
 }
 
 pub fn handle_enemy_damage_to_player(

@@ -3,7 +3,7 @@ use crate::{
     cleanup,
     damage::is_collision,
     enemy::Enemy,
-    player::{CurrentXP, XpPickUpRadius, Player},
+    player::{CurrentXP, Player, XpPickUpRadius},
     GameRng, MovementSpeed,
 };
 use bevy::prelude::*;
@@ -107,14 +107,16 @@ pub fn try_spawn_loot(
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
-    commands.spawn((LootBundle::new(
-        Sprite {
-            image: loot_texture_handle,
-            ..default()
-        },
-        LootId(loot_id),
-    ),
-    Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),));
+    commands.spawn((
+        LootBundle::new(
+            Sprite {
+                image: loot_texture_handle,
+                ..default()
+            },
+            LootId(loot_id),
+        ),
+        Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
+    ));
 }
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
 pub fn spawn_xp_orb(
@@ -132,22 +134,23 @@ pub fn spawn_xp_orb(
         third: 2,
         fourth: 3,
     };
-    commands.spawn((XPBundle::new(
-        Sprite {
-            image: loot_texture_handle,
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas_layout,
-                index: animation_indices.first,
-            }),
-            ..default()
-        },
-        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
-        animation_indices,
-        10.0,
-        MovementSpeed(500.0),
-    ),
-    Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
-));
+    commands.spawn((
+        XPBundle::new(
+            Sprite {
+                image: loot_texture_handle,
+                texture_atlas: Some(TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: animation_indices.first,
+                }),
+                ..default()
+            },
+            AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+            animation_indices,
+            10.0,
+            MovementSpeed(500.0),
+        ),
+        Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
+    ));
 }
 /// Checks for dead enemies and will spawn loot accordingly.
 pub fn check_for_dead_enemies(

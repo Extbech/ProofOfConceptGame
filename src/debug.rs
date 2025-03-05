@@ -31,7 +31,7 @@ pub fn show_radius(
                 parent.spawn((
                     Mesh2d(meshes.add(Circle::new(**rad)).into()),
                     MeshMaterial2d(color.clone()),
-                    Transform::from_xyz(0., 0., 100.)
+                    Transform::from_xyz(0., 0., 100.),
                 ));
             });
         };

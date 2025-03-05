@@ -46,10 +46,7 @@ impl EnemyBundle {
 
 pub fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<
-        (&Transform, &mut Heading, &mut Sprite),
-        (With<Enemy>, Without<Player>),
-    >,
+    mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
 ) {
     let player_position = q_pl.single().translation.xy();
     for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
@@ -98,16 +95,18 @@ pub fn spawn_enemies(
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn((EnemyBundle::new(
-            Sprite {
-                image: texture_handle,
-                texture_atlas: Some(TextureAtlas {
-                    layout: texture_atlas_layout,
-                    index: 0,
-                }),
-                ..default()
-            },
-            get_enemy_health(&in_game_time)),
+        commands.spawn((
+            EnemyBundle::new(
+                Sprite {
+                    image: texture_handle,
+                    texture_atlas: Some(TextureAtlas {
+                        layout: texture_atlas_layout,
+                        index: 0,
+                    }),
+                    ..default()
+                },
+                get_enemy_health(&in_game_time),
+            ),
             Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
         ));
     }

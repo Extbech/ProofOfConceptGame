@@ -183,7 +183,7 @@ pub fn animate_lightning(
     mut lightning_query: Query<(&LifeTime, &mut Sprite), With<LightningEffectMarker>>,
 ) {
     for (lifetime, mut sprite) in &mut lightning_query {
-        if let Some(atlas) =  &mut sprite.texture_atlas {
+        if let Some(atlas) = &mut sprite.texture_atlas {
             if 0.1 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.2 {
                 atlas.index = 1;
             } else if 0.2 <= lifetime.as_secs_f32() {

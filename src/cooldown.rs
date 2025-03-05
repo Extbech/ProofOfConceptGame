@@ -21,7 +21,10 @@ pub struct Cooldown {
 impl Default for Cooldown {
     /// defaults to being ready for almost any length of cooldown, but only processing one duration
     fn default() -> Self {
-        Self { timer: Duration::from_secs_f32(10000000.), waiting: true }
+        Self {
+            timer: Duration::from_secs_f32(10000000.),
+            waiting: true,
+        }
     }
 }
 
@@ -124,7 +127,7 @@ impl LifeTime {
     pub fn from_secs_f32(s: f32) -> Self {
         LifeTime(Duration::from_secs_f32(s))
     }
-    
+
     pub fn from_speed_and_range(spd: MovementSpeed, rng: Range) -> Self {
         LifeTime::from_secs_f32(*rng / *spd)
     }
