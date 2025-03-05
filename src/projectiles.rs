@@ -53,7 +53,8 @@ pub fn speed_to_movement(
 ) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
-        (pos.x, pos.y) = (Vec2::new(pos.x, pos.y) + *speed * SCALE * time.delta_seconds() * dir.v).into();
+        (pos.x, pos.y) =
+            (Vec2::new(pos.x, pos.y) + *speed * SCALE * time.delta_secs() * dir.v).into();
     }
 }
 
@@ -76,7 +77,7 @@ pub struct OrbitingBundle {
 
 pub fn orbital_movement(time: Res<Time>, mut query: Query<(&AngularVelocity, &mut Angle)>) {
     for (vel, mut ang) in &mut query {
-        **ang += **vel * time.delta_seconds();
+        **ang += **vel * time.delta_secs();
         **ang %= std::f32::consts::TAU;
     }
 }

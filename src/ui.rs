@@ -33,13 +33,10 @@ pub fn update_xp_bar_and_level(
     };
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    flex_direction: FlexDirection::ColumnReverse,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::ColumnReverse,
                 ..default()
             },
             ExitGame,
@@ -47,60 +44,59 @@ pub fn update_xp_bar_and_level(
         ))
         .with_children(|child| {
             child
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         width: Val::Percent(100.0),
                         height: Val::Percent(5.0),
                         align_self: AlignSelf::End,
                         ..default()
                     },
-                    background_color: Color::GRAY.into(),
-                    ..default()
-                })
+                    BackgroundColor(Color::Srgba(Srgba {
+                        red: 0.0,
+                        green: 0.0,
+                        blue: 0.0,
+                        alpha: 0.5,
+                    })),
+                ))
                 .with_children(|grandchild| {
-                    grandchild.spawn(NodeBundle {
-                        style: Style {
+                    grandchild.spawn((
+                        Node {
                             width: Val::Percent(xp_percent),
                             height: Val::Percent(100.0),
                             ..default()
                         },
-                        background_color: Color::CYAN.into(),
-                        ..default()
-                    });
+                        BackgroundColor(Color::Srgba(Srgba {
+                            red: 0.0,
+                            green: 255.0,
+                            blue: 255.0,
+                            alpha: 1.0,
+                        })),
+                    ));
                 });
             child
-                .spawn(NodeBundle {
-                    style: Style {
-                        width: Val::Percent(100.0),
-                        height: Val::Percent(10.0),
-                        align_self: AlignSelf::End,
-                        flex_direction: FlexDirection::Row,
-                        ..default()
-                    },
-
+                .spawn(Node {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(10.0),
+                    align_self: AlignSelf::End,
+                    flex_direction: FlexDirection::Row,
                     ..default()
                 })
                 .with_children(|grandchild| {
-                    grandchild.spawn(NodeBundle {
-                        style: Style {
-                            width: Val::Percent(85.0),
-                            height: Val::Percent(100.0),
-                            align_self: AlignSelf::End,
-                            ..default()
-                        },
+                    grandchild.spawn(Node {
+                        width: Val::Percent(85.0),
+                        height: Val::Percent(100.0),
+                        align_self: AlignSelf::End,
                         ..default()
                     });
-                    grandchild.spawn(
-                        TextBundle::from_section(
-                            format!("lvl. {}", **level),
-                            TextStyle {
-                                font: asset_server.load("font/pixel-font.ttf"),
-                                font_size: 60.0,
-                                color: Color::WHITE,
-                            },
-                        )
-                        .with_no_wrap(),
-                    );
+                    grandchild.spawn((
+                        Text::new(format!("lvl. {}", **level)),
+                        TextFont {
+                            font: asset_server.load("font/pixel-font.ttf"),
+                            font_size: 60.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
+                    ));
                 });
         });
 }
@@ -117,12 +113,9 @@ pub fn update_health_ui(
     }
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(5.0),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(5.0),
                 ..default()
             },
             HealthUiSprite,
@@ -132,41 +125,35 @@ pub fn update_health_ui(
             for i in 0..**player_max_health {
                 if i < **player_health {
                     child.spawn((
-                        NodeBundle {
-                            style: Style {
-                                width: Val::Px(21.0 / SCALE),
-                                height: Val::Px(20.0 / SCALE),
-                                margin: UiRect {
-                                    left: Val::Px(5.0),
-                                    top: Val::Px(5.0),
-                                    ..default()
-                                },
+                        Node {
+                            width: Val::Px(21.0 / SCALE),
+                            height: Val::Px(20.0 / SCALE),
+                            margin: UiRect {
+                                left: Val::Px(5.0),
+                                top: Val::Px(5.0),
                                 ..default()
                             },
-                            background_color: Color::WHITE.into(),
                             ..default()
                         },
-                        UiImage::new(asset_server.load("ui/heart.png")),
+                        ImageNode::new(asset_server.load("ui/heart.png")),
                         HealthUiSprite,
+                        BackgroundColor(Color::WHITE.into()),
                     ));
                 } else {
                     child.spawn((
-                        NodeBundle {
-                            style: Style {
-                                width: Val::Px(21.0 / SCALE),
-                                height: Val::Px(20.0 / SCALE),
-                                margin: UiRect {
-                                    left: Val::Px(5.0),
-                                    top: Val::Px(5.0),
-                                    ..default()
-                                },
+                        Node {
+                            width: Val::Px(21.0 / SCALE),
+                            height: Val::Px(20.0 / SCALE),
+                            margin: UiRect {
+                                left: Val::Px(5.0),
+                                top: Val::Px(5.0),
                                 ..default()
                             },
-                            background_color: Color::rgba(0.0, 0.0, 0.0, 0.7).into(),
                             ..default()
                         },
-                        UiImage::new(asset_server.load("ui/heart.png")),
+                        ImageNode::new(asset_server.load("ui/heart.png")),
                         HealthUiSprite,
+                        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.7).into()),
                     ));
                 }
             }
@@ -187,34 +174,34 @@ pub fn render_stop_watch(
     }
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(8.0),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(8.0),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
             cleanup::ExitGame,
             StopWatchDisplay,
         ))
         .with_children(|child| {
-            child.spawn(
-                TextBundle::from_section(
-                    format!(
-                        "{}:{:0>2}",
-                        igt.time().as_secs() / 60,
-                        igt.time().as_secs() % 60
-                    ),
-                    TextStyle {
-                        font: asset_server.load("font/pixel-font.ttf"),
-                        color: Color::WHITE,
-                        font_size: 34.0,
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
+            child.spawn((
+                Text::new(format!(
+                    "{}:{:0>2}",
+                    igt.time().as_secs() / 60,
+                    igt.time().as_secs() % 60
+                )),
+                TextFont {
+                    font: asset_server.load("font/pixel-font.ttf"),
+                    //color: Color::WHITE,
+                    font_size: 34.0,
+                    ..default()
+                },
+                TextColor(Color::WHITE),
+                TextLayout {
+                    justify: JustifyText::Center,
+                    ..Default::default()
+                },
+            ));
         });
 }

@@ -21,8 +21,8 @@ use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
 use start_game::GamePlugin;
 use start_menu::StartMenuPlugin;
-use winit::window::Icon;
 use std::time::Duration;
+use winit::window::Icon;
 
 fn main() {
     App::new()
@@ -30,11 +30,9 @@ fn main() {
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
         })
-        .insert_resource(Msaa::Off)
         .add_plugins(GamePlugin)
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
-        .insert_resource(Msaa::Off)
         .run();
 }
 
@@ -89,15 +87,13 @@ const SCALE: f32 = 1. / 3.;
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn((
-        Camera2dBundle {
-            transform: Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
-            projection: OrthographicProjection {
-                far: 1000.,
-                near: -1000.,
-                scale: SCALE,
-                ..Default::default()
-            },
-            ..Default::default()
+        Camera2d,
+        Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+        OrthographicProjection {
+            far: 1000.,
+            near: -1000.,
+            scale: SCALE,
+            ..OrthographicProjection::default_2d()
         },
         MyGameCamera,
     ));
@@ -116,9 +112,7 @@ fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
 }
 
 /// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html
-fn set_window_icon(
-    windows: NonSend<WinitWindows>,
-) {
+fn set_window_icon(windows: NonSend<WinitWindows>) {
     let (icon_rgba, icon_width, icon_height) = {
         let image = image::open("assets/window/game.png")
             .expect("Failed to open icon path")
@@ -155,7 +149,7 @@ fn update_cursor(
     // then, ask bevy to convert into world coordinates, and truncate to discard Z
     if let Some(world_position) = window
         .cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).ok())
         .map(|ray| ray.origin.truncate())
     {
         **mycoords = world_position;

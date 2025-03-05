@@ -5,7 +5,11 @@ use bevy::color::palettes::css;
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    cooldown::Cooldown, enemy::Enemy, player::{Player, Range, Vulnerability}, projectiles::{ProjectileBundle, ShouldRotate}, Heading, MovementSpeed
+    cooldown::Cooldown,
+    enemy::Enemy,
+    player::{Player, Range, Vulnerability},
+    projectiles::{ProjectileBundle, ShouldRotate},
+    Heading, MovementSpeed,
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -58,7 +62,7 @@ pub fn handle_enemy_damage_from_projectiles_with_hitlist(
 
 /// Damaging entities with a [EntityHitCooldown] can only hit another entity once in a while
 #[derive(Component, Default, Deref, DerefMut)]
-pub struct EntityHitCooldown(HashMap<Entity,Cooldown>);
+pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
 
 pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
     mut damager_query: Query<(&GlobalTransform, &Damage, &mut EntityHitCooldown, &Radius)>,
@@ -90,10 +94,7 @@ pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
     }
 }
 
-pub fn tick_entity_hit_cooldown(
-    mut ent_hit: Query<&mut EntityHitCooldown>,
-    time: Res<Time>
-) {
+pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Res<Time>) {
     for mut cd_hm in &mut ent_hit {
         for cd in cd_hm.values_mut() {
             cd.tick(&time)

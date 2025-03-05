@@ -1,7 +1,8 @@
-use bevy::prelude::*;
-
 use crate::{cleanup, AppState};
+use bevy::color::palettes::css;
+use bevy::prelude::*;
 pub const GAME_TITLE: &str = "To be Announced";
+
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component, Clone, Copy)]
 enum MenuButtonAction {
@@ -27,38 +28,22 @@ impl<S: States> Plugin for StartMenuPlugin<S> {
 }
 
 pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let button_style = Style {
-        width: Val::Px(300.0),
-        height: Val::Px(100.0),
-        margin: UiRect {
-            left: Val::Percent(0.0),
-            right: Val::Percent(0.0),
-            top: Val::Percent(15.0),
-            bottom: Val::Percent(0.0),
-        },
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Center,
-                    flex_direction: FlexDirection::Column,
-                    ..default()
-                },
-                background_color: Color::MIDNIGHT_BLUE.into(),
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Column,
                 ..default()
             },
+            BackgroundColor(css::MIDNIGHT_BLUE.into()),
             MainMenuScreen,
         ))
         .with_children(|child| {
             child
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         width: Val::Percent(50.0),
                         height: Val::Percent(50.0),
                         align_items: AlignItems::Center,
@@ -71,35 +56,46 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                         },
                         ..default()
                     },
-                    background_color: Color::MIDNIGHT_BLUE.into(),
-                    ..default()
-                })
+                    BackgroundColor(css::MIDNIGHT_BLUE.into()),
+                ))
                 .with_children(|grandchild| {
-                    grandchild.spawn(TextBundle::from_section(
-                        GAME_TITLE,
-                        TextStyle {
-                            font_size: 60.0,
-                            color: Color::ORANGE,
+                    grandchild.spawn((
+                        Text::new(GAME_TITLE),
+                        TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
+                            font_size: 60.0,
+                            ..Default::default()
                         },
+                        TextColor(css::ORANGE.into()),
                     ));
                     grandchild
                         .spawn((
-                            ButtonBundle {
-                                style: button_style.clone(),
-                                background_color: Color::ORANGE.into(),
+                            Node {
+                                width: Val::Px(300.0),
+                                height: Val::Px(100.0),
+                                margin: UiRect {
+                                    left: Val::Percent(0.0),
+                                    right: Val::Percent(0.0),
+                                    top: Val::Percent(15.0),
+                                    bottom: Val::Percent(0.0),
+                                },
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
                                 ..default()
                             },
+                            Button,
+                            BackgroundColor(css::ORANGE.into()),
                             MenuButtonAction::Play,
                         ))
                         .with_children(|great_grandchild| {
-                            great_grandchild.spawn(TextBundle::from_section(
-                                "Start Game",
-                                TextStyle {
+                            great_grandchild.spawn((
+                                Text::new("Start Game"),
+                                TextFont {
                                     font_size: 40.0,
-                                    color: Color::WHITE,
                                     font: asset_server.load("font/pixel-font.ttf"),
+                                    ..Default::default()
                                 },
+                                TextColor(css::WHITE.into()),
                             ));
                         });
                 });
