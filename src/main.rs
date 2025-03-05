@@ -13,7 +13,7 @@ mod start_game;
 mod start_menu;
 mod ui;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use cooldown::InGameTime;
 use enemy::{SpawnCooldown, SpawnRate};
 use items::ItemTooltips;
@@ -21,6 +21,7 @@ use player::Player;
 use rand::{rngs::SmallRng, SeedableRng};
 use start_game::GamePlugin;
 use start_menu::StartMenuPlugin;
+use winit::window::Icon;
 use std::time::Duration;
 
 fn main() {
@@ -31,7 +32,7 @@ fn main() {
         })
         .insert_resource(Msaa::Off)
         .add_plugins(GamePlugin)
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .insert_resource(Msaa::Off)
         .run();
@@ -112,6 +113,25 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let mut curr_window = window.single_mut();
     curr_window.title = start_menu::GAME_TITLE.to_string();
+}
+
+/// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html
+fn set_window_icon(
+    windows: NonSend<WinitWindows>,
+) {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open("assets/window/game.png")
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
+
+    for window in windows.windows.values() {
+        window.set_window_icon(Some(icon.clone()));
+    }
 }
 
 #[derive(Resource, Default, Deref, DerefMut)]
