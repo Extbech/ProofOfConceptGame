@@ -203,24 +203,6 @@ pub enum ItemType {
     ActiveThorLightning,
 }
 #[derive(Component)]
-pub struct PassiveDamageIncrease(pub u8);
-
-#[derive(Component)]
-pub struct PassiveMovementSpeedIncrease(pub u8);
-
-#[derive(Component)]
-pub struct PassivePickUpRadiusIncrease(pub u8);
-
-#[derive(Component)]
-pub struct PassiveHealthIncrease(pub u8);
-
-#[derive(Component)]
-pub struct ActiveOrbitingOrb(pub u8);
-
-#[derive(Component)]
-pub struct ActiveThorLightning(pub u8);
-
-#[derive(Component)]
 pub struct ThorLightningMarker;
 
 #[derive(Bundle)]

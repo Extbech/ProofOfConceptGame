@@ -51,8 +51,6 @@ pub struct LayerTwo;
 #[derive(Component)]
 pub struct LayerThree;
 
-#[derive(Component)]
-pub struct TileType(pub TileSheetIndex);
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {

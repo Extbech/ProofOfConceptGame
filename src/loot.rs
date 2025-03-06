@@ -16,9 +16,6 @@ pub struct XP(f32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct XPActive(pub bool);
 
-#[derive(Component)]
-pub struct XPAbsorbItem;
-
 #[derive(Bundle)]
 pub struct XPBundle {
     cleanup: cleanup::ExitGame,
@@ -73,15 +70,7 @@ pub struct LootBundleSheet {
     id: LootId,
     sprite: Sprite,
 }
-impl LootBundleSheet {
-    pub fn new(sprite: Sprite, id: LootId) -> Self {
-        LootBundleSheet {
-            cleanup: cleanup::ExitGame,
-            id,
-            sprite,
-        }
-    }
-}
+
 #[derive(Component)]
 pub struct AnimationIndices {
     first: usize,

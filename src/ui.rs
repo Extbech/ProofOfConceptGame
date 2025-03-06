@@ -13,9 +13,6 @@ pub struct HealthUiSprite;
 #[derive(Component)]
 pub struct XPBar;
 
-#[derive(Component)]
-pub struct Item;
-
 pub fn update_xp_bar_and_level(
     mut commands: Commands,
     query: Query<(&RequiredXP, &CurrentXP, &CurrentLevel), With<Player>>,
