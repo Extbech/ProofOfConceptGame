@@ -47,26 +47,13 @@ pub fn spawn_xp(
 #[derive(Component, Deref, DerefMut)]
 pub struct LootId(u32);
 
-#[derive(Bundle)]
-pub struct LootBundle {
-    cleanup: cleanup::ExitGame,
-    id: LootId,
-    sprite: Sprite,
-}
-impl LootBundle {
-    pub fn new(sprite: Sprite, id: LootId) -> Self {
-        LootBundle {
-            cleanup: cleanup::ExitGame,
-            id,
-            sprite,
-        }
-    }
-}
-#[derive(Bundle)]
-pub struct LootBundleSheet {
-    cleanup: cleanup::ExitGame,
-    id: LootId,
-    sprite: Sprite,
+pub fn spawn_loot(id: u32, image: Handle<Image>, x: f32, y: f32) -> impl Bundle {
+    (
+        cleanup::ExitGame,
+        LootId(id),
+        Sprite { image, ..default() },
+        Transform::from_xyz(x, y, LOOT_DROPS_Z),
+    )
 }
 
 #[derive(Component)]
@@ -95,17 +82,9 @@ pub fn try_spawn_loot(
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
-    commands.spawn((
-        LootBundle::new(
-            Sprite {
-                image: loot_texture_handle,
-                ..default()
-            },
-            LootId(loot_id),
-        ),
-        Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
-    ));
+    commands.spawn(spawn_loot(loot_id, loot_texture_handle, pos.x, pos.y));
 }
+
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
 pub fn spawn_xp_orb(
     commands: &mut Commands,
