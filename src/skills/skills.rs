@@ -102,15 +102,31 @@ pub fn spawn_new_orb(
     });
 }
 
+#[derive(Component)]
+pub struct ThorLightningMarker;
+
+#[derive(Bundle)]
+pub struct ThorsLightningBundle {
+    attack_cooldown: AttackCooldown,
+    max_cooldown: MaxAttackCooldown,
+    damage: Damage,
+    range: Radius,
+    marker: ThorLightningMarker,
+}
+
+fn thors_lightning() -> impl Bundle {
+    (
+        AttackCooldown(default()),
+        MaxAttackCooldown(Duration::from_secs_f32(5.0)),
+        Damage(3),
+        Radius(500.0),
+        ThorLightningMarker,
+    )
+}
+
 pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Entity) {
     commands.entity(player_entity).with_children(|child| {
-        child.spawn(ThorsLightningBundle {
-            attack_cooldown: AttackCooldown(default()),
-            max_cooldown: MaxAttackCooldown(Duration::from_secs_f32(5.0)),
-            damage: Damage(3),
-            range: Radius(500.0),
-            marker: ThorLightningMarker,
-        });
+        child.spawn(thors_lightning());
     });
 }
 
@@ -195,17 +211,6 @@ pub enum ItemType {
     PassiveHealthIncrease,
     ActiveOrbitingOrb,
     ActiveThorLightning,
-}
-#[derive(Component)]
-pub struct ThorLightningMarker;
-
-#[derive(Bundle)]
-pub struct ThorsLightningBundle {
-    attack_cooldown: AttackCooldown,
-    max_cooldown: MaxAttackCooldown,
-    damage: Damage,
-    range: Radius,
-    marker: ThorLightningMarker,
 }
 
 #[derive(Resource, Deref)]

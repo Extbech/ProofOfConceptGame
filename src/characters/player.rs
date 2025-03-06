@@ -4,8 +4,8 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 use std::time::Duration;
 
 use crate::mechanics::cooldown::{Cooldown, LifeTime};
-use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::Damage;
+use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
@@ -58,34 +58,33 @@ pub struct PlayerDamage(u32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct MaxHealth(pub u32);
 
-#[derive(Bundle)]
-pub struct ProjectileStatBundle {
+fn projectile_stats(
     damage: PlayerDamage,
     projectile_speed: ProjectileSpeed,
     range: Range,
+) -> impl Bundle {
+    (damage, projectile_speed, range)
 }
 
 fn player(layout: Handle<TextureAtlasLayout>, texture: Handle<Image>) -> impl Bundle {
     (
-        (cleanup::ExitGame,
-        Player,
-        Vulnerability(default()),
-        Heading::default(),
-        AttackDirection(Heading::new(Vec2::new(0., 1.))),
-        MovementSpeed(300.),
-        AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(0.5)),
-        ProjectileStatBundle {
-            damage: PlayerDamage(1),
-            projectile_speed: ProjectileSpeed(450.),
-            range: Range(500.),
-        },
-        CurrentXP(0.0),
-        RequiredXP(100.0),
-        CurrentLevel(1),
-        MaxLevel(100),
-        XpPickUpRadius(100.0 * SCALE),
-        Health(2)),
+        (
+            cleanup::ExitGame,
+            Player,
+            Vulnerability(default()),
+            Heading::default(),
+            AttackDirection(Heading::new(Vec2::new(0., 1.))),
+            MovementSpeed(300.),
+            AttackCooldown(default()),
+            MaxAttackCooldown(Duration::from_secs_f32(0.5)),
+            projectile_stats(PlayerDamage(1), ProjectileSpeed(450.), Range(500.)),
+            CurrentXP(0.0),
+            RequiredXP(100.0),
+            CurrentLevel(1),
+            MaxLevel(100),
+            XpPickUpRadius(100.0 * SCALE),
+            Health(2),
+        ),
         MaxHealth(2),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z),
         Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
@@ -96,7 +95,7 @@ fn player(layout: Handle<TextureAtlasLayout>, texture: Handle<Image>) -> impl Bu
                 index: 0,
             }),
             ..default()
-        }
+        },
     )
 }
 
