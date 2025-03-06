@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::damage::Radius;
+use crate::mechanics::damage::Radius;
 
 #[derive(Component)]
 pub struct ShowsRadius;

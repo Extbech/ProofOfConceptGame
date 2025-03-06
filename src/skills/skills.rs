@@ -3,12 +3,14 @@ use std::{f32::consts::TAU, time::Duration};
 use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
 
 use crate::{
-    cooldown::LifeTime,
-    damage::{is_collision, Damage, DamagingBundle, EntityHitCooldown, Health, HitList, Radius},
-    enemy::Enemy,
-    loot::{activate_all_xp_orbs, LootId, XPActive, XP},
-    player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
-    projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+    characters::player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
+    loot::loot::{activate_all_xp_orbs, LootId, XPActive, XP},
+    mechanics::cooldown::LifeTime,
+    mechanics::damage::{
+        is_collision, Damage, DamagingBundle, EntityHitCooldown, Health, HitList, Radius,
+    },
+    mechanics::projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+    mobs::enemy::Enemy,
     SCALE,
 };
 
@@ -20,9 +22,7 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
         },
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
-        Sprite {
-            ..default()
-        },
+        Sprite { ..default() },
         Transform {
             translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
             ..default()

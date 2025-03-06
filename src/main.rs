@@ -1,27 +1,22 @@
-mod cooldown;
-mod damage;
-mod debug;
-mod enemy;
-mod items;
-mod level_up_plugin;
+mod characters;
 mod loot;
 mod map;
-mod pause_game_plugin;
-mod player;
-mod projectiles;
+mod mechanics;
+mod mobs;
+mod skills;
 mod start_game;
-mod start_menu;
+mod tools;
 mod ui;
 
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
-use cooldown::InGameTime;
-use enemy::{SpawnCooldown, SpawnRate};
-use items::ItemTooltips;
-use player::Player;
+use characters::player::Player;
+use mechanics::cooldown::InGameTime;
+use mobs::enemy::{SpawnCooldown, SpawnRate};
 use rand::{rngs::SmallRng, SeedableRng};
+use skills::skills::ItemTooltips;
 use start_game::GamePlugin;
-use start_menu::StartMenuPlugin;
 use std::time::Duration;
+use ui::start_menu::StartMenuPlugin;
 use winit::window::Icon;
 
 fn main() {
@@ -108,7 +103,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let mut curr_window = window.single_mut();
-    curr_window.title = start_menu::GAME_TITLE.to_string();
+    curr_window.title = ui::start_menu::GAME_TITLE.to_string();
 }
 
 /// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html

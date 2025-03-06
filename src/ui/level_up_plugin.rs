@@ -2,11 +2,11 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 use rand::prelude::*;
 
 use crate::{
+    characters::player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
     cleanup,
-    damage::Health,
-    items::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
-    player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
-    projectiles::OrbitalRadius,
+    mechanics::damage::Health,
+    mechanics::projectiles::OrbitalRadius,
+    skills::skills::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
     AppState, GameRng, GameState, MovementSpeed,
 };
 pub struct LevelUpPlugin;

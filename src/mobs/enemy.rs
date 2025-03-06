@@ -1,5 +1,5 @@
-use crate::cooldown::{Cooldown, InGameTime};
-use crate::damage::{Health, Radius};
+use crate::mechanics::cooldown::{Cooldown, InGameTime};
+use crate::mechanics::damage::{Health, Radius};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;

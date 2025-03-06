@@ -3,8 +3,8 @@ use std::{ops::DerefMut, time::Duration};
 use bevy::prelude::*;
 
 use crate::{
-    enemy::SpawnCooldown,
-    player::{AttackCooldown, Range, Vulnerability},
+    characters::player::{AttackCooldown, Range, Vulnerability},
+    mobs::enemy::SpawnCooldown,
     GameState, MovementSpeed,
 };
 

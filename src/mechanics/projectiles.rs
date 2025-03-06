@@ -1,4 +1,7 @@
-use crate::{cleanup, cooldown::LifeTime, player::Range, Heading, MovementSpeed, SCALE};
+use crate::{
+    characters::player::Range, cleanup, mechanics::cooldown::LifeTime, Heading, MovementSpeed,
+    SCALE,
+};
 use bevy::prelude::*;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]

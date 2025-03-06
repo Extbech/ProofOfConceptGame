@@ -5,10 +5,10 @@ use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    cooldown::Cooldown,
-    enemy::Enemy,
-    player::{Player, Range, Vulnerability},
-    projectiles::{ProjectileBundle, ShouldRotate},
+    characters::player::{Player, Range, Vulnerability},
+    mechanics::cooldown::Cooldown,
+    mechanics::projectiles::{ProjectileBundle, ShouldRotate},
+    mobs::enemy::Enemy,
     Heading, MovementSpeed,
 };
 

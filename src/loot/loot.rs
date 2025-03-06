@@ -1,9 +1,9 @@
-use crate::damage::Health;
+use crate::mechanics::damage::Health;
 use crate::{
+    characters::player::{CurrentXP, Player, XpPickUpRadius},
     cleanup,
-    damage::is_collision,
-    enemy::Enemy,
-    player::{CurrentXP, Player, XpPickUpRadius},
+    mechanics::damage::is_collision,
+    mobs::enemy::Enemy,
     GameRng, MovementSpeed,
 };
 use bevy::prelude::*;
@@ -26,6 +26,7 @@ pub struct XPBundle {
     speed: MovementSpeed,
     active: XPActive,
 }
+
 impl XPBundle {
     pub fn new(
         sprite: Sprite,

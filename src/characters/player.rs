@@ -3,11 +3,11 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 
 use std::time::Duration;
 
-use crate::cooldown::{Cooldown, LifeTime};
-use crate::damage::Radius;
-use crate::damage::{Damage, DamagingBundle};
-use crate::damage::{Health, HitList};
-use crate::projectiles::{ProjectileBundle, ShouldRotate};
+use crate::mechanics::cooldown::{Cooldown, LifeTime};
+use crate::mechanics::damage::Radius;
+use crate::mechanics::damage::{Damage, DamagingBundle};
+use crate::mechanics::damage::{Health, HitList};
+use crate::mechanics::projectiles::{ProjectileBundle, ShouldRotate};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
