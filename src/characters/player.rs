@@ -4,10 +4,10 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 use std::time::Duration;
 
 use crate::mechanics::cooldown::{Cooldown, LifeTime};
-use crate::mechanics::damage::Radius;
-use crate::mechanics::damage::{Damage, DamagingBundle};
+use crate::mechanics::damage::{damaging, Radius};
+use crate::mechanics::damage::Damage;
 use crate::mechanics::damage::{Health, HitList};
-use crate::mechanics::projectiles::{ProjectileBundle, ShouldRotate};
+use crate::mechanics::projectiles::{projectile, ShouldRotate};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
@@ -65,51 +65,39 @@ pub struct ProjectileStatBundle {
     range: Range,
 }
 
-#[derive(Bundle)]
-pub struct PlayerStatBundle {
-    cleanup: cleanup::ExitGame,
-    marker: Player,
-    vulnerability: Vulnerability,
-    dir: Heading,
-    attack_direction: AttackDirection,
-    speed: MovementSpeed,
-    attack_cooldown: AttackCooldown,
-    projectile_stats: ProjectileStatBundle,
-    current_xp: CurrentXP,
-    required_xp: RequiredXP,
-    current_level: CurrentLevel,
-    max_level: MaxLevel,
-    max_attack_cooldown: MaxAttackCooldown,
-    pick_up_radius: XpPickUpRadius,
-    health: Health,
-    max_health: MaxHealth,
-}
-
-impl PlayerStatBundle {
-    pub fn new() -> Self {
-        PlayerStatBundle {
-            cleanup: cleanup::ExitGame,
-            marker: Player,
-            vulnerability: Vulnerability(default()),
-            dir: default(),
-            attack_direction: AttackDirection(Heading::new(Vec2::new(0., 1.))),
-            speed: MovementSpeed(300.),
-            attack_cooldown: AttackCooldown(default()),
-            max_attack_cooldown: MaxAttackCooldown(Duration::from_secs_f32(0.5)),
-            projectile_stats: ProjectileStatBundle {
-                damage: PlayerDamage(1),
-                projectile_speed: ProjectileSpeed(450.),
-                range: Range(500.),
-            },
-            current_xp: CurrentXP(0.0),
-            required_xp: RequiredXP(100.0),
-            current_level: CurrentLevel(1),
-            max_level: MaxLevel(100),
-            pick_up_radius: XpPickUpRadius(100.0 * SCALE),
-            health: Health(2),
-            max_health: MaxHealth(2),
+fn player(layout: Handle<TextureAtlasLayout>, texture: Handle<Image>) -> impl Bundle {
+    (
+        (cleanup::ExitGame,
+        Player,
+        Vulnerability(default()),
+        Heading::default(),
+        AttackDirection(Heading::new(Vec2::new(0., 1.))),
+        MovementSpeed(300.),
+        AttackCooldown(default()),
+        MaxAttackCooldown(Duration::from_secs_f32(0.5)),
+        ProjectileStatBundle {
+            damage: PlayerDamage(1),
+            projectile_speed: ProjectileSpeed(450.),
+            range: Range(500.),
+        },
+        CurrentXP(0.0),
+        RequiredXP(100.0),
+        CurrentLevel(1),
+        MaxLevel(100),
+        XpPickUpRadius(100.0 * SCALE),
+        Health(2)),
+        MaxHealth(2),
+        Transform::from_xyz(0.0, 0.0, PLAYER_Z),
+        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
+        Sprite {
+            image: texture,
+            texture_atlas: Some(TextureAtlas {
+                layout: layout,
+                index: 0,
+            }),
+            ..default()
         }
-    }
+    )
 }
 
 const PLAYER_HEIGHT: f32 = 20.;
@@ -129,19 +117,7 @@ pub fn spawn_player_hero(
         None,
     );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands.spawn((
-        PlayerStatBundle::new(),
-        Sprite {
-            image: texture_handle,
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
-            }),
-            ..default()
-        },
-        Transform::from_xyz(0.0, 0.0, PLAYER_Z),
-        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
-    ));
+    commands.spawn(player(texture_atlas_layout, texture_handle));
 }
 
 pub fn sync_player_and_camera_pos(
@@ -252,16 +228,13 @@ fn player_shoot(
 ) {
     let diff = player_position - **dir;
     commands.spawn((
-        ProjectileBundle::new(
+        projectile(
             *dir,
             MovementSpeed(*projectile_speed),
             range,
             ShouldRotate(true),
         ),
-        DamagingBundle {
-            damage: Damage(*damage),
-            radius: Radius(10.),
-        },
+        damaging(Damage(*damage), Radius(10.)),
         (
             Sprite {
                 image: asset_server.load("skills/axe.png"),

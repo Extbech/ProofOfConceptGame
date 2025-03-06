@@ -13,33 +13,20 @@ pub struct ShouldRotate(pub bool);
 #[derive(Component)]
 pub struct ProjectileMarker;
 
-#[derive(Bundle)]
-pub struct ProjectileBundle {
-    cleanup: cleanup::ExitGame,
+pub fn projectile(
     dir: Heading,
     speed: MovementSpeed,
-    lifetime: LifeTime,
-    marker: ProjectileMarker,
+    range: Range,
     should_rotate: ShouldRotate,
+) -> impl Bundle {
+    (cleanup::ExitGame,
+    dir,
+    speed,
+    LifeTime::from_speed_and_range(speed, range),
+    ProjectileMarker,
+    should_rotate)
 }
 
-impl ProjectileBundle {
-    pub fn new(
-        dir: Heading,
-        speed: MovementSpeed,
-        range: Range,
-        should_rotate: ShouldRotate,
-    ) -> Self {
-        ProjectileBundle {
-            cleanup: cleanup::ExitGame,
-            dir,
-            speed,
-            lifetime: LifeTime::from_speed_and_range(speed, range),
-            marker: ProjectileMarker,
-            should_rotate,
-        }
-    }
-}
 pub fn handle_projectile_rotation(
     mut q: Query<(&Heading, &mut Transform, &ShouldRotate), With<ProjectileMarker>>,
 ) {

@@ -7,10 +7,12 @@ use test_game::PROJECTILES_Z;
 use crate::{
     characters::player::{Player, Range, Vulnerability},
     mechanics::cooldown::Cooldown,
-    mechanics::projectiles::{ProjectileBundle, ShouldRotate},
+    mechanics::projectiles::ShouldRotate,
     mobs::enemy::Enemy,
     Heading, MovementSpeed,
 };
+
+use super::projectiles::projectile;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(pub u32);
@@ -18,10 +20,9 @@ pub struct Damage(pub u32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Radius(pub f32);
 
-#[derive(Bundle)]
-pub struct DamagingBundle {
-    pub damage: Damage,
-    pub radius: Radius,
+/// Bundle for entity that can do contact damage
+pub fn damaging(damage: Damage, radius: Radius) -> impl Bundle {
+    (damage, radius)
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -109,7 +110,7 @@ fn spawn_damage_text(
     enemy_pos: Vec2,
 ) {
     commands
-        .spawn(ProjectileBundle::new(
+        .spawn(projectile(
             Heading::new(Vec2::new(0., 1.)),
             MovementSpeed(20.),
             Range(15.),
