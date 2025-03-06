@@ -41,16 +41,15 @@ pub enum TileSheetIndex {
 impl TileSheetIndex {
     fn depth(&self) -> f32 {
         match self {
-            TileSheetIndex::MiddleGrassTile |
-            TileSheetIndex::MiddleSandTile => TILE_LAYER_1_Z,
-            TileSheetIndex::Cactus |
-            TileSheetIndex::Rock |
-            TileSheetIndex::Tree |
-            TileSheetIndex::Bush => TILE_LAYER_3_Z,
-            TileSheetIndex::DownGrassTile |
-            TileSheetIndex::LeftGrassTile |
-            TileSheetIndex::RightGrassTile |
-            TileSheetIndex::TopGrassTile => TILE_LAYER_2_Z,
+            TileSheetIndex::MiddleGrassTile | TileSheetIndex::MiddleSandTile => TILE_LAYER_1_Z,
+            TileSheetIndex::Cactus
+            | TileSheetIndex::Rock
+            | TileSheetIndex::Tree
+            | TileSheetIndex::Bush => TILE_LAYER_3_Z,
+            TileSheetIndex::DownGrassTile
+            | TileSheetIndex::LeftGrassTile
+            | TileSheetIndex::RightGrassTile
+            | TileSheetIndex::TopGrassTile => TILE_LAYER_2_Z,
         }
     }
 }

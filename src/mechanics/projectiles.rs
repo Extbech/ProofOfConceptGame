@@ -19,12 +19,14 @@ pub fn projectile(
     range: Range,
     should_rotate: ShouldRotate,
 ) -> impl Bundle {
-    (cleanup::ExitGame,
-    dir,
-    speed,
-    LifeTime::from_speed_and_range(speed, range),
-    ProjectileMarker,
-    should_rotate)
+    (
+        cleanup::ExitGame,
+        dir,
+        speed,
+        LifeTime::from_speed_and_range(speed, range),
+        ProjectileMarker,
+        should_rotate,
+    )
 }
 
 pub fn handle_projectile_rotation(
