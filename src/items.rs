@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use std::{collections::HashMap, f32::consts::TAU, time::Duration};
+use std::{f32::consts::TAU, time::Duration};
 use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
 
 use crate::{
-    cooldown::{Cooldown, LifeTime},
+    cooldown::LifeTime,
     damage::{is_collision, Damage, DamagingBundle, EntityHitCooldown, Health, HitList, Radius},
     enemy::Enemy,
     loot::{activate_all_xp_orbs, LootId, XPActive, XP},
@@ -20,11 +20,11 @@ pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
         },
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
-        SpatialBundle {
-            transform: Transform {
-                translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
-                ..default()
-            },
+        Sprite {
+            ..default()
+        },
+        Transform {
+            translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
             ..default()
         },
     ));
