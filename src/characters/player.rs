@@ -8,6 +8,7 @@ use crate::mechanics::damage::Damage;
 use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
+use crate::sprites::sprites::{CharacterSpriteKind, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
@@ -66,7 +67,7 @@ fn projectile_stats(
     (damage, projectile_speed, range)
 }
 
-fn player(layout: Handle<TextureAtlasLayout>, texture: Handle<Image>) -> impl Bundle {
+fn player() -> impl Bundle {
     (
         (
             cleanup::ExitGame,
@@ -87,36 +88,13 @@ fn player(layout: Handle<TextureAtlasLayout>, texture: Handle<Image>) -> impl Bu
         ),
         MaxHealth(2),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z),
-        Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
-        Sprite {
-            image: texture,
-            texture_atlas: Some(TextureAtlas {
-                layout: layout,
-                index: 0,
-            }),
-            ..default()
-        },
+        Radius(Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.),
+        SpriteKind::CharacterSpriteKind(CharacterSpriteKind::Warrior),
     )
 }
 
-const PLAYER_HEIGHT: f32 = 20.;
-const PLAYER_WIDTH: f32 = 16.;
-
-pub fn spawn_player_hero(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-) {
-    let texture_handle: Handle<Image> = asset_server.load("characters/viking.png");
-    let layout = TextureAtlasLayout::from_grid(
-        UVec2::new(PLAYER_WIDTH as u32, PLAYER_HEIGHT as u32),
-        4,
-        1,
-        None,
-        None,
-    );
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands.spawn(player(texture_atlas_layout, texture_handle));
+pub fn spawn_player_hero(mut commands: Commands) {
+    commands.spawn(player());
 }
 
 pub fn sync_player_and_camera_pos(

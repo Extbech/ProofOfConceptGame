@@ -1,5 +1,6 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
 use crate::mechanics::damage::{Health, Radius};
+use crate::sprites::sprites::{ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
@@ -26,9 +27,6 @@ pub struct EnemyBundle {
     texture: Sprite,
     radius: Radius,
 }
-
-const ENEMY_HEIGHT: u32 = 20;
-const ENEMY_WIDTH: u32 = 22;
 
 impl EnemyBundle {
     pub fn new(texture: Sprite, health: Health) -> Self {

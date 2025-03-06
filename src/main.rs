@@ -15,6 +15,7 @@ use mechanics::cooldown::InGameTime;
 use mobs::enemy::{SpawnCooldown, SpawnRate};
 use rand::{rngs::SmallRng, SeedableRng};
 use skills::skills::ItemTooltips;
+use sprites::sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
 use ui::start_menu::StartMenuPlugin;
@@ -29,6 +30,7 @@ fn main() {
         })
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
+        .add_systems(Update, add_sprite)
         .run();
 }
 
