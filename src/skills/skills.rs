@@ -5,19 +5,18 @@ use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
 use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
     loot::loot::{activate_all_xp_orbs, LootId, XPActive, XP},
-    mechanics::{cooldown::LifeTime, damage::{
-        damaging, is_collision, Damage, EntityHitCooldown, Health, HitList, Radius
-    }, projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle}},
+    mechanics::{
+        cooldown::LifeTime,
+        damage::{damaging, is_collision, Damage, EntityHitCooldown, Health, HitList, Radius},
+        projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+    },
     mobs::enemy::Enemy,
     SCALE,
 };
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     commands.spawn((
-        damaging(
-            Damage(100),
-            Radius(1000.),
-        ),
+        damaging(Damage(100), Radius(1000.)),
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
         Sprite { ..default() },
@@ -96,10 +95,7 @@ pub fn spawn_new_orb(
                     },
                     ..default()
                 },
-                damaging(
-                    Damage(2),
-                    Radius(20.),
-                ),
+                damaging(Damage(2), Radius(20.)),
                 EntityHitCooldown::default(),
             ));
         }
