@@ -16,35 +16,32 @@ pub struct XP(f32);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct XPActive(pub bool);
 
-#[derive(Bundle)]
-pub struct XPBundle {
-    cleanup: cleanup::ExitGame,
-    sprite: Sprite,
-    animation_timer: AnimationTimer,
-    animation_indices: AnimationIndices,
-    xp: XP,
-    speed: MovementSpeed,
-    active: XPActive,
-}
-
-impl XPBundle {
-    pub fn new(
-        sprite: Sprite,
-        animation_timer: AnimationTimer,
-        animation_indices: AnimationIndices,
-        xp: f32,
-        speed: MovementSpeed,
-    ) -> Self {
-        XPBundle {
-            cleanup: cleanup::ExitGame,
-            sprite,
-            xp: XP(xp),
-            animation_timer,
-            animation_indices,
-            speed,
-            active: XPActive(false),
-        }
-    }
+pub fn spawn_xp(
+    xp_reward: f32,
+    image: Handle<Image>,
+    texture_atlas: Option<TextureAtlas>,
+    x: f32,
+    y: f32,
+) -> impl Bundle {
+    (
+        cleanup::ExitGame,
+        Sprite {
+            image,
+            texture_atlas,
+            ..default()
+        },
+        XP(xp_reward),
+        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+        AnimationIndices {
+            first: 0,
+            second: 1,
+            third: 2,
+            fourth: 3,
+        },
+        MovementSpeed(500.0),
+        XPActive(false),
+        Transform::from_xyz(x, y, LOOT_DROPS_Z),
+    )
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -79,6 +76,7 @@ pub struct AnimationIndices {
     third: usize,
     fourth: usize,
 }
+
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
@@ -118,28 +116,16 @@ pub fn spawn_xp_orb(
     let loot_texture_handle: Handle<Image> = asset_server.load("loot/rotating_orbs.png");
     let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 7, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let animation_indices = AnimationIndices {
-        first: 0,
-        second: 1,
-        third: 2,
-        fourth: 3,
-    };
-    commands.spawn((
-        XPBundle::new(
-            Sprite {
-                image: loot_texture_handle,
-                texture_atlas: Some(TextureAtlas {
-                    layout: texture_atlas_layout,
-                    index: animation_indices.first,
-                }),
-                ..default()
-            },
-            AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
-            animation_indices,
-            10.0,
-            MovementSpeed(500.0),
-        ),
-        Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
+    let texture_atlas = Some(TextureAtlas {
+        layout: texture_atlas_layout,
+        index: 0,
+    });
+    commands.spawn(spawn_xp(
+        10.0,
+        loot_texture_handle,
+        texture_atlas,
+        pos.x,
+        pos.y,
     ));
 }
 /// Checks for dead enemies and will spawn loot accordingly.

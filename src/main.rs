@@ -4,6 +4,7 @@ mod map;
 mod mechanics;
 mod mobs;
 mod skills;
+mod sprites;
 mod start_game;
 mod tools;
 mod ui;
