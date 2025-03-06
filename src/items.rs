@@ -91,8 +91,8 @@ pub fn spawn_new_orb(
                     radius: OrbitalRadius(200. * SCALE),
                     angle,
                     sprite: {
-                        SpriteBundle {
-                            texture: asset_server.load("loot/orb_purple.png"),
+                        Sprite {
+                            image: asset_server.load("loot/orb_purple.png"),
                             ..default()
                         }
                     },
@@ -132,7 +132,7 @@ pub fn spawn_lightning(
     asset_server: Res<AssetServer>,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("skills/lightning-strike.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(22.0, 59.0), 2, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::new(22, 59), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     let Some((mut attack_cd, max_attack_cd, radius, damage)) = lightning_query.iter_mut().next()
@@ -150,19 +150,19 @@ pub fn spawn_lightning(
                 **radius,
             ) {
                 commands.spawn((
-                    SpriteSheetBundle {
-                        texture: texture_handle.clone(),
-                        atlas: TextureAtlas {
+                    Sprite {
+                        texture_atlas: Some(TextureAtlas {
                             layout: texture_atlas_layout.clone(),
                             index: 0,
-                        },
-                        transform: Transform::from_translation(Vec3::new(
-                            enemy_transform.translation.x,
-                            enemy_transform.translation.y,
-                            PROJECTILES_Z,
-                        )),
+                        }),
+                        image: texture_handle.clone(),
                         ..default()
                     },
+                    Transform::from_translation(Vec3::new(
+                        enemy_transform.translation.x,
+                        enemy_transform.translation.y,
+                        PROJECTILES_Z,
+                    )),
                     LightningEffectMarker,
                     LifeTime::from_secs_f32(0.3),
                 ));
@@ -180,13 +180,15 @@ pub fn spawn_lightning(
 pub struct LightningEffectMarker;
 
 pub fn animate_lightning(
-    mut lightning_query: Query<(&LifeTime, &mut TextureAtlas), With<LightningEffectMarker>>,
+    mut lightning_query: Query<(&LifeTime, &mut Sprite), With<LightningEffectMarker>>,
 ) {
-    for (lifetime, mut atlas) in &mut lightning_query {
-        if 0.1 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.2 {
-            atlas.index = 1;
-        } else if 0.2 <= lifetime.as_secs_f32() {
-            atlas.index = 0;
+    for (lifetime, mut sprite) in &mut lightning_query {
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            if 0.1 <= lifetime.as_secs_f32() && lifetime.as_secs_f32() < 0.2 {
+                atlas.index = 1;
+            } else if 0.2 <= lifetime.as_secs_f32() {
+                atlas.index = 0;
+            }
         }
     }
 }

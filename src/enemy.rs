@@ -23,22 +23,22 @@ pub struct EnemyBundle {
     health: Health,
     speed: MovementSpeed,
     heading: Heading,
-    texture: SpriteSheetBundle,
+    texture: Sprite,
     radius: Radius,
 }
 
-const ENEMY_HEIGHT: f32 = 20.;
-const ENEMY_WIDTH: f32 = 22.;
+const ENEMY_HEIGHT: u32 = 20;
+const ENEMY_WIDTH: u32 = 22;
 
 impl EnemyBundle {
-    pub fn new(texture: SpriteSheetBundle, health: Health) -> Self {
+    pub fn new(texture: Sprite, health: Health) -> Self {
         EnemyBundle {
             cleanup: cleanup::ExitGame,
             marker: Enemy,
             health,
             speed: MovementSpeed(100.),
             heading: Heading::new(Vec2::new(0., 0.)),
-            radius: Radius(Vec2::new(ENEMY_HEIGHT, ENEMY_WIDTH).length() / 2.),
+            radius: Radius(Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.),
             texture,
         }
     }
@@ -46,26 +46,25 @@ impl EnemyBundle {
 
 pub fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<
-        (&Transform, &mut Heading, &mut TextureAtlas),
-        (With<Enemy>, Without<Player>),
-    >,
+    mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
 ) {
     let player_position = q_pl.single().translation.xy();
-    for (enmy_trans, mut heading, mut atlas) in &mut q_enmy {
+    for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
         let enemy_pos = enmy_trans.translation.xy();
         *heading = Heading::new(-(enemy_pos - player_position));
-        atlas.index = [
-            Vec2::new(0., -1.),
-            Vec2::new(0., 1.),
-            Vec2::new(1., 0.),
-            Vec2::new(-1., 0.),
-        ]
-        .into_iter()
-        .enumerate()
-        .max_by(|(_, v1), (_, v2)| v1.dot(**heading).partial_cmp(&v2.dot(**heading)).unwrap())
-        .unwrap()
-        .0;
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            atlas.index = [
+                Vec2::new(0., -1.),
+                Vec2::new(0., 1.),
+                Vec2::new(1., 0.),
+                Vec2::new(-1., 0.),
+            ]
+            .into_iter()
+            .enumerate()
+            .max_by(|(_, v1), (_, v2)| v1.dot(**heading).partial_cmp(&v2.dot(**heading)).unwrap())
+            .unwrap()
+            .0;
+        }
     }
 }
 
@@ -92,21 +91,23 @@ pub fn spawn_enemies(
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let texture_handle: Handle<Image> = asset_server.load("characters/jotun.png");
         let layout =
-            TextureAtlasLayout::from_grid(Vec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
+            TextureAtlasLayout::from_grid(UVec2::new(ENEMY_WIDTH, ENEMY_HEIGHT), 4, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(EnemyBundle::new(
-            SpriteSheetBundle {
-                transform: Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
-                texture: texture_handle,
-                atlas: TextureAtlas {
-                    layout: texture_atlas_layout,
-                    index: 0,
+        commands.spawn((
+            EnemyBundle::new(
+                Sprite {
+                    image: texture_handle,
+                    texture_atlas: Some(TextureAtlas {
+                        layout: texture_atlas_layout,
+                        index: 0,
+                    }),
+                    ..default()
                 },
-                ..default()
-            },
-            get_enemy_health(&in_game_time),
+                get_enemy_health(&in_game_time),
+            ),
+            Transform::from_xyz(enemy_position.x, enemy_position.y, ENEMY_Z),
         ));
     }
 }

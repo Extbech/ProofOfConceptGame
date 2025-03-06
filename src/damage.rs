@@ -1,10 +1,15 @@
 use std::time::Duration;
 
+use bevy::color::palettes::css;
 use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    cooldown::Cooldown, enemy::Enemy, player::{Player, Range, Vulnerability}, projectiles::{ProjectileBundle, ShouldRotate}, Heading, MovementSpeed
+    cooldown::Cooldown,
+    enemy::Enemy,
+    player::{Player, Range, Vulnerability},
+    projectiles::{ProjectileBundle, ShouldRotate},
+    Heading, MovementSpeed,
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -57,7 +62,7 @@ pub fn handle_enemy_damage_from_projectiles_with_hitlist(
 
 /// Damaging entities with a [EntityHitCooldown] can only hit another entity once in a while
 #[derive(Component, Default, Deref, DerefMut)]
-pub struct EntityHitCooldown(HashMap<Entity,Cooldown>);
+pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
 
 pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
     mut damager_query: Query<(&GlobalTransform, &Damage, &mut EntityHitCooldown, &Radius)>,
@@ -89,10 +94,7 @@ pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
     }
 }
 
-pub fn tick_entity_hit_cooldown(
-    mut ent_hit: Query<&mut EntityHitCooldown>,
-    time: Res<Time>
-) {
+pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Res<Time>) {
     for mut cd_hm in &mut ent_hit {
         for cd in cd_hm.values_mut() {
             cd.tick(&time)
@@ -113,21 +115,19 @@ fn spawn_damage_text(
             Range(15.),
             ShouldRotate(false),
         ))
-        .insert(Text2dBundle {
-            text: Text::from_section(
-                format!("{:.1}", **damage),
-                TextStyle {
-                    font_size: 40.0,
-                    color: Color::WHITE,
-                    font: asset_server.load("font/pixel-font.ttf"),
-                },
-            ),
-            transform: Transform {
+        .insert((
+            Text2d::new(format!("{:.1}", **damage)),
+            TextFont {
+                font_size: 40.0,
+                font: asset_server.load("font/pixel-font.ttf"),
+                ..default()
+            },
+            TextColor(css::WHITE.into()),
+            Transform {
                 translation: Vec3::new(enemy_pos.x, enemy_pos.y + 30., PROJECTILES_Z),
                 ..default()
             },
-            ..default()
-        });
+        ));
 }
 
 pub fn handle_enemy_damage_to_player(
@@ -148,7 +148,7 @@ pub fn handle_enemy_damage_to_player(
     let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(2.);
     if vulnerability.is_ready(invuln_timer) {
-        sprite.color = sprite.color.with_a(1.0);
+        sprite.color = sprite.color.with_alpha(1.0);
         for (enemy_trans, enemy_rad) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
             if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
@@ -158,7 +158,7 @@ pub fn handle_enemy_damage_to_player(
             }
         }
     } else {
-        sprite.color = sprite.color.with_a(0.6);
+        sprite.color = sprite.color.with_alpha(0.6);
     }
 }
 

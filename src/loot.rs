@@ -3,7 +3,7 @@ use crate::{
     cleanup,
     damage::is_collision,
     enemy::Enemy,
-    player::{CurrentXP, XpPickUpRadius, Player},
+    player::{CurrentXP, Player, XpPickUpRadius},
     GameRng, MovementSpeed,
 };
 use bevy::prelude::*;
@@ -22,7 +22,7 @@ pub struct XPAbsorbItem;
 #[derive(Bundle)]
 pub struct XPBundle {
     cleanup: cleanup::ExitGame,
-    sprite: SpriteSheetBundle,
+    sprite: Sprite,
     animation_timer: AnimationTimer,
     animation_indices: AnimationIndices,
     xp: XP,
@@ -31,7 +31,7 @@ pub struct XPBundle {
 }
 impl XPBundle {
     pub fn new(
-        sprite: SpriteSheetBundle,
+        sprite: Sprite,
         animation_timer: AnimationTimer,
         animation_indices: AnimationIndices,
         xp: f32,
@@ -56,10 +56,10 @@ pub struct LootId(u32);
 pub struct LootBundle {
     cleanup: cleanup::ExitGame,
     id: LootId,
-    sprite: SpriteBundle,
+    sprite: Sprite,
 }
 impl LootBundle {
-    pub fn new(sprite: SpriteBundle, id: LootId) -> Self {
+    pub fn new(sprite: Sprite, id: LootId) -> Self {
         LootBundle {
             cleanup: cleanup::ExitGame,
             id,
@@ -71,10 +71,10 @@ impl LootBundle {
 pub struct LootBundleSheet {
     cleanup: cleanup::ExitGame,
     id: LootId,
-    sprite: SpriteSheetBundle,
+    sprite: Sprite,
 }
 impl LootBundleSheet {
-    pub fn new(sprite: SpriteSheetBundle, id: LootId) -> Self {
+    pub fn new(sprite: Sprite, id: LootId) -> Self {
         LootBundleSheet {
             cleanup: cleanup::ExitGame,
             id,
@@ -107,13 +107,15 @@ pub fn try_spawn_loot(
         _ => return,
     };
     let loot_texture_handle: Handle<Image> = asset_server.load(image_path);
-    commands.spawn(LootBundle::new(
-        SpriteBundle {
-            transform: Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
-            texture: loot_texture_handle,
-            ..default()
-        },
-        LootId(loot_id),
+    commands.spawn((
+        LootBundle::new(
+            Sprite {
+                image: loot_texture_handle,
+                ..default()
+            },
+            LootId(loot_id),
+        ),
+        Transform::from_xyz(pos.x - 20.0, pos.y + 10.0, LOOT_DROPS_Z),
     ));
 }
 /// Responsible for spawning the xp orbs and setting up the animation sequence.
@@ -124,7 +126,7 @@ pub fn spawn_xp_orb(
     pos: Vec3,
 ) {
     let loot_texture_handle: Handle<Image> = asset_server.load("loot/rotating_orbs.png");
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(32.0, 32.0), 7, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 7, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let animation_indices = AnimationIndices {
         first: 0,
@@ -132,20 +134,22 @@ pub fn spawn_xp_orb(
         third: 2,
         fourth: 3,
     };
-    commands.spawn(XPBundle::new(
-        SpriteSheetBundle {
-            texture: loot_texture_handle,
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: animation_indices.first,
+    commands.spawn((
+        XPBundle::new(
+            Sprite {
+                image: loot_texture_handle,
+                texture_atlas: Some(TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: animation_indices.first,
+                }),
+                ..default()
             },
-            transform: Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
-            ..default()
-        },
-        AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
-        animation_indices,
-        10.0,
-        MovementSpeed(500.0),
+            AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+            animation_indices,
+            10.0,
+            MovementSpeed(500.0),
+        ),
+        Transform::from_xyz(pos.x, pos.y, LOOT_DROPS_Z),
     ));
 }
 /// Checks for dead enemies and will spawn loot accordingly.
@@ -178,17 +182,19 @@ pub fn check_for_dead_enemies(
 /// Handles the animation sequence for the xp orbs.
 pub fn animate_sprite(
     time: Res<Time>,
-    mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut TextureAtlas)>,
+    mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut Sprite)>,
 ) {
-    for (indices, mut timer, mut atlas) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            match atlas.index {
-                0 => atlas.index = indices.second,
-                1 => atlas.index = indices.third,
-                2 => atlas.index = indices.fourth,
-                3 => atlas.index = indices.first,
-                _ => unreachable!("Inavlid animation index for this entity."),
+    for (indices, mut timer, mut sprite) in &mut query {
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            timer.tick(time.delta());
+            if timer.just_finished() {
+                match atlas.index {
+                    0 => atlas.index = indices.second,
+                    1 => atlas.index = indices.third,
+                    2 => atlas.index = indices.fourth,
+                    3 => atlas.index = indices.first,
+                    _ => unreachable!("Inavlid animation index for this entity."),
+                }
             }
         }
     }
@@ -243,7 +249,7 @@ pub fn handle_xp_orb_movement(
             let xp_pos = xp_transform.translation.xy();
             let player_pos = player_trasnform.translation.xy();
             xp_transform.translation = (xp_pos
-                - (xp_pos - player_pos).normalize_or_zero() * time.delta_seconds() * **speed)
+                - (xp_pos - player_pos).normalize_or_zero() * time.delta_secs() * **speed)
                 .extend(xp_transform.translation.z);
         }
     }

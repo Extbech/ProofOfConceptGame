@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-};
+use bevy::prelude::*;
 
 use crate::damage::Radius;
 
@@ -22,23 +19,21 @@ pub fn show_radius(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let color = materials.add(Color::Rgba {
+    let color = materials.add(Color::Srgba(Srgba {
         red: 1.,
         green: 0.,
         blue: 0.,
         alpha: 0.3,
-    });
+    }));
     for (rad, ent) in &q {
-        let circ = Mesh2dHandle(meshes.add(Circle::new(**rad)));
         if let Some(mut inent) = commands.get_entity(ent) {
             inent.insert(ShowsRadius).with_children(|parent| {
-                parent.spawn(MaterialMesh2dBundle {
-                    mesh: circ,
-                    material: color.clone(),
-                    transform: Transform::from_xyz(0., 0., 100.),
-                    ..default()
-                });
+                parent.spawn((
+                    Mesh2d(meshes.add(Circle::new(**rad)).into()),
+                    MeshMaterial2d(color.clone()),
+                    Transform::from_xyz(0., 0., 100.),
+                ));
             });
-        }
+        };
     }
 }

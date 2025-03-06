@@ -8,8 +8,8 @@ use crate::damage::Radius;
 use crate::damage::{Damage, DamagingBundle};
 use crate::damage::{Health, HitList};
 use crate::projectiles::{ProjectileBundle, ShouldRotate};
-use crate::{Heading, SCALE};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
+use crate::{Heading, SCALE};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;
 
@@ -121,20 +121,25 @@ pub fn spawn_player_hero(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let texture_handle: Handle<Image> = asset_server.load("characters/viking.png");
-    let layout =
-        TextureAtlasLayout::from_grid(Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT), 4, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::new(PLAYER_WIDTH as u32, PLAYER_HEIGHT as u32),
+        4,
+        1,
+        None,
+        None,
+    );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.spawn((
         PlayerStatBundle::new(),
-        SpriteSheetBundle {
-            texture: texture_handle,
-            atlas: TextureAtlas {
+        Sprite {
+            image: texture_handle,
+            texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout,
                 index: 0,
-            },
-            transform: Transform::from_xyz(0.0, 0.0, PLAYER_Z),
+            }),
             ..default()
         },
+        Transform::from_xyz(0.0, 0.0, PLAYER_Z),
         Radius(Vec2::new(PLAYER_HEIGHT, PLAYER_WIDTH).length() / 2.),
     ));
 }
@@ -151,9 +156,9 @@ pub fn sync_player_and_camera_pos(
 
 pub fn player_movement(
     keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut TextureAtlas, &mut Transform, &mut Heading, &mut Sprite), With<Player>>,
+    mut player: Query<(&mut Transform, &mut Heading, &mut Sprite), With<Player>>,
 ) {
-    let (mut atlas, mut player_trans, mut player_dir, mut player_sprite) = player.single_mut();
+    let (mut player_trans, mut player_dir, mut player_sprite) = player.single_mut();
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };
@@ -162,12 +167,18 @@ pub fn player_movement(
     const BOUND: f32 = 1900.;
 
     if keyboard_dir_x != 0. {
-        atlas.index = 3;
+        if let Some(atlas) = &mut player_sprite.texture_atlas {
+            atlas.index = 3;
+        }
         player_sprite.flip_x = keyboard_dir_x == -1.;
     } else if keyboard_dir_y == 1. {
-        atlas.index = 2;
+        if let Some(atlas) = &mut player_sprite.texture_atlas {
+            atlas.index = 2;
+        }
     } else if keyboard_dir_y == -1. {
-        atlas.index = 1;
+        if let Some(atlas) = &mut player_sprite.texture_atlas {
+            atlas.index = 1;
+        }
     }
     (player_position.x, player_position.y) = player_position
         .xy()
@@ -251,23 +262,22 @@ fn player_shoot(
             damage: Damage(*damage),
             radius: Radius(10.),
         },
-        SpriteBundle {
-            transform: Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z)
-                .with_rotation(Quat::from_axis_angle(
-                    Vec3::new(0., 0., 1.0),
-                    diff.y.atan2(diff.x),
-                )),
-            texture: asset_server.load("skills/axe.png"),
-            ..default()
-        },
+        (
+            Sprite {
+                image: asset_server.load("skills/axe.png"),
+                ..default()
+            },
+            Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
+                Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),
+            ),
+        ),
         HitList::default(),
     ));
-    commands
-        .spawn(AudioBundle {
-            source: asset_server.load("sounds/effects/pew-laser.wav"),
-            settings: PlaybackSettings::ONCE,
-        })
-        .insert(LifeTime(Duration::from_secs(1)));
+    commands.spawn((
+        AudioPlayer::<AudioSource>(asset_server.load("sounds/effects/pew-laser.wav")),
+        PlaybackSettings::ONCE,
+        LifeTime(Duration::from_secs(1)),
+    ));
 }
 
 pub fn handle_player_xp(
