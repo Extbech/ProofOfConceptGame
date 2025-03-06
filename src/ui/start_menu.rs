@@ -44,7 +44,7 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
             child
                 .spawn((
                     Node {
-                        width: Val::Percent(50.0),
+                        width: Val::Percent(70.0),
                         height: Val::Percent(50.0),
                         align_items: AlignItems::Center,
                         flex_direction: FlexDirection::Column,
@@ -91,7 +91,7 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                             great_grandchild.spawn((
                                 Text::new("Start Game"),
                                 TextFont {
-                                    font_size: 40.0,
+                                    font_size: 30.0,
                                     font: asset_server.load("font/pixel-font.ttf"),
                                     ..Default::default()
                                 },
