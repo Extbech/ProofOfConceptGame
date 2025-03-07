@@ -30,35 +30,20 @@ impl Item {
     }
 }
 
-#[derive(Component, Clone, Copy)]
-pub enum Ui {
-    Hearts,
-}
-
-impl Ui {
-    fn image_path(&self) -> &'static str {
-        match self {
-            Ui::Hearts => "ui/heart.png",
-        }
-    }
-
-    fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
-        match self {
-            Ui::Hearts => None,
-        }
-    }
-}
-
 pub const ENEMY_HEIGHT: u32 = 20;
 pub const ENEMY_WIDTH: u32 = 22;
 
 pub const PLAYER_HEIGHT: u32 = 20;
 pub const PLAYER_WIDTH: u32 = 16;
 
+pub const WIZARD_HEIGHT: u32 = 32;
+pub const WIZARD_WIDTH: u32 = 32;
+
 #[derive(Component, Clone, Copy)]
 pub enum Character {
     Jotun,
     Warrior,
+    Wizard
 }
 
 impl Character {
@@ -66,6 +51,7 @@ impl Character {
         match self {
             Character::Jotun => "characters/jotun.png",
             Character::Warrior => "characters/viking.png",
+            Character::Wizard => "characters/wizard.png"
         }
     }
 
@@ -91,6 +77,7 @@ impl Character {
                 ),
                 0,
             )),
+            _ => None
         }
     }
 }
@@ -121,7 +108,6 @@ impl Skill {
 #[derive(Component, Clone, Copy)]
 pub enum SpriteKind {
     Item(Item),
-    Ui(Ui),
     Character(Character),
     Skill(Skill),
 }
@@ -130,7 +116,6 @@ impl SpriteKind {
     fn image_path(&self) -> &'static str {
         match self {
             SpriteKind::Item(x) => x.image_path(),
-            SpriteKind::Ui(x) => x.image_path(),
             SpriteKind::Character(x) => x.image_path(),
             SpriteKind::Skill(x) => x.image_path(),
         }
@@ -139,7 +124,6 @@ impl SpriteKind {
     fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
         match self {
             SpriteKind::Item(x) => x.atlas_layout(),
-            SpriteKind::Ui(x) => x.atlas_layout(),
             SpriteKind::Character(x) => x.atlas_layout(),
             SpriteKind::Skill(x) => x.atlas_layout(),
         }

@@ -12,7 +12,7 @@ mod ui;
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
 use mechanics::cooldown::InGameTime;
-use mobs::enemy::{SpawnCooldown, SpawnRate};
+use mobs::{boss::BossSpawned, enemy::{SpawnCooldown, SpawnRate}};
 use rand::{rngs::SmallRng, SeedableRng};
 use skills::skills_tooltips::SkillTooltips;
 use sprites::add_sprite;
@@ -101,6 +101,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
     commands.insert_resource(SkillTooltips::default());
+    commands.insert_resource(BossSpawned::default());
     app_window_config(window);
 }
 
