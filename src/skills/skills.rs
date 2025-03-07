@@ -16,6 +16,7 @@ use crate::{
             ThorLightningMarker,
         },
     },
+    tools::damage_tracking::{DamageTracker, DamageTrackerKind},
 };
 
 /// This func handles correct angle distance between orb projectiles.
@@ -50,15 +51,23 @@ pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Enti
 
 pub fn spawn_lightning(
     mut commands: Commands,
+    mut damage_tracker: ResMut<DamageTracker>,
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<(&mut Health, &Transform), With<Enemy>>,
     asset_server: Res<AssetServer>,
     mut lightning_query: Query<
-        (&mut AttackCooldown, &MaxAttackCooldown, &Radius, &Damage),
+        (
+            &mut AttackCooldown,
+            &MaxAttackCooldown,
+            &Radius,
+            &Damage,
+            &DamageTrackerKind,
+        ),
         With<ThorLightningMarker>,
     >,
 ) {
-    let Some((mut attack_cd, max_attack_cd, radius, damage)) = lightning_query.iter_mut().next()
+    let Some((mut attack_cd, max_attack_cd, radius, damage, damage_tracker_kind)) =
+        lightning_query.iter_mut().next()
     else {
         return;
     };
@@ -83,6 +92,7 @@ pub fn spawn_lightning(
                     enemy_transform.translation.xy(),
                 );
                 **enemy_health = enemy_health.saturating_sub(**damage);
+                damage_tracker.update(*damage_tracker_kind, **damage);
                 break;
             }
         }

@@ -4,6 +4,7 @@ use bevy::color::palettes::css;
 use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
+use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
     characters::player::{Player, Range, Vulnerability},
     mechanics::cooldown::Cooldown,
@@ -33,12 +34,21 @@ pub struct Health(pub u32);
 pub struct HitList(pub Vec<Entity>);
 
 pub fn handle_enemy_damage_from_projectiles_with_hitlist(
-    mut damager_query: Query<(&GlobalTransform, &Damage, &mut HitList, &Radius)>,
+    mut damage_tracker: ResMut<DamageTracker>,
+    mut damager_query: Query<(
+        &GlobalTransform,
+        &Damage,
+        Option<&DamageTrackerKind>,
+        &mut HitList,
+        &Radius,
+    )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, mut hitlist, radius) in damager_query.iter_mut() {
+    for (projectile_transform, damage, damage_tracker_kind, mut hitlist, radius) in
+        damager_query.iter_mut()
+    {
         for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
             if !hitlist.contains(&ent)
                 && is_collision(
@@ -49,6 +59,9 @@ pub fn handle_enemy_damage_from_projectiles_with_hitlist(
                 )
             {
                 **health = health.saturating_sub(**damage);
+                if let Some(damage_tracker_kind) = damage_tracker_kind {
+                    damage_tracker.update(*damage_tracker_kind, **damage);
+                };
                 spawn_damage_text(
                     &mut commands,
                     damage,
@@ -66,13 +79,22 @@ pub fn handle_enemy_damage_from_projectiles_with_hitlist(
 pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
 
 pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
-    mut damager_query: Query<(&GlobalTransform, &Damage, &mut EntityHitCooldown, &Radius)>,
+    mut damage_tracker: ResMut<DamageTracker>,
+    mut damager_query: Query<(
+        &GlobalTransform,
+        &Damage,
+        Option<&DamageTrackerKind>,
+        &mut EntityHitCooldown,
+        &Radius,
+    )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     const MAXHITCOOLDOWN: f32 = 1.;
-    for (projectile_transform, damage, mut hitcd, radius) in damager_query.iter_mut() {
+    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, radius) in
+        damager_query.iter_mut()
+    {
         for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
             if is_collision(
                 projectile_transform.translation().xy(),
@@ -89,6 +111,9 @@ pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
                         &asset_server,
                         enemy_transform.translation().xy(),
                     );
+                    if let Some(damage_tracker_kind) = damage_tracker_kind {
+                        damage_tracker.update(*damage_tracker_kind, **damage);
+                    }
                 }
             }
         }

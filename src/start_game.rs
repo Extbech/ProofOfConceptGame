@@ -26,6 +26,7 @@ use crate::{
     ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
         level_up_plugin::LevelUpPlugin,
+        loss_plugin::LossPlugin,
         pause_game_plugin::{check_if_paused, PauseGamePlugin},
     },
     update_cursor, AppState, GameState,
@@ -58,6 +59,7 @@ impl Plugin for GamePlugin {
         .add_plugins(LevelUpPlugin)
         .add_plugins(PauseGamePlugin)
         .add_plugins(MapPlugin)
+        .add_plugins(LossPlugin)
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),

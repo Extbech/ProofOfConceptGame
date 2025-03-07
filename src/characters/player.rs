@@ -9,7 +9,8 @@ use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
-use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
+use crate::tools::damage_tracking::DamageTrackerKind;
+use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;
@@ -217,6 +218,7 @@ fn player_shoot(
             Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),
         ),
         HitList::default(),
+        DamageTrackerKind::PrimaryAttack,
     ));
     commands.spawn((
         AudioPlayer::<AudioSource>(asset_server.load("sounds/effects/pew-laser.wav")),
@@ -248,12 +250,10 @@ pub fn handle_player_xp(
 
 pub fn handle_player_death(
     player_query: Query<&Health, With<Player>>,
-    mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     let player_health = player_query.single();
     if **player_health == 0 {
-        app_state.set(AppState::MainMenu);
-        game_state.set(GameState::Paused);
+        game_state.set(GameState::Loss);
     }
 }

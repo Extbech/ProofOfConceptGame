@@ -15,6 +15,7 @@ use crate::{
         damage::{Damage, Radius},
     },
     sprites::{Skill, SpriteKind},
+    tools::damage_tracking::DamageTrackerKind,
 };
 
 #[derive(Component)]
@@ -27,6 +28,7 @@ pub fn thors_lightning_bundle() -> impl Bundle {
         Damage(3),
         Radius(500.0),
         ThorLightningMarker,
+        DamageTrackerKind::Lightning,
     )
 }
 

@@ -18,6 +18,7 @@ use skills::skills_tooltips::SkillTooltips;
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
+use tools::damage_tracking::DamageTracker;
 use ui::start_menu::StartMenuPlugin;
 use winit::window::Icon;
 
@@ -48,6 +49,8 @@ enum GameState {
     Paused,
     Running,
     LevelUp,
+    Win,
+    Loss,
     NotStarted,
 }
 #[derive(Component)]
@@ -101,6 +104,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
     commands.insert_resource(SkillTooltips::default());
+    commands.insert_resource(DamageTracker::default());
     app_window_config(window);
 }
 
@@ -165,6 +169,8 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitPauseScreen;
+    #[derive(Component)]
+    pub struct ExitLossScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
