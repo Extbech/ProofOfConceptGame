@@ -94,6 +94,7 @@ pub fn check_for_dead_enemies(
         }
     }
 }
+
 /// Handles the animation sequence for the xp orbs.
 pub fn animate_sprite(
     time: Res<Time>,
@@ -114,6 +115,7 @@ pub fn animate_sprite(
         }
     }
 }
+
 /// Handles the event where the xp orb is close enough to the player to be consumed.
 pub fn xp_orbs_collision(
     mut commands: Commands,
@@ -134,6 +136,7 @@ pub fn xp_orbs_collision(
         }
     }
 }
+
 /// Causes xp orb entities to start moving towards the player if they are within pick up radius.
 /// **NB** Make sure xp_orb movement speed is greater than the players, if not theoretically the player can always outrun the orbs.
 pub fn activate_xp_orb_movement(

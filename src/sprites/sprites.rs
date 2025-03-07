@@ -163,6 +163,6 @@ pub fn add_sprite(
             texture_atlas,
             ..default()
         };
-        commands.entity(ent).insert(sprite);
+        commands.entity(ent).try_insert(sprite);
     }
 }
