@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crate::characters::player::MaxHealth;
 use crate::mechanics::cooldown::LifeTime;
-use crate::mechanics::damage::{damaging, Damage, Health, HitList, Radius};
+use crate::mechanics::damage::{damaging, Circle, Damage, DealDamageHitBox, Health, HitList};
 use crate::sprites::{Item, SpriteKind};
 use crate::SCALE;
 use crate::{
@@ -214,7 +214,7 @@ pub fn pickup_loot(
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     commands.spawn((
-        damaging(Damage(100), Radius(1000.)),
+        damaging(Damage(100), DealDamageHitBox::Circle(Circle{radius: 1000.})),
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
         Transform {

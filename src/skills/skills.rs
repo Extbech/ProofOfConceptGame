@@ -5,7 +5,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{is_collision, spawn_damage_text, Damage, Health, Radius},
+        damage::{is_collision, spawn_damage_text, Damage, DealDamageHitBox, Health},
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -59,14 +59,14 @@ pub fn spawn_lightning(
         (
             &mut AttackCooldown,
             &MaxAttackCooldown,
-            &Radius,
+            &DealDamageHitBox,
             &Damage,
             &DamageTrackerKind,
         ),
         With<ThorLightningMarker>,
     >,
 ) {
-    let Some((mut attack_cd, max_attack_cd, radius, damage, damage_tracker_kind)) =
+    let Some((mut attack_cd, max_attack_cd, hitbox, damage, damage_tracker_kind)) =
         lightning_query.iter_mut().next()
     else {
         return;
@@ -79,7 +79,7 @@ pub fn spawn_lightning(
                 player_transform.translation.xy(),
                 enemy_transform.translation.xy(),
                 0.0,
-                **radius,
+                if let DealDamageHitBox::Circle(circle) = hitbox {circle.radius} else {panic!()},
             ) {
                 commands.spawn(thors_lightning_strike_bundle(
                     enemy_transform.translation.x,

@@ -18,12 +18,30 @@ use super::projectiles::projectile;
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(pub u32);
 
-#[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub struct Radius(pub f32);
+#[derive(Clone, Copy)]
+pub struct Circle {
+    pub radius: f32
+}
+
+#[derive(Component, Clone, Copy)]
+pub enum DealDamageHitBox {
+    Circle(Circle),
+}
+
+#[derive(Component, Clone, Copy)]
+pub struct TakeDamageHitbox(pub Circle);
+
+fn overlapping(hitbox1: DealDamageHitBox, pos1: Vec2, hitbox2: TakeDamageHitbox, pos2: Vec2) -> bool {
+    match hitbox1 {
+        DealDamageHitBox::Circle(circle) => {
+            pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
+        },
+    }
+}
 
 /// Bundle for entity that can do contact damage
-pub fn damaging(damage: Damage, radius: Radius) -> impl Bundle {
-    (damage, radius)
+pub fn damaging(damage: Damage, hitbox: DealDamageHitBox) -> impl Bundle {
+    (damage, hitbox)
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -41,16 +59,16 @@ pub fn handle_enemy_damage_from_friendly(
         Option<&DamageTrackerKind>,
         Option<&mut EntityHitCooldown>,
         Option<&mut HitList>,
-        &Radius,
+        &DealDamageHitBox,
     )>,
-    mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
+    mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, radius) in
+    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, hitbox) in
         damager_query.iter_mut()
     {
-        for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
+        for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
             if let Some(hitlist) = &hitlist {
                 if hitlist.contains(&ent) {
                     continue
@@ -61,12 +79,8 @@ pub fn handle_enemy_damage_from_friendly(
                     panic!("There is a damaging entity with neither hitlist nor cooldown")
                 }
             }
-            if is_collision(
-                projectile_transform.translation().xy(),
-                enemy_transform.translation().xy(),
-                **radius,
-                **enemy_rad,
-            ) {
+            if overlapping(*hitbox, projectile_transform.translation().xy(), *enemy_hitbox, enemy_transform.translation().xy())
+            {
                 const MAXHITCOOLDOWN: f32 = 1.;
                 let hit_count = if let Some(hitcd) = &mut hitcd {
                     hitcd.entry(ent).or_default().reset(Duration::from_secs_f32(MAXHITCOOLDOWN))
@@ -134,27 +148,27 @@ pub fn spawn_damage_text(
 }
 
 pub fn handle_enemy_damage_to_player(
-    enemy_query: Query<(&GlobalTransform, &Radius), With<Enemy>>,
+    enemy_query: Query<(&GlobalTransform, &DealDamageHitBox), With<Enemy>>,
     mut player_query: Query<
         (
             &GlobalTransform,
             &mut Health,
             &mut Vulnerability,
-            &Radius,
+            &TakeDamageHitbox,
             &mut Sprite,
         ),
         With<Player>,
     >,
 ) {
-    let (player_trans, mut player_health, mut vulnerability, player_radius, mut sprite) =
+    let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
         player_query.single_mut();
     let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(2.);
     if vulnerability.is_ready(invuln_timer) {
         sprite.color = sprite.color.with_alpha(1.0);
-        for (enemy_trans, enemy_rad) in &enemy_query {
+        for (enemy_trans, enemy_hitbox) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
-            if is_collision(player_pos, enemy_pos, **player_radius, **enemy_rad) {
+            if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
                 return;

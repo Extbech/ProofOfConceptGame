@@ -4,8 +4,8 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 use std::time::Duration;
 
 use crate::mechanics::cooldown::{Cooldown, LifeTime};
-use crate::mechanics::damage::Damage;
-use crate::mechanics::damage::{damaging, Radius};
+use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
+use crate::mechanics::damage::damaging;
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
@@ -89,7 +89,7 @@ fn player_bundle() -> impl Bundle {
         ),
         MaxHealth(2),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z),
-        Radius(Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.),
+        TakeDamageHitbox(damage::Circle{radius:Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.}),
         SpriteKind::Character(Character::Warrior),
     )
 }
@@ -212,7 +212,7 @@ fn player_shoot(
             range,
             ShouldRotate(true),
         ),
-        damaging(Damage(*damage), Radius(10.)),
+        damaging(Damage(*damage), damage::DealDamageHitBox::Circle(damage::Circle { radius: 10. })),
         SpriteKind::Skill(Skill::PrimaryAttack),
         Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
             Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),

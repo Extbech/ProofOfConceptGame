@@ -1,5 +1,5 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
-use crate::mechanics::damage::{Health, Radius};
+use crate::mechanics::damage::{Circle, DealDamageHitBox, Health, TakeDamageHitbox};
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
@@ -18,13 +18,15 @@ pub struct SpawnCooldown(pub Cooldown);
 pub struct Enemy;
 
 pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
+    let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
     (
         cleanup::ExitGame,
         Enemy,
         Health(health),
         MovementSpeed(100.),
         Heading::default(),
-        Radius(Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.),
+        DealDamageHitBox::Circle(Circle{radius}),
+        TakeDamageHitbox(Circle{radius}),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),
     )

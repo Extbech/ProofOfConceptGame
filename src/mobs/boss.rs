@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use test_game::ENEMY_Z;
 use rand::prelude::*;
 
-use crate::{characters::player::Player, cleanup, mechanics::{cooldown::InGameTime, damage::{Health, Radius}}, sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH}, GameRng, Heading, MovementSpeed};
+use crate::{characters::player::Player, cleanup, mechanics::{cooldown::InGameTime, damage::{Circle, DealDamageHitBox, Health}}, sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH}, GameRng, Heading, MovementSpeed};
 
 use super::enemy::Enemy;
 
@@ -15,7 +15,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         Health(10),
         MovementSpeed(100.),
         Heading::default(),
-        Radius(Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.),
+        DealDamageHitBox::Circle(Circle{radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.}),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
     )
