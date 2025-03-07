@@ -1,17 +1,17 @@
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
-use crate::{cleanup, tools::damage_tracking::DamageTracker, GameState};
+use crate::{cleanup, tools::damage_tracking::DamageTracker, AppState, GameState};
 pub struct LossPlugin;
 
 impl Plugin for LossPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Loss), spawn_upgrade_loss_ui)
-            // .add_systems(
-            //     Update,
-            //     (handle_selection_cursor)
-            //         .run_if(in_state(AppState::InGame))
-            //         .run_if(in_state(GameState::LevelUp)),
-            // )
+            .add_systems(
+                Update,
+                (handle_button_continue_click)
+                    .run_if(in_state(AppState::InGame))
+                    .run_if(in_state(GameState::Loss)),
+            )
             .add_systems(
                 OnExit(GameState::Loss),
                 (cleanup::<cleanup::ExitLossScreen>,),
@@ -46,10 +46,10 @@ pub fn spawn_upgrade_loss_ui(
                 red: 0.0,
                 green: 0.0,
                 blue: 0.0,
-                alpha: 0.7,
+                alpha: 0.9,
             })),
             LossUi,
-            cleanup::ExitLevelUpScreen,
+            cleanup::ExitLossScreen,
         ))
         .with_children(|child| {
             child
@@ -119,73 +119,69 @@ pub fn spawn_upgrade_loss_ui(
                                 ));
                             });
                         });
+                    grandchild
+                        .spawn((Node {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(100.),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            margin: UiRect {
+                                left: Val::Percent(0.),
+                                right: Val::Percent(0.),
+                                top: Val::Percent(10.),
+                                bottom: Val::Percent(0.),
+                            },
+                            ..default()
+                        },))
+                        .with_children(|button_box_child| {
+                            button_box_child
+                                .spawn((
+                                    Node {
+                                        width: Val::Percent(50.),
+                                        height: Val::Percent(50.),
+                                        align_items: AlignItems::Center,
+                                        justify_content: JustifyContent::Center,
+                                        ..default()
+                                    },
+                                    Button,
+                                    BackgroundColor(css::BLUE.into()),
+                                ))
+                                .with_children(|button_box_text| {
+                                    button_box_text.spawn((
+                                        Text::new("Continue"),
+                                        TextFont {
+                                            font: asset_server.load("font/pixel-font.ttf"),
+                                            font_size: 30.,
+                                            ..default()
+                                        },
+                                        TextColor(css::WHITE.into()),
+                                        TextLayout::new_with_justify(JustifyText::Center),
+                                    ));
+                                });
+                        });
                 });
         });
 }
 
-// pub fn handle_selection_cursor(
-//     mut commands: Commands,
-//     mut interaction_query: Query<
-//         (&Interaction, &SelectedItemType, &mut BackgroundColor),
-//         (Changed<Interaction>, With<Button>),
-//     >,
-//     mut player_query: Query<
-//         (
-//             &mut XpPickUpRadius,
-//             &mut MovementSpeed,
-//             &mut PlayerDamage,
-//             &mut Health,
-//             &mut MaxHealth,
-//             Entity,
-//         ),
-//         With<Player>,
-//     >,
-//     mut orb_query: Query<Entity, With<OrbitalRadius>>,
-//     mut game_state: ResMut<NextState<GameState>>,
-// ) {
-//     let (
-//         mut pick_up_radius,
-//         mut movement_speed,
-//         mut player_damage,
-//         mut health,
-//         mut max_health,
-//         player_entity,
-//     ) = player_query.single_mut();
-//     for (interaction, item_type, mut background_color) in &mut interaction_query {
-//         match interaction {
-//             Interaction::Pressed => {
-//                 match **item_type {
-//                     SkillType::PassiveDamageIncrease => {
-//                         **player_damage += 1;
-//                         println!("damage increase to: {}", **player_damage);
-//                     }
-//                     SkillType::PassiveMovementSpeedIncrease => {
-//                         **movement_speed *= 1.1;
-//                         println!("Movement speed increased to: {}", **movement_speed);
-//                     }
-//                     SkillType::PassivePickUpRadiusIncrease => {
-//                         **pick_up_radius *= 1.1;
-//                         println!("Pickup radius increased to: {}", **pick_up_radius);
-//                     }
-//                     SkillType::ActiveOrbitingOrb => {
-//                         println!("Orb jutsu");
-//                         spawn_new_orb(&mut commands, player_entity, &mut orb_query);
-//                     }
-//                     SkillType::PassiveHealthIncrease => {
-//                         **health += 1;
-//                         **max_health += 1;
-//                         println!("health increased to: {}", **health);
-//                     }
-//                     SkillType::ActiveThorLightning => {
-//                         enable_thors_lightning_skill(&mut commands, player_entity);
-//                     }
-//                 }
-//                 game_state.set(GameState::Running);
-//             }
-//             Interaction::Hovered => {
-//                 *background_color = css::GRAY.into();
-//             }
-//             Interaction::None => *background_color = css::DARK_GRAY.into(),
-//         }
-//     }
-// }
+pub fn handle_button_continue_click(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<Button>),
+    >,
+    mut app_state: ResMut<NextState<AppState>>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    for (interaction, mut background_color) in &mut interaction_query {
+        match interaction {
+            Interaction::Pressed => {
+                game_state.set(GameState::NotStarted);
+                app_state.set(AppState::MainMenu);
+            }
+            Interaction::Hovered => {
+                *background_color = css::ORANGE.into();
+            }
+            Interaction::None => *background_color = css::BLUE.into(),
+        }
+    }
+}

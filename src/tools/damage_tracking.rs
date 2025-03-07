@@ -53,9 +53,14 @@ impl DamageTracker {
     }
 
     pub fn get_sorted_by_damage(self) -> Vec<DamageTrack> {
-        let mut damage_tracking_sorted =
-            vec![self.primary_attack, self.orb_justu, self.lightning_strike];
+        let mut damage_tracking_sorted: Vec<DamageTrack> =
+            vec![self.primary_attack, self.orb_justu, self.lightning_strike]
+                .into_iter()
+                .filter(|x| x.amount > 0)
+                .collect::<Vec<DamageTrack>>();
+
         damage_tracking_sorted.sort_by_key(|k| Reverse(k.amount));
+
         return damage_tracking_sorted;
     }
 }
