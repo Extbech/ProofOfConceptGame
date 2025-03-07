@@ -9,7 +9,7 @@ use crate::{
     SCALE,
 };
 
-pub fn spawn_orb_jutsu_entity(angle: f32) -> impl Bundle {
+pub fn orb_jutsu_bundle(angle: f32) -> impl Bundle {
     (
         AngularVelocity(3.),
         Angle(angle),

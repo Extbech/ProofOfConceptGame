@@ -9,10 +9,11 @@ use crate::{
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
-    skills::entities::{
-        orb_jutsu::spawn_orb_jutsu_entity,
+    skills::bundles::{
+        orb_jutsu::orb_jutsu_bundle,
         thors_lightning::{
-            thors_lightning, thors_lightning_strike, LightningEffectMarker, ThorLightningMarker,
+            thors_lightning_bundle, thors_lightning_strike_bundle, LightningEffectMarker,
+            ThorLightningMarker,
         },
     },
 };
@@ -36,14 +37,14 @@ pub fn spawn_new_orb(
             } else {
                 (TAU / orb_counter as f32) * i as f32
             };
-            parent.spawn(spawn_orb_jutsu_entity(angle));
+            parent.spawn(orb_jutsu_bundle(angle));
         }
     });
 }
 
 pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Entity) {
     commands.entity(player_entity).with_children(|child| {
-        child.spawn(thors_lightning());
+        child.spawn(thors_lightning_bundle());
     });
 }
 
@@ -71,7 +72,7 @@ pub fn spawn_lightning(
                 0.0,
                 **radius,
             ) {
-                commands.spawn(thors_lightning_strike(
+                commands.spawn(thors_lightning_strike_bundle(
                     enemy_transform.translation.x,
                     enemy_transform.translation.y,
                 ));

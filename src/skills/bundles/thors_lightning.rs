@@ -20,7 +20,7 @@ use crate::{
 #[derive(Component)]
 pub struct ThorLightningMarker;
 
-pub fn thors_lightning() -> impl Bundle {
+pub fn thors_lightning_bundle() -> impl Bundle {
     (
         AttackCooldown(default()),
         MaxAttackCooldown(Duration::from_secs_f32(5.0)),
@@ -33,7 +33,7 @@ pub fn thors_lightning() -> impl Bundle {
 #[derive(Component)]
 pub struct LightningEffectMarker;
 
-pub fn thors_lightning_strike(x: f32, y: f32) -> impl Bundle {
+pub fn thors_lightning_strike_bundle(x: f32, y: f32) -> impl Bundle {
     (
         Transform::from_translation(Vec3::new(x, y, PROJECTILES_Z)),
         LightningEffectMarker,
