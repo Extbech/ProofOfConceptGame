@@ -12,8 +12,7 @@ use crate::{
     mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::{
-            handle_enemy_damage_from_projectiles_with_entity_hitcooldown,
-            handle_enemy_damage_from_projectiles_with_hitlist, handle_enemy_damage_to_player,
+            handle_enemy_damage_from_friendly, handle_enemy_damage_to_player,
             tick_entity_hit_cooldown,
         },
         projectiles::{
@@ -102,8 +101,7 @@ impl Plugin for RunningPlugin {
                         sync_player_and_camera_pos,
                         speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
                         spawn_enemies,
-                        handle_enemy_damage_from_projectiles_with_hitlist,
-                        handle_enemy_damage_from_projectiles_with_entity_hitcooldown,
+                        handle_enemy_damage_from_friendly,
                         tick_entity_hit_cooldown,
                         update_enemies,
                         orbital_movement,

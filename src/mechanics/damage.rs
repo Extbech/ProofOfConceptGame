@@ -33,77 +33,47 @@ pub struct Health(pub u32);
 #[derive(Component, Deref, DerefMut, Default)]
 pub struct HitList(pub Vec<Entity>);
 
-pub fn handle_enemy_damage_from_projectiles_with_hitlist(
+pub fn handle_enemy_damage_from_friendly(
     mut damage_tracker: ResMut<DamageTracker>,
     mut damager_query: Query<(
         &GlobalTransform,
         &Damage,
         Option<&DamageTrackerKind>,
-        &mut HitList,
+        Option<&mut EntityHitCooldown>,
+        Option<&mut HitList>,
         &Radius,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, damage_tracker_kind, mut hitlist, radius) in
+    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, radius) in
         damager_query.iter_mut()
     {
         for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
-            if !hitlist.contains(&ent)
-                && is_collision(
-                    projectile_transform.translation().xy(),
-                    enemy_transform.translation().xy(),
-                    **radius,
-                    **enemy_rad,
-                )
-            {
-                **health = health.saturating_sub(**damage);
-                if let Some(damage_tracker_kind) = damage_tracker_kind {
-                    damage_tracker.update(*damage_tracker_kind, **damage);
-                };
-                spawn_damage_text(
-                    &mut commands,
-                    damage,
-                    &asset_server,
-                    enemy_transform.translation().xy(),
-                );
-                hitlist.push(ent)
+            if let Some(hitlist) = &hitlist {
+                if hitlist.contains(&ent) {
+                    continue
+                }
+            } else {
+                #[cfg(debug_assertions)]
+                if let None = hitcd {
+                    panic!("There is a damaging entity with neither hitlist nor cooldown")
+                }
             }
-        }
-    }
-}
-
-/// Damaging entities with a [EntityHitCooldown] can only hit another entity once in a while
-#[derive(Component, Default, Deref, DerefMut)]
-pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
-
-pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
-    mut damage_tracker: ResMut<DamageTracker>,
-    mut damager_query: Query<(
-        &GlobalTransform,
-        &Damage,
-        Option<&DamageTrackerKind>,
-        &mut EntityHitCooldown,
-        &Radius,
-    )>,
-    mut enemy_query: Query<(&GlobalTransform, &mut Health, &Radius, Entity), With<Enemy>>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    const MAXHITCOOLDOWN: f32 = 1.;
-    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, radius) in
-        damager_query.iter_mut()
-    {
-        for (enemy_transform, mut health, enemy_rad, ent) in enemy_query.iter_mut() {
             if is_collision(
                 projectile_transform.translation().xy(),
                 enemy_transform.translation().xy(),
                 **radius,
                 **enemy_rad,
             ) {
-                let cd = hitcd.entry(ent).or_default();
-                for _ in 0..cd.reset(Duration::from_secs_f32(MAXHITCOOLDOWN)) {
+                const MAXHITCOOLDOWN: f32 = 1.;
+                let hit_count = if let Some(hitcd) = &mut hitcd {
+                    hitcd.entry(ent).or_default().reset(Duration::from_secs_f32(MAXHITCOOLDOWN))
+                } else {
+                    1
+                };
+                for _ in 0..hit_count {
                     **health = health.saturating_sub(**damage);
                     spawn_damage_text(
                         &mut commands,
@@ -115,10 +85,17 @@ pub fn handle_enemy_damage_from_projectiles_with_entity_hitcooldown(
                         damage_tracker.update(*damage_tracker_kind, **damage);
                     }
                 }
+                if let Some(hitlist) = &mut hitlist {
+                    hitlist.push(ent)
+                }
             }
         }
     }
 }
+
+/// Damaging entities with a [EntityHitCooldown] can only hit another entity once in a while
+#[derive(Component, Default, Deref, DerefMut)]
+pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
 
 pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Res<Time>) {
     for mut cd_hm in &mut ent_hit {
