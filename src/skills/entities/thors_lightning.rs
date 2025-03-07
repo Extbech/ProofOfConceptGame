@@ -1,0 +1,43 @@
+use std::time::Duration;
+
+use bevy::{
+    ecs::{bundle::Bundle, component::Component},
+    math::Vec3,
+    transform::components::Transform,
+    utils::default,
+};
+use test_game::PROJECTILES_Z;
+
+use crate::{
+    characters::player::{AttackCooldown, MaxAttackCooldown},
+    mechanics::{
+        cooldown::LifeTime,
+        damage::{Damage, Radius},
+    },
+    sprites::sprites::{SkillSpriteKind, SpriteKind},
+};
+
+#[derive(Component)]
+pub struct ThorLightningMarker;
+
+pub fn thors_lightning() -> impl Bundle {
+    (
+        AttackCooldown(default()),
+        MaxAttackCooldown(Duration::from_secs_f32(5.0)),
+        Damage(3),
+        Radius(500.0),
+        ThorLightningMarker,
+    )
+}
+
+#[derive(Component)]
+pub struct LightningEffectMarker;
+
+pub fn thors_lightning_strike(x: f32, y: f32) -> impl Bundle {
+    (
+        Transform::from_translation(Vec3::new(x, y, PROJECTILES_Z)),
+        LightningEffectMarker,
+        LifeTime::from_secs_f32(0.3),
+        SpriteKind::SkillSpriteKind(SkillSpriteKind::LightningAttack),
+    )
+}

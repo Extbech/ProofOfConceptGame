@@ -1,72 +1,28 @@
 use bevy::prelude::*;
 use std::{f32::consts::TAU, time::Duration};
-use test_game::{LOOT_DROPS_Z, PROJECTILES_Z};
+use test_game::LOOT_DROPS_Z;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown, MaxHealth, Player},
-    loot::loot::{activate_all_xp_orbs, LootId, XPActive, XP},
+    characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{damaging, is_collision, Damage, EntityHitCooldown, Health, HitList, Radius},
-        projectiles::{Angle, AngularVelocity, OrbitalRadius, OrbitingBundle},
+        damage::{damaging, is_collision, Damage, Health, HitList, Radius},
+        projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
-    SCALE,
-};
-
-pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
-    commands.spawn((
-        damaging(Damage(100), Radius(1000.)),
-        LifeTime(Duration::from_secs_f32(1.)),
-        HitList::default(),
-        Sprite { ..default() },
-        Transform {
-            translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
-            ..default()
+    skills::entities::{
+        orb_jutsu::spawn_orb_jutsu_entity,
+        thors_lightning::{
+            thors_lightning, thors_lightning_strike, LightningEffectMarker, ThorLightningMarker,
         },
-    ));
-}
-
-/// Orb sprite is from: https://opengameart.org/content/pixel-orbs
-pub fn pickup_loot(
-    mut commands: Commands,
-    mut query_player: Query<(&Transform, &mut Health, &MaxHealth), With<Player>>,
-    query_loot: Query<(&Transform, &LootId, Entity)>,
-    mut query_xp: Query<&mut XPActive, With<XP>>,
-) {
-    let (player_trans, mut health, max_health) = query_player.single_mut();
-    let player_pos = player_trans.translation.xy();
-    for (loot_trans, loot, ent) in &query_loot {
-        let loot_position = loot_trans.translation.xy();
-        const ITEM_PICKUP_RANGE: f32 = 50.;
-        if is_collision(player_pos, loot_position, ITEM_PICKUP_RANGE * SCALE, 0.) {
-            match **loot {
-                0 => {
-                    if **health < **max_health {
-                        **health += 1;
-                    } else {
-                        continue;
-                    }
-                }
-                1 => {
-                    spawn_bomb(&mut commands, loot_position);
-                }
-                2 => {
-                    activate_all_xp_orbs(&mut query_xp);
-                }
-                _ => unreachable!("Invalid loot id"),
-            }
-            commands.entity(ent).despawn_recursive();
-        }
-    }
-}
+    },
+};
 
 /// This func handles correct angle distance between orb projectiles.
 pub fn spawn_new_orb(
     commands: &mut Commands,
     player_entity: Entity,
     query_orb: &mut Query<Entity, With<OrbitalRadius>>,
-    asset_server: &Res<AssetServer>,
 ) {
     // will at least spawn 1 orb.
     let mut orb_counter = 1;
@@ -77,51 +33,13 @@ pub fn spawn_new_orb(
     commands.entity(player_entity).with_children(|parent| {
         for i in 0..orb_counter {
             let angle = if i == 0 {
-                Angle(0.0)
+                0.0
             } else {
-                Angle((TAU / orb_counter as f32) * i as f32)
+                (TAU / orb_counter as f32) * i as f32
             };
-            println!("orb: {} with angle. {}", i, *angle);
-            parent.spawn((
-                OrbitingBundle {
-                    vel: AngularVelocity(3.),
-                    radius: OrbitalRadius(200. * SCALE),
-                    angle,
-                    sprite: {
-                        Sprite {
-                            image: asset_server.load("loot/orb_purple.png"),
-                            ..default()
-                        }
-                    },
-                    ..default()
-                },
-                damaging(Damage(2), Radius(20.)),
-                EntityHitCooldown::default(),
-            ));
+            parent.spawn(spawn_orb_jutsu_entity(angle));
         }
     });
-}
-
-#[derive(Component)]
-pub struct ThorLightningMarker;
-
-#[derive(Bundle)]
-pub struct ThorsLightningBundle {
-    attack_cooldown: AttackCooldown,
-    max_cooldown: MaxAttackCooldown,
-    damage: Damage,
-    range: Radius,
-    marker: ThorLightningMarker,
-}
-
-fn thors_lightning() -> impl Bundle {
-    (
-        AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(5.0)),
-        Damage(3),
-        Radius(500.0),
-        ThorLightningMarker,
-    )
 }
 
 pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Entity) {
@@ -138,13 +56,7 @@ pub fn spawn_lightning(
         (&mut AttackCooldown, &MaxAttackCooldown, &Radius, &Damage),
         With<ThorLightningMarker>,
     >,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    asset_server: Res<AssetServer>,
 ) {
-    let texture_handle: Handle<Image> = asset_server.load("skills/lightning-strike.png");
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(22, 59), 2, 1, None, None);
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
     let Some((mut attack_cd, max_attack_cd, radius, damage)) = lightning_query.iter_mut().next()
     else {
         return;
@@ -159,22 +71,9 @@ pub fn spawn_lightning(
                 0.0,
                 **radius,
             ) {
-                commands.spawn((
-                    Sprite {
-                        texture_atlas: Some(TextureAtlas {
-                            layout: texture_atlas_layout.clone(),
-                            index: 0,
-                        }),
-                        image: texture_handle.clone(),
-                        ..default()
-                    },
-                    Transform::from_translation(Vec3::new(
-                        enemy_transform.translation.x,
-                        enemy_transform.translation.y,
-                        PROJECTILES_Z,
-                    )),
-                    LightningEffectMarker,
-                    LifeTime::from_secs_f32(0.3),
+                commands.spawn(thors_lightning_strike(
+                    enemy_transform.translation.x,
+                    enemy_transform.translation.y,
                 ));
                 **enemy_health = enemy_health.saturating_sub(**damage);
                 break;
@@ -185,9 +84,6 @@ pub fn spawn_lightning(
         }
     }
 }
-
-#[derive(Component)]
-pub struct LightningEffectMarker;
 
 pub fn animate_lightning(
     mut lightning_query: Query<(&LifeTime, &mut Sprite), With<LightningEffectMarker>>,

@@ -6,24 +6,28 @@ use crate::{
     cleanup,
     loot::loot::{
         activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
-        xp_orbs_collision,
+        pickup_loot, xp_orbs_collision,
     },
     map::map_plugin::MapPlugin,
-    mechanics::cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
-    mechanics::damage::{
-        handle_enemy_damage_from_projectiles_with_entity_hitcooldown,
-        handle_enemy_damage_from_projectiles_with_hitlist, handle_enemy_damage_to_player,
-        tick_entity_hit_cooldown,
-    },
-    mechanics::projectiles::{
-        handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
+    mechanics::{
+        cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
+        damage::{
+            handle_enemy_damage_from_projectiles_with_entity_hitcooldown,
+            handle_enemy_damage_from_projectiles_with_hitlist, handle_enemy_damage_to_player,
+            tick_entity_hit_cooldown,
+        },
+        projectiles::{
+            handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
+        },
     },
     mobs::enemy::{spawn_enemies, update_enemies},
-    skills::skills::{animate_lightning, pickup_loot, spawn_lightning},
+    skills::skills::{animate_lightning, spawn_lightning},
     tools::debug::show_radius,
-    ui::in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
-    ui::level_up_plugin::LevelUpPlugin,
-    ui::pause_game_plugin::{check_if_paused, PauseGamePlugin},
+    ui::{
+        in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
+        level_up_plugin::LevelUpPlugin,
+        pause_game_plugin::{check_if_paused, PauseGamePlugin},
+    },
     update_cursor, AppState, GameState,
 };
 use bevy::{prelude::*, window::WindowResolution};

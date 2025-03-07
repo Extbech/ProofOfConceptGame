@@ -1,4 +1,9 @@
-use crate::mechanics::damage::Health;
+use std::time::Duration;
+
+use crate::characters::player::MaxHealth;
+use crate::mechanics::cooldown::LifeTime;
+use crate::mechanics::damage::{damaging, Damage, Health, HitList, Radius};
+use crate::SCALE;
 use crate::{
     characters::player::{CurrentXP, Player, XpPickUpRadius},
     cleanup,
@@ -214,4 +219,50 @@ pub fn activate_all_xp_orbs(q: &mut Query<&mut XPActive, With<XP>>) {
     for mut active in q {
         **active = true;
     }
+}
+
+pub fn pickup_loot(
+    mut commands: Commands,
+    mut query_player: Query<(&Transform, &mut Health, &MaxHealth), With<Player>>,
+    query_loot: Query<(&Transform, &LootId, Entity)>,
+    mut query_xp: Query<&mut XPActive, With<XP>>,
+) {
+    let (player_trans, mut health, max_health) = query_player.single_mut();
+    let player_pos = player_trans.translation.xy();
+    for (loot_trans, loot, ent) in &query_loot {
+        let loot_position = loot_trans.translation.xy();
+        const ITEM_PICKUP_RANGE: f32 = 50.;
+        if is_collision(player_pos, loot_position, ITEM_PICKUP_RANGE * SCALE, 0.) {
+            match **loot {
+                0 => {
+                    if **health < **max_health {
+                        **health += 1;
+                    } else {
+                        continue;
+                    }
+                }
+                1 => {
+                    spawn_bomb(&mut commands, loot_position);
+                }
+                2 => {
+                    activate_all_xp_orbs(&mut query_xp);
+                }
+                _ => unreachable!("Invalid loot id"),
+            }
+            commands.entity(ent).despawn_recursive();
+        }
+    }
+}
+
+pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
+    commands.spawn((
+        damaging(Damage(100), Radius(1000.)),
+        LifeTime(Duration::from_secs_f32(1.)),
+        HitList::default(),
+        Sprite { ..default() },
+        Transform {
+            translation: Vec3::new(pos.x, pos.y, LOOT_DROPS_Z),
+            ..default()
+        },
+    ));
 }

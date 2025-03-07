@@ -148,7 +148,6 @@ pub fn handle_selection_cursor(
     >,
     mut orb_query: Query<Entity, With<OrbitalRadius>>,
     mut game_state: ResMut<NextState<GameState>>,
-    asset_server: Res<AssetServer>,
 ) {
     let (
         mut pick_up_radius,
@@ -176,7 +175,7 @@ pub fn handle_selection_cursor(
                     }
                     ItemType::ActiveOrbitingOrb => {
                         println!("Orb jutsu");
-                        spawn_new_orb(&mut commands, player_entity, &mut orb_query, &asset_server);
+                        spawn_new_orb(&mut commands, player_entity, &mut orb_query);
                     }
                     ItemType::PassiveHealthIncrease => {
                         **health += 1;
