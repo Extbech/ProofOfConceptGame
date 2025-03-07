@@ -15,7 +15,7 @@ use mechanics::cooldown::InGameTime;
 use mobs::enemy::{SpawnCooldown, SpawnRate};
 use rand::{rngs::SmallRng, SeedableRng};
 use skills::skills_tooltips::SkillTooltips;
-use sprites::sprites::add_sprite;
+use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
 use ui::start_menu::StartMenuPlugin;

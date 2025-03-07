@@ -5,7 +5,7 @@ use crate::{
         damage::{damaging, Damage, EntityHitCooldown, Radius},
         projectiles::{Angle, AngularVelocity, OrbitalRadius},
     },
-    sprites::sprites::{Skill, SpriteKind},
+    sprites::{Skill, SpriteKind},
     SCALE,
 };
 
