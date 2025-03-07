@@ -8,7 +8,7 @@ use crate::mechanics::damage::Damage;
 use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
-use crate::sprites::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
+use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
@@ -67,7 +67,7 @@ fn projectile_stats(
     (damage, projectile_speed, range)
 }
 
-fn player() -> impl Bundle {
+fn player_bundle() -> impl Bundle {
     (
         (
             cleanup::ExitGame,
@@ -94,7 +94,7 @@ fn player() -> impl Bundle {
 }
 
 pub fn spawn_player_hero(mut commands: Commands) {
-    commands.spawn(player());
+    commands.spawn(player_bundle());
 }
 
 pub fn sync_player_and_camera_pos(

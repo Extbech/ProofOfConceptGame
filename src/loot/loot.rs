@@ -3,7 +3,7 @@ use std::time::Duration;
 use crate::characters::player::MaxHealth;
 use crate::mechanics::cooldown::LifeTime;
 use crate::mechanics::damage::{damaging, Damage, Health, HitList, Radius};
-use crate::sprites::sprites::{Item, SpriteKind};
+use crate::sprites::{Item, SpriteKind};
 use crate::SCALE;
 use crate::{
     characters::player::{CurrentXP, Player, XpPickUpRadius},

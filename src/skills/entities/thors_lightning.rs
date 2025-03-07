@@ -14,7 +14,7 @@ use crate::{
         cooldown::LifeTime,
         damage::{Damage, Radius},
     },
-    sprites::sprites::{Skill, SpriteKind},
+    sprites::{Skill, SpriteKind},
 };
 
 #[derive(Component)]

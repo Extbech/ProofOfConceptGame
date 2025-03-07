@@ -1,6 +1,6 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
 use crate::mechanics::damage::{Health, Radius};
-use crate::sprites::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
+use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::{cleanup, GameRng, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
