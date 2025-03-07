@@ -380,40 +380,28 @@ fn generate_noise_map(seed: u32) -> Perlin {
 
 fn should_spawn_tree(ground_val: f64, decoration_val: f64) -> bool {
     match ground_val.abs() {
-        v if v < 0.4 => match decoration_val.abs() {
-            vd if vd > 0.9 => true,
-            _ => false,
-        },
+        v if v < 0.4 => matches!(decoration_val.abs(), vd if vd > 0.9),
         _ => false,
     }
 }
 
 fn should_spawn_bush(ground_val: f64, decoration_val: f64) -> bool {
     match ground_val.abs() {
-        v if v < 0.4 => match decoration_val.abs() {
-            vd if vd > 0.8 && vd < 0.9 => true,
-            _ => false,
-        },
+        v if v < 0.4 => matches!(decoration_val.abs(), vd if vd > 0.8 && vd < 0.9),
         _ => false,
     }
 }
 
 fn should_spawn_rock(ground_val: f64, decoration_val: f64) -> bool {
     match ground_val.abs() {
-        v if v > 0.6 => match decoration_val.abs() {
-            vd if vd > 0.9 => true,
-            _ => false,
-        },
+        v if v > 0.6 => matches!(decoration_val.abs(), vd if vd > 0.9),
         _ => false,
     }
 }
 
 fn should_spawn_cactus(ground_val: f64, decoration_val: f64) -> bool {
     match ground_val.abs() {
-        v if v > 0.6 => match decoration_val.abs() {
-            vd if vd > 0.8 && vd < 0.9 => true,
-            _ => false,
-        },
+        v if v > 0.6 => matches!(decoration_val.abs(), vd if vd > 0.8 && vd < 0.9),
         _ => false,
     }
 }

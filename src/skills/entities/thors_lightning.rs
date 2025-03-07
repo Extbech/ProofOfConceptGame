@@ -14,7 +14,7 @@ use crate::{
         cooldown::LifeTime,
         damage::{Damage, Radius},
     },
-    sprites::sprites::{SkillSpriteKind, SpriteKind},
+    sprites::sprites::{Skill, SpriteKind},
 };
 
 #[derive(Component)]
@@ -38,6 +38,6 @@ pub fn thors_lightning_strike(x: f32, y: f32) -> impl Bundle {
         Transform::from_translation(Vec3::new(x, y, PROJECTILES_Z)),
         LightningEffectMarker,
         LifeTime::from_secs_f32(0.3),
-        SpriteKind::SkillSpriteKind(SkillSpriteKind::LightningAttack),
+        SpriteKind::Skill(Skill::LightningAttack),
     )
 }

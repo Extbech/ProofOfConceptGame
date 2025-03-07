@@ -21,7 +21,7 @@ pub fn show_radius(
         if let Some(mut inent) = commands.get_entity(ent) {
             inent.insert(ShowsRadius).with_children(|parent| {
                 parent.spawn((
-                    Mesh2d(meshes.add(Circle::new(**rad)).into()),
+                    Mesh2d(meshes.add(Circle::new(**rad))),
                     MeshMaterial2d(color.clone()),
                     Transform::from_xyz(0., 0., 100.),
                 ));

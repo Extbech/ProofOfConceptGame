@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use std::{f32::consts::TAU, time::Duration};
-use test_game::LOOT_DROPS_Z;
+use std::f32::consts::TAU;
 
 use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{damaging, is_collision, Damage, Health, HitList, Radius},
+        damage::{is_collision, Damage, Health, Radius},
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -96,55 +95,5 @@ pub fn animate_lightning(
                 atlas.index = 0;
             }
         }
-    }
-}
-
-#[derive(Component, PartialEq, Eq, Hash, Copy, Clone)]
-pub enum ItemType {
-    PassiveDamageIncrease,
-    PassiveMovementSpeedIncrease,
-    PassivePickUpRadiusIncrease,
-    PassiveHealthIncrease,
-    ActiveOrbitingOrb,
-    ActiveThorLightning,
-}
-
-#[derive(Resource, Deref)]
-pub struct ItemTooltips(pub [(ItemType, &'static str, &'static str); 6]);
-
-impl Default for ItemTooltips {
-    fn default() -> Self {
-        ItemTooltips([
-            (
-                ItemType::PassiveDamageIncrease,
-                "Damage",
-                "Increase All Damage Done By 10%.",
-            ),
-            (
-                ItemType::PassiveMovementSpeedIncrease,
-                "Movement Speed",
-                "Increase Movement Speed By 10%.",
-            ),
-            (
-                ItemType::PassivePickUpRadiusIncrease,
-                "Pick Up Radius",
-                "Increase Pickup Radius By 10%.",
-            ),
-            (
-                ItemType::ActiveOrbitingOrb,
-                "Orb Jutsu",
-                "Spawn an orbiting orb that damages enemies it comes in contact with.",
-            ),
-            (
-                ItemType::PassiveHealthIncrease,
-                "Vitality",
-                "Increase max health by 1.",
-            ),
-            (
-                ItemType::ActiveThorLightning,
-                "Thor's Lightning",
-                "Lightning randomly strikes nearby enemies.",
-            ),
-        ])
     }
 }

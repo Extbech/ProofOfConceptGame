@@ -8,7 +8,7 @@ use crate::mechanics::damage::Damage;
 use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
-use crate::sprites::sprites::{CharacterSpriteKind, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
+use crate::sprites::sprites::{Character, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
@@ -89,7 +89,7 @@ fn player() -> impl Bundle {
         MaxHealth(2),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z),
         Radius(Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.),
-        SpriteKind::CharacterSpriteKind(CharacterSpriteKind::Warrior),
+        SpriteKind::Character(Character::Warrior),
     )
 }
 

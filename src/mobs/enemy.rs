@@ -111,6 +111,5 @@ pub fn spawn_enemies(
 }
 
 pub fn get_enemy_health(in_game_time: &Res<InGameTime>) -> Health {
-    let health = 10 + (in_game_time.time().as_secs_f32() / 30.0).floor() as u32;
-    return Health(health);
+    Health(10 + (in_game_time.time().as_secs_f32() / 30.0).floor() as u32)
 }

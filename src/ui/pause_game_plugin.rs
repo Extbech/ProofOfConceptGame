@@ -49,15 +49,12 @@ pub fn render_pause_options_node(
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(
-                Color::Srgba(Srgba {
-                    red: 0.0,
-                    green: 0.0,
-                    blue: 0.0,
-                    alpha: 0.8,
-                })
-                .into(),
-            ),
+            BackgroundColor(Color::Srgba(Srgba {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.8,
+            })),
             ExitPauseScreen,
         ))
         .with_children(|child| {

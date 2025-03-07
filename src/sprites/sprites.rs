@@ -2,26 +2,26 @@ use bevy::ecs::component::Component;
 use bevy::prelude::*;
 
 #[derive(Component, Clone, Copy)]
-pub enum ItemSpriteKind {
+pub enum Item {
     XPOrb,
     XPMagnet,
     Potion,
     ThorsHammer,
 }
 
-impl ItemSpriteKind {
+impl Item {
     fn image_path(&self) -> &'static str {
         match self {
-            ItemSpriteKind::XPOrb => "loot/rotating_orbs.png",
-            ItemSpriteKind::XPMagnet => "loot/magnet.png",
-            ItemSpriteKind::Potion => "loot/potion.png",
-            ItemSpriteKind::ThorsHammer => "loot/hammeritem.png",
+            Item::XPOrb => "loot/rotating_orbs.png",
+            Item::XPMagnet => "loot/magnet.png",
+            Item::Potion => "loot/potion.png",
+            Item::ThorsHammer => "loot/hammeritem.png",
         }
     }
 
     fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
         match self {
-            ItemSpriteKind::XPOrb => Some((
+            Item::XPOrb => Some((
                 TextureAtlasLayout::from_grid(UVec2::new(32, 32), 7, 1, None, None),
                 0,
             )),
@@ -31,20 +31,20 @@ impl ItemSpriteKind {
 }
 
 #[derive(Component, Clone, Copy)]
-pub enum UISpriteKind {
+pub enum Ui {
     Hearts,
 }
 
-impl UISpriteKind {
+impl Ui {
     fn image_path(&self) -> &'static str {
         match self {
-            UISpriteKind::Hearts => "ui/heart.png",
+            Ui::Hearts => "ui/heart.png",
         }
     }
 
     fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
         match self {
-            UISpriteKind::Hearts => None,
+            Ui::Hearts => None,
         }
     }
 }
@@ -56,22 +56,22 @@ pub const PLAYER_HEIGHT: u32 = 20;
 pub const PLAYER_WIDTH: u32 = 16;
 
 #[derive(Component, Clone, Copy)]
-pub enum CharacterSpriteKind {
+pub enum Character {
     Jotun,
     Warrior,
 }
 
-impl CharacterSpriteKind {
+impl Character {
     fn image_path(&self) -> &'static str {
         match self {
-            CharacterSpriteKind::Jotun => "characters/jotun.png",
-            CharacterSpriteKind::Warrior => "characters/viking.png",
+            Character::Jotun => "characters/jotun.png",
+            Character::Warrior => "characters/viking.png",
         }
     }
 
     fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
         match self {
-            CharacterSpriteKind::Jotun => Some((
+            Character::Jotun => Some((
                 TextureAtlasLayout::from_grid(
                     UVec2::new(ENEMY_WIDTH, ENEMY_HEIGHT),
                     4,
@@ -81,7 +81,7 @@ impl CharacterSpriteKind {
                 ),
                 0,
             )),
-            CharacterSpriteKind::Warrior => Some((
+            Character::Warrior => Some((
                 TextureAtlasLayout::from_grid(
                     UVec2::new(PLAYER_WIDTH, PLAYER_HEIGHT),
                     4,
@@ -96,18 +96,18 @@ impl CharacterSpriteKind {
 }
 
 #[derive(Component, Clone, Copy)]
-pub enum SkillSpriteKind {
+pub enum Skill {
     PrimaryAttack,
     OrbJutsu,
     LightningAttack,
 }
 
-impl SkillSpriteKind {
+impl Skill {
     fn image_path(&self) -> &'static str {
         match self {
-            SkillSpriteKind::PrimaryAttack => "skills/axe.png",
-            SkillSpriteKind::OrbJutsu => "skills/orb_purple.png",
-            SkillSpriteKind::LightningAttack => "skills/lightning-strike.png",
+            Skill::PrimaryAttack => "skills/axe.png",
+            Skill::OrbJutsu => "skills/orb_purple.png",
+            Skill::LightningAttack => "skills/lightning-strike.png",
         }
     }
 
@@ -120,28 +120,28 @@ impl SkillSpriteKind {
 
 #[derive(Component, Clone, Copy)]
 pub enum SpriteKind {
-    ItemSpriteKind(ItemSpriteKind),
-    UISpriteKind(UISpriteKind),
-    CharacterSpriteKind(CharacterSpriteKind),
-    SkillSpriteKind(SkillSpriteKind),
+    Item(Item),
+    Ui(Ui),
+    Character(Character),
+    Skill(Skill),
 }
 
 impl SpriteKind {
     fn image_path(&self) -> &'static str {
         match self {
-            SpriteKind::ItemSpriteKind(x) => x.image_path(),
-            SpriteKind::UISpriteKind(x) => x.image_path(),
-            SpriteKind::CharacterSpriteKind(x) => x.image_path(),
-            SpriteKind::SkillSpriteKind(x) => x.image_path(),
+            SpriteKind::Item(x) => x.image_path(),
+            SpriteKind::Ui(x) => x.image_path(),
+            SpriteKind::Character(x) => x.image_path(),
+            SpriteKind::Skill(x) => x.image_path(),
         }
     }
 
     fn atlas_layout(&self) -> Option<(TextureAtlasLayout, usize)> {
         match self {
-            SpriteKind::ItemSpriteKind(x) => x.atlas_layout(),
-            SpriteKind::UISpriteKind(x) => x.atlas_layout(),
-            SpriteKind::CharacterSpriteKind(x) => x.atlas_layout(),
-            SpriteKind::SkillSpriteKind(x) => x.atlas_layout(),
+            SpriteKind::Item(x) => x.atlas_layout(),
+            SpriteKind::Ui(x) => x.atlas_layout(),
+            SpriteKind::Character(x) => x.atlas_layout(),
+            SpriteKind::Skill(x) => x.atlas_layout(),
         }
     }
 }

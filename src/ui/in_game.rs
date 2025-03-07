@@ -149,7 +149,7 @@ pub fn update_health_ui(
                         },
                         ImageNode {
                             image: asset_server.load("ui/heart.png"),
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.7).into(),
+                            color: Color::srgba(0.0, 0.0, 0.0, 0.7),
                             ..Default::default()
                         },
                         HealthUiSprite,

@@ -4,9 +4,11 @@ use rand::prelude::*;
 use crate::{
     characters::player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
     cleanup,
-    mechanics::damage::Health,
-    mechanics::projectiles::OrbitalRadius,
-    skills::skills::{enable_thors_lightning_skill, spawn_new_orb, ItemTooltips, ItemType},
+    mechanics::{damage::Health, projectiles::OrbitalRadius},
+    skills::{
+        skills::{enable_thors_lightning_skill, spawn_new_orb},
+        skills_tooltips::{SkillTooltips, SkillType},
+    },
     AppState, GameRng, GameState, MovementSpeed,
 };
 pub struct LevelUpPlugin;
@@ -28,7 +30,7 @@ impl Plugin for LevelUpPlugin {
 }
 
 #[derive(Component, Deref)]
-pub struct SelectedItemType(pub ItemType);
+pub struct SelectedItemType(pub SkillType);
 
 #[derive(Component)]
 pub struct LevelUpUi;
@@ -37,7 +39,7 @@ pub fn spawn_upgrade_selection_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     ui_query: Query<Entity, With<LevelUpUi>>,
-    item_tooltips: ResMut<ItemTooltips>,
+    item_tooltips: ResMut<SkillTooltips>,
     mut rng: ResMut<GameRng>,
 ) {
     for entity in &ui_query {
@@ -61,7 +63,7 @@ pub fn spawn_upgrade_selection_ui(
         "The random generated skill indexes are: {:?}",
         generated_indexes,
     );
-    let randomly_skill_selection: Vec<(ItemType, &'static str, &'static str)> = generated_indexes
+    let randomly_skill_selection: Vec<(SkillType, &'static str, &'static str)> = generated_indexes
         .iter()
         .map(|index| item_tooltips[*index])
         .collect();
@@ -75,15 +77,12 @@ pub fn spawn_upgrade_selection_ui(
                 flex_direction: FlexDirection::Row,
                 ..default()
             },
-            BackgroundColor(
-                Color::Srgba(Srgba {
-                    red: 0.0,
-                    green: 0.0,
-                    blue: 0.0,
-                    alpha: 0.7,
-                })
-                .into(),
-            ),
+            BackgroundColor(Color::Srgba(Srgba {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 0.7,
+            })),
             LevelUpUi,
             cleanup::ExitLevelUpScreen,
         ))
@@ -161,28 +160,28 @@ pub fn handle_selection_cursor(
         match interaction {
             Interaction::Pressed => {
                 match **item_type {
-                    ItemType::PassiveDamageIncrease => {
+                    SkillType::PassiveDamageIncrease => {
                         **player_damage += 1;
                         println!("damage increase to: {}", **player_damage);
                     }
-                    ItemType::PassiveMovementSpeedIncrease => {
+                    SkillType::PassiveMovementSpeedIncrease => {
                         **movement_speed *= 1.1;
                         println!("Movement speed increased to: {}", **movement_speed);
                     }
-                    ItemType::PassivePickUpRadiusIncrease => {
+                    SkillType::PassivePickUpRadiusIncrease => {
                         **pick_up_radius *= 1.1;
                         println!("Pickup radius increased to: {}", **pick_up_radius);
                     }
-                    ItemType::ActiveOrbitingOrb => {
+                    SkillType::ActiveOrbitingOrb => {
                         println!("Orb jutsu");
                         spawn_new_orb(&mut commands, player_entity, &mut orb_query);
                     }
-                    ItemType::PassiveHealthIncrease => {
+                    SkillType::PassiveHealthIncrease => {
                         **health += 1;
                         **max_health += 1;
                         println!("health increased to: {}", **health);
                     }
-                    ItemType::ActiveThorLightning => {
+                    SkillType::ActiveThorLightning => {
                         enable_thors_lightning_skill(&mut commands, player_entity);
                     }
                 }

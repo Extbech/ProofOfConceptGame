@@ -5,7 +5,7 @@ use crate::{
         damage::{damaging, Damage, EntityHitCooldown, Radius},
         projectiles::{Angle, AngularVelocity, OrbitalRadius},
     },
-    sprites::sprites::{SkillSpriteKind, SpriteKind},
+    sprites::sprites::{Skill, SpriteKind},
     SCALE,
 };
 
@@ -16,6 +16,6 @@ pub fn spawn_orb_jutsu_entity(angle: f32) -> impl Bundle {
         OrbitalRadius(200. * SCALE),
         damaging(Damage(2), Radius(20.)),
         EntityHitCooldown::default(),
-        SpriteKind::SkillSpriteKind(SkillSpriteKind::OrbJutsu),
+        SpriteKind::Skill(Skill::OrbJutsu),
     )
 }
