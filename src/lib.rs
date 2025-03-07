@@ -18,3 +18,6 @@ pub const ENEMY_Z: f32 = 10.0;
 
 /// Z-value for loot drops.
 pub const LOOT_DROPS_Z: f32 = 10.0;
+
+/// Location of save file.
+pub const SAVE_FILE: &'static str = "save/save_file.json";
