@@ -103,7 +103,7 @@ pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time
     }
 }
 
-fn spawn_damage_text(
+pub fn spawn_damage_text(
     commands: &mut Commands,
     damage: &Damage,
     asset_server: &Res<AssetServer>,

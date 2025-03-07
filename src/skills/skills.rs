@@ -5,7 +5,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{is_collision, Damage, Health, Radius},
+        damage::{is_collision, spawn_damage_text, Damage, Health, Radius},
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -51,6 +51,7 @@ pub fn spawn_lightning(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<(&mut Health, &Transform), With<Enemy>>,
+    asset_server: Res<AssetServer>,
     mut lightning_query: Query<
         (&mut AttackCooldown, &MaxAttackCooldown, &Radius, &Damage),
         With<ThorLightningMarker>,
@@ -74,6 +75,12 @@ pub fn spawn_lightning(
                     enemy_transform.translation.x,
                     enemy_transform.translation.y,
                 ));
+                spawn_damage_text(
+                    &mut commands,
+                    damage,
+                    &asset_server,
+                    enemy_transform.translation.xy(),
+                );
                 **enemy_health = enemy_health.saturating_sub(**damage);
                 break;
             }

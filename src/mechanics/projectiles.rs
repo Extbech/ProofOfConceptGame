@@ -59,14 +59,6 @@ pub struct Angle(pub f32);
 #[derive(Component, Default, Deref, DerefMut)]
 pub struct OrbitalRadius(pub f32);
 
-#[derive(Bundle, Default)]
-pub struct OrbitingBundle {
-    pub vel: AngularVelocity,
-    pub angle: Angle,
-    pub radius: OrbitalRadius,
-    pub sprite: Sprite,
-}
-
 pub fn orbital_movement(time: Res<Time>, mut query: Query<(&AngularVelocity, &mut Angle)>) {
     for (vel, mut ang) in &mut query {
         **ang += **vel * time.delta_secs();
