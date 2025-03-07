@@ -8,7 +8,7 @@ use crate::mechanics::damage::Damage;
 use crate::mechanics::damage::{damaging, Radius};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
-use crate::sprites::sprites::{Character, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
+use crate::sprites::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::{cleanup, AppState, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
 use crate::{Heading, SCALE};
 
@@ -212,14 +212,9 @@ fn player_shoot(
             ShouldRotate(true),
         ),
         damaging(Damage(*damage), Radius(10.)),
-        (
-            Sprite {
-                image: asset_server.load("skills/axe.png"),
-                ..default()
-            },
-            Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
-                Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),
-            ),
+        SpriteKind::Skill(Skill::PrimaryAttack),
+        Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
+            Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),
         ),
         HitList::default(),
     ));
