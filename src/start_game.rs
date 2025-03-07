@@ -20,7 +20,7 @@ use crate::{
             handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
         },
     },
-    mobs::enemy::{spawn_enemies, update_enemies},
+    mobs::{boss::spawn_boss, enemy::{spawn_enemies, update_enemies}},
     skills::skills::{animate_lightning, spawn_lightning},
     tools::debug::show_radius,
     ui::{
@@ -109,7 +109,8 @@ impl Plugin for RunningPlugin {
                         orbital_movement,
                         orbital_position,
                     ),
-                    (spawn_lightning, animate_lightning),
+                    (spawn_lightning, animate_lightning,spawn_boss
+                    ),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,

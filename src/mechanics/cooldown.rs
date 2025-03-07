@@ -29,6 +29,11 @@ impl Default for Cooldown {
 }
 
 impl Cooldown {
+    /// Resets the cooldown without returning any information about what the original value was
+    pub fn fill(&mut self) {
+        self.timer = Duration::ZERO;
+    }
+
     /// Resets the cooldown with `period_length` waiting time per period and returns the number of periods elapsed.
     /// Also resets the waiting status of the timer.
     /// When waiting additional conditions only one cooldown period can pass.
@@ -96,7 +101,7 @@ pub fn tick_cooldown_res<CD: DerefMut<Target = Cooldown> + Resource>(
 }
 
 #[derive(Resource, Default)]
-pub struct InGameTime(Duration);
+pub struct InGameTime(pub Duration);
 
 impl InGameTime {
     pub fn tick(&mut self, by: Duration) {

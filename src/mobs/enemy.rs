@@ -17,13 +17,13 @@ pub struct SpawnCooldown(pub Cooldown);
 #[derive(Component)]
 pub struct Enemy;
 
-pub fn spawn_enemy_entity(health: u32, x: f32, y: f32) -> impl Bundle {
+pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     (
         cleanup::ExitGame,
         Enemy,
         Health(health),
         MovementSpeed(100.),
-        Heading::new(Vec2::new(0., 0.)),
+        Heading::default(),
         Radius(Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),
@@ -74,7 +74,7 @@ pub fn spawn_enemies(
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(spawn_enemy_entity(
+        commands.spawn(jotun_bundle(
             get_enemy_health(&in_game_time),
             enemy_position.x,
             enemy_position.y,
