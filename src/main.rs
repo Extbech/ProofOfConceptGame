@@ -3,6 +3,7 @@ mod loot;
 mod map;
 mod mechanics;
 mod mobs;
+mod prestige;
 mod skills;
 mod sprites;
 mod start_game;
@@ -16,6 +17,7 @@ use mobs::{
     boss::BossSpawned,
     enemy::{SpawnCooldown, SpawnRate},
 };
+use prestige::stats::Stats;
 use rand::{rngs::SmallRng, SeedableRng};
 use skills::skills_tooltips::SkillTooltips;
 use sprites::add_sprite;
@@ -109,6 +111,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(SkillTooltips::default());
     commands.insert_resource(DamageTracker::default());
     commands.insert_resource(BossSpawned::default());
+    commands.insert_resource(Stats::get_save().unwrap_or_default());
     app_window_config(window);
 }
 

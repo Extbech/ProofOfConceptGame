@@ -1,22 +1,34 @@
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
-use crate::{cleanup, tools::damage_tracking::DamageTracker, AppState, GameState};
+use crate::{
+    characters::player::CurrentLevel, cleanup, prestige::stats::Stats,
+    tools::damage_tracking::DamageTracker, AppState, GameState,
+};
 pub struct LossPlugin;
 
 impl Plugin for LossPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Loss), spawn_upgrade_loss_ui)
-            .add_systems(
-                Update,
-                (handle_button_continue_click)
-                    .run_if(in_state(AppState::InGame))
-                    .run_if(in_state(GameState::Loss)),
-            )
-            .add_systems(
-                OnExit(GameState::Loss),
-                (cleanup::<cleanup::ExitLossScreen>,),
-            );
+        app.add_systems(
+            OnEnter(GameState::Loss),
+            (spawn_upgrade_loss_ui, save_prestige),
+        )
+        .add_systems(
+            Update,
+            (handle_button_continue_click)
+                .run_if(in_state(AppState::InGame))
+                .run_if(in_state(GameState::Loss)),
+        )
+        .add_systems(
+            OnExit(GameState::Loss),
+            (cleanup::<cleanup::ExitLossScreen>,),
+        );
     }
+}
+
+pub fn save_prestige(mut stats: ResMut<Stats>, query_player: Query<&CurrentLevel>) {
+    let level = query_player.single();
+    stats.increase_damage(**level as f32 / 100.);
+    stats.save_stats();
 }
 
 #[derive(Component)]
