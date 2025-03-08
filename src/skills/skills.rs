@@ -5,7 +5,10 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{overlapping, spawn_damage_text, Circle, Damage, DealDamageHitBox, Health, TakeDamageHitbox},
+        damage::{
+            overlapping, spawn_damage_text, Circle, Damage, DealDamageHitBox, Health,
+            TakeDamageHitbox,
+        },
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -62,7 +65,7 @@ pub fn spawn_lightning(
             &DealDamageHitBox,
             &Damage,
             &DamageTrackerKind,
-            &GlobalTransform
+            &GlobalTransform,
         ),
         With<ThorLightningMarker>,
     >,
@@ -75,11 +78,16 @@ pub fn spawn_lightning(
     for _ in 0..attack_cd.reset(**max_attack_cd) {
         let found = false;
         for (mut enemy_health, enemy_transform) in &mut enemy_query {
-            if overlapping(*hitbox, tf.translation().xy(), TakeDamageHitbox(Circle{radius:0.}), enemy_transform.translation.xy()) {
+            if overlapping(
+                *hitbox,
+                tf.translation().xy(),
+                TakeDamageHitbox(Circle { radius: 0. }),
+                enemy_transform.translation.xy(),
+            ) {
                 commands.spawn(thors_lightning_strike_bundle(
                     enemy_transform.translation.x,
                     enemy_transform.translation.y,
-                    *damage
+                    *damage,
                 ));
                 spawn_damage_text(
                     &mut commands,

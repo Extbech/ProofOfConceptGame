@@ -72,8 +72,15 @@ pub fn handle_enemy_damage_from_friendly(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, mut attackcd, hitbox) in
-        damager_query.iter_mut()
+    for (
+        projectile_transform,
+        damage,
+        damage_tracker_kind,
+        mut hitcd,
+        mut hitlist,
+        mut attackcd,
+        hitbox,
+    ) in damager_query.iter_mut()
     {
         let mut total_hit_count: Option<u32> = if let Some((mut cd, max_cd)) = attackcd {
             Some(cd.reset(max_cd.0))
@@ -82,7 +89,7 @@ pub fn handle_enemy_damage_from_friendly(
         };
         for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
             if let Some(0) = &mut total_hit_count {
-                break
+                break;
             }
             if let Some(hitlist) = &hitlist {
                 if hitlist.contains(&ent) {
@@ -126,7 +133,7 @@ pub fn handle_enemy_damage_from_friendly(
                     if let Some(total_hit_count) = &mut total_hit_count {
                         *total_hit_count = total_hit_count.saturating_sub(1);
                         if *total_hit_count == 0 {
-                            break
+                            break;
                         }
                     }
                 }
