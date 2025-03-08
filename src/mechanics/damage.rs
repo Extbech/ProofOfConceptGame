@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::time::Duration;
 
 use bevy::color::palettes::css;
@@ -25,9 +26,16 @@ pub struct Circle {
     pub radius: f32,
 }
 
+#[derive(Clone, Copy)]
+pub struct Cone {
+    pub mid_angle: Vec2,
+    pub angular_width: f32
+}
+
 #[derive(Component, Clone, Copy)]
-pub enum DealDamageHitBox {
+pub enum DealDamageHitbox {
     Circle(Circle),
+    Cone(Cone),
     Global,
 }
 
@@ -93,21 +101,32 @@ fn display_player_damage(
 }
 
 fn overlapping(
-    hitbox1: DealDamageHitBox,
+    hitbox1: DealDamageHitbox,
     pos1: Vec2,
     hitbox2: TakeDamageHitbox,
     pos2: Vec2,
 ) -> bool {
+    let radius2 = hitbox2.0.radius;
     match hitbox1 {
-        DealDamageHitBox::Circle(circle) => {
-            pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
+        DealDamageHitbox::Circle(Circle{radius}) => {
+            pos1.distance(pos2.clone()) <= radius + radius2
         }
-        DealDamageHitBox::Global => true,
+        DealDamageHitbox::Global => true,
+        DealDamageHitbox::Cone(Cone{ mid_angle, angular_width }) => {
+            let v = pos2-pos1;
+            let v = v.rotate_towards(mid_angle, angular_width);
+            if v.distance(Vec2::ZERO) <= radius2 || v.distance(mid_angle) <= radius2 {
+                true
+            } else  {
+                let proj = v.dot(mid_angle);
+                0. <= proj && proj*proj <= v.length_squared() * mid_angle.length_squared()
+            }
+        }
     }
 }
 
 /// Bundle for entity that can do contact damage
-pub fn damaging(damage: Damage, hitbox: DealDamageHitBox) -> impl Bundle {
+pub fn damaging(damage: Damage, hitbox: DealDamageHitbox) -> impl Bundle {
     (damage, hitbox)
 }
 
@@ -122,7 +141,7 @@ fn handle_damager_with_hitlist(
         &Damage,
         Option<&DamageTrackerKind>,
         &mut HitList,
-        &DealDamageHitBox,
+        &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
@@ -177,7 +196,7 @@ fn handle_damager_with_per_entity_cooldown(
         &Damage,
         Option<&DamageTrackerKind>,
         &mut EntityHitCooldown,
-        &DealDamageHitBox,
+        &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
@@ -227,7 +246,7 @@ fn handle_damager_with_global_hit_cooldown(
         Option<&DamageTrackerKind>,
         &mut AttackCooldown,
         &MaxAttackCooldown,
-        &DealDamageHitBox,
+        &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
@@ -265,7 +284,7 @@ fn handle_damager_with_global_hit_cooldown(
 
 /// Enemies can hit a player every tick, but only if the player has not been recently hit
 fn handle_damage_to_player(
-    enemy_query: Query<(&GlobalTransform, &DealDamageHitBox), With<Enemy>>,
+    enemy_query: Query<(&GlobalTransform, &DealDamageHitbox), With<Enemy>>,
     mut player_query: Query<
         (
             &GlobalTransform,

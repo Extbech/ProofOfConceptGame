@@ -1,5 +1,5 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
-use crate::mechanics::damage::{Circle, DealDamageHitBox, Health, TakeDamageHitbox};
+use crate::mechanics::damage::{Circle, DealDamageHitbox, Health, TakeDamageHitbox};
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::tools::rng::GameRng;
 use crate::{cleanup, MovementSpeed};
@@ -25,7 +25,7 @@ pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
         Health(health),
         MovementSpeed(100.),
         Heading::default(),
-        DealDamageHitBox::Circle(Circle { radius }),
+        DealDamageHitbox::Circle(Circle { radius }),
         TakeDamageHitbox(Circle { radius }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),

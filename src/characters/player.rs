@@ -218,7 +218,7 @@ fn player_shoot(
         ),
         damaging(
             Damage(*damage),
-            damage::DealDamageHitBox::Circle(damage::Circle { radius: 10. }),
+            damage::DealDamageHitbox::Circle(damage::Circle { radius: 10. }),
         ),
         SpriteKind::Skill(Skill::PrimaryAttack),
         Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
