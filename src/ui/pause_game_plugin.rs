@@ -170,7 +170,7 @@ pub fn handle_options_interaction(
                 )));
                 match action_type {
                     OptionsButtonAction::Continue => game_state.set(GameState::Running),
-                    OptionsButtonAction::Settings => {}
+                    OptionsButtonAction::Settings => (),
                     OptionsButtonAction::Exit => app_state.set(AppState::MainMenu),
                 }
             }
