@@ -8,7 +8,6 @@ use crate::SCALE;
 use crate::{
     characters::player::{CurrentXP, Player, XpPickUpRadius},
     cleanup,
-    mechanics::damage::is_collision,
     mobs::enemy::Enemy,
     GameRng, MovementSpeed,
 };
@@ -114,6 +113,14 @@ pub fn animate_sprite(
             }
         }
     }
+}
+
+pub fn is_collision(obj1: Vec2, obj2: Vec2, obj1_radius: f32, obj2_radius: f32) -> bool {
+    let diff = (obj1 - obj2).length();
+    if diff < obj1_radius + obj2_radius {
+        return true;
+    }
+    false
 }
 
 /// Handles the event where the xp orb is close enough to the player to be consumed.

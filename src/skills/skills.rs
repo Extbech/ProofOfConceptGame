@@ -5,7 +5,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{is_collision, spawn_damage_text, Damage, DealDamageHitBox, Health},
+        damage::{overlapping, spawn_damage_text, Circle, Damage, DealDamageHitBox, Health, TakeDamageHitbox},
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -62,28 +62,24 @@ pub fn spawn_lightning(
             &DealDamageHitBox,
             &Damage,
             &DamageTrackerKind,
+            &GlobalTransform
         ),
         With<ThorLightningMarker>,
     >,
 ) {
-    let Some((mut attack_cd, max_attack_cd, hitbox, damage, damage_tracker_kind)) =
+    let Some((mut attack_cd, max_attack_cd, hitbox, damage, damage_tracker_kind, tf)) =
         lightning_query.iter_mut().next()
     else {
         return;
     };
-    let player_transform = player_query.single();
     for _ in 0..attack_cd.reset(**max_attack_cd) {
         let found = false;
         for (mut enemy_health, enemy_transform) in &mut enemy_query {
-            if is_collision(
-                player_transform.translation.xy(),
-                enemy_transform.translation.xy(),
-                0.0,
-                if let DealDamageHitBox::Circle(circle) = hitbox {circle.radius} else {panic!()},
-            ) {
+            if overlapping(*hitbox, tf.translation().xy(), TakeDamageHitbox(Circle{radius:0.}), enemy_transform.translation.xy()) {
                 commands.spawn(thors_lightning_strike_bundle(
                     enemy_transform.translation.x,
                     enemy_transform.translation.y,
+                    *damage
                 ));
                 spawn_damage_text(
                     &mut commands,

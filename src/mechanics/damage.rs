@@ -4,6 +4,7 @@ use bevy::color::palettes::css;
 use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
+use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
     characters::player::{Player, Range, Vulnerability},
@@ -31,7 +32,7 @@ pub enum DealDamageHitBox {
 #[derive(Component, Clone, Copy)]
 pub struct TakeDamageHitbox(pub Circle);
 
-fn overlapping(hitbox1: DealDamageHitBox, pos1: Vec2, hitbox2: TakeDamageHitbox, pos2: Vec2) -> bool {
+pub fn overlapping(hitbox1: DealDamageHitBox, pos1: Vec2, hitbox2: TakeDamageHitbox, pos2: Vec2) -> bool {
     match hitbox1 {
         DealDamageHitBox::Circle(circle) => {
             pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
@@ -59,16 +60,25 @@ pub fn handle_enemy_damage_from_friendly(
         Option<&DamageTrackerKind>,
         Option<&mut EntityHitCooldown>,
         Option<&mut HitList>,
+        Option<(&mut AttackCooldown, &MaxAttackCooldown)>,
         &DealDamageHitBox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, hitbox) in
+    for (projectile_transform, damage, damage_tracker_kind, mut hitcd, mut hitlist, mut attackcd, hitbox) in
         damager_query.iter_mut()
     {
+        let mut total_hit_count: Option<u32> = if let Some((mut cd, max_cd)) = attackcd {
+            Some(cd.reset(max_cd.0))
+        } else {
+            None
+        };
         for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
+            if let Some(0) = &mut total_hit_count {
+                break
+            }
             if let Some(hitlist) = &hitlist {
                 if hitlist.contains(&ent) {
                     continue
@@ -88,6 +98,9 @@ pub fn handle_enemy_damage_from_friendly(
                     1
                 };
                 for _ in 0..hit_count {
+                    if health.0 == 0 {
+                        break;
+                    }
                     **health = health.saturating_sub(**damage);
                     spawn_damage_text(
                         &mut commands,
@@ -97,6 +110,12 @@ pub fn handle_enemy_damage_from_friendly(
                     );
                     if let Some(damage_tracker_kind) = damage_tracker_kind {
                         damage_tracker.update(*damage_tracker_kind, **damage);
+                    }
+                    if let Some(total_hit_count) = &mut total_hit_count {
+                        *total_hit_count = total_hit_count.saturating_sub(1);
+                        if *total_hit_count == 0 {
+                            break
+                        }
                     }
                 }
                 if let Some(hitlist) = &mut hitlist {
@@ -177,12 +196,4 @@ pub fn handle_enemy_damage_to_player(
     } else {
         sprite.color = sprite.color.with_alpha(0.6);
     }
-}
-
-pub fn is_collision(obj1: Vec2, obj2: Vec2, obj1_radius: f32, obj2_radius: f32) -> bool {
-    let diff = (obj1 - obj2).length();
-    if diff < obj1_radius + obj2_radius {
-        return true;
-    }
-    false
 }

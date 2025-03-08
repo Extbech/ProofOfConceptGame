@@ -12,7 +12,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown},
     mechanics::{
         cooldown::LifeTime,
-        damage::{Circle, Damage, DealDamageHitBox},
+        damage::{self, Circle, Damage, DealDamageHitBox},
     },
     sprites::{Skill, SpriteKind},
     tools::damage_tracking::DamageTrackerKind,
@@ -26,20 +26,23 @@ pub fn thors_lightning_bundle() -> impl Bundle {
         AttackCooldown(default()),
         MaxAttackCooldown(Duration::from_secs_f32(5.0)),
         Damage(3),
-        DealDamageHitBox::Circle(Circle{radius:500.0}),
+        DealDamageHitBox::Circle(Circle{radius:100.0}),
         ThorLightningMarker,
         DamageTrackerKind::Lightning,
+        Transform::default()
     )
 }
 
 #[derive(Component)]
 pub struct LightningEffectMarker;
 
-pub fn thors_lightning_strike_bundle(x: f32, y: f32) -> impl Bundle {
+pub fn thors_lightning_strike_bundle(x: f32, y: f32, damage: Damage) -> impl Bundle {
     (
         Transform::from_translation(Vec3::new(x, y, PROJECTILES_Z)),
         LightningEffectMarker,
         LifeTime::from_secs_f32(0.3),
         SpriteKind::Skill(Skill::LightningAttack),
+        damage,
+        DealDamageHitBox::Circle(Circle {radius: 10.})
     )
 }

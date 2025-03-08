@@ -22,6 +22,7 @@ impl Stats {
 
     pub fn save_stats(&self) {
         let json = serde_json::to_string(&self).expect("Failed to serialize stats");
+        let _ = fs::create_dir("save");
         fs::write("save/save_file.json", json).expect("Failed to write to file");
     }
 
