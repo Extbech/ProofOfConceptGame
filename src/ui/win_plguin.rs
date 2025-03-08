@@ -2,30 +2,27 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
 use crate::{cleanup, tools::damage_tracking::DamageTracker, AppState, GameState};
 
-pub struct LossPlugin;
+pub struct WinPlugin;
 
-impl Plugin for LossPlugin {
+impl Plugin for WinPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Loss), (spawn_loss_ui,))
+        app.add_systems(OnEnter(GameState::Win), (spawn_win_ui,))
             .add_systems(
                 Update,
                 (handle_button_continue_click)
                     .run_if(in_state(AppState::InGame))
-                    .run_if(in_state(GameState::Loss)),
+                    .run_if(in_state(GameState::Win)),
             )
-            .add_systems(
-                OnExit(GameState::Loss),
-                (cleanup::<cleanup::ExitLossScreen>,),
-            );
+            .add_systems(OnExit(GameState::Win), (cleanup::<cleanup::ExitWinScreen>,));
     }
 }
 
 #[derive(Component)]
-pub struct LossUi;
+pub struct WinUi;
 
-pub fn spawn_loss_ui(
+pub fn spawn_win_ui(
     mut commands: Commands,
-    ui_query: Query<Entity, With<LossUi>>,
+    ui_query: Query<Entity, With<WinUi>>,
     asset_server: Res<AssetServer>,
     damage_tracker: Res<DamageTracker>,
 ) {
@@ -49,8 +46,8 @@ pub fn spawn_loss_ui(
                 blue: 0.0,
                 alpha: 0.9,
             })),
-            LossUi,
-            cleanup::ExitLossScreen,
+            WinUi,
+            cleanup::ExitWinScreen,
         ))
         .with_children(|child| {
             child
@@ -71,13 +68,13 @@ pub fn spawn_loss_ui(
                 ))
                 .with_children(|grandchild| {
                     grandchild.spawn((
-                        Text::new("You Died!"),
+                        Text::new("You Won!"),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
                             font_size: 40.0,
                             ..Default::default()
                         },
-                        TextColor(css::DARK_RED.into()),
+                        TextColor(css::GREEN.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
                     grandchild

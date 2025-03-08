@@ -19,7 +19,11 @@ use crate::{
             handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
         },
     },
-    mobs::{boss::spawn_boss, enemy::{spawn_enemies, update_enemies}},
+    mobs::{
+        boss::{check_for_victory, spawn_boss},
+        enemy::{spawn_enemies, update_enemies},
+    },
+    prestige::save_game_plugin::SaveGamePlguin,
     skills::skills::{animate_lightning, spawn_lightning},
     tools::debug::show_radius,
     ui::{
@@ -27,6 +31,7 @@ use crate::{
         level_up_plugin::LevelUpPlugin,
         loss_plugin::LossPlugin,
         pause_game_plugin::{check_if_paused, PauseGamePlugin},
+        win_plguin::WinPlugin,
     },
     update_cursor, AppState, GameState,
 };
@@ -59,6 +64,8 @@ impl Plugin for GamePlugin {
         .add_plugins(PauseGamePlugin)
         .add_plugins(MapPlugin)
         .add_plugins(LossPlugin)
+        .add_plugins(WinPlugin)
+        .add_plugins(SaveGamePlguin)
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
@@ -107,8 +114,7 @@ impl Plugin for RunningPlugin {
                         orbital_movement,
                         orbital_position,
                     ),
-                    (spawn_lightning, animate_lightning,spawn_boss
-                    ),
+                    (spawn_lightning, animate_lightning, spawn_boss),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,
@@ -122,6 +128,7 @@ impl Plugin for RunningPlugin {
                         check_if_paused,
                         handle_projectile_rotation,
                         handle_xp_orb_movement,
+                        check_for_victory,
                     ),
                 )
                     .run_if(in_state(STATE)),

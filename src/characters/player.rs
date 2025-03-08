@@ -4,10 +4,11 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 use std::time::Duration;
 
 use crate::mechanics::cooldown::{Cooldown, LifeTime};
-use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::damaging;
+use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
+use crate::prestige::save_game_plugin::SaveGameStatsEventToMemory;
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
 use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
@@ -89,7 +90,9 @@ fn player_bundle() -> impl Bundle {
         ),
         MaxHealth(2),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z),
-        TakeDamageHitbox(damage::Circle{radius:Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.}),
+        TakeDamageHitbox(damage::Circle {
+            radius: Vec2::new(PLAYER_HEIGHT as f32, PLAYER_WIDTH as f32).length() / 2.,
+        }),
         SpriteKind::Character(Character::Warrior),
     )
 }
@@ -212,7 +215,10 @@ fn player_shoot(
             range,
             ShouldRotate(true),
         ),
-        damaging(Damage(*damage), damage::DealDamageHitBox::Circle(damage::Circle { radius: 10. })),
+        damaging(
+            Damage(*damage),
+            damage::DealDamageHitBox::Circle(damage::Circle { radius: 10. }),
+        ),
         SpriteKind::Skill(Skill::PrimaryAttack),
         Transform::from_xyz(player_position.x, player_position.y, PROJECTILES_Z).with_rotation(
             Quat::from_axis_angle(Vec3::new(0., 0., 1.0), diff.y.atan2(diff.x)),
@@ -238,6 +244,7 @@ pub fn handle_player_xp(
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
+    mut save_game_stats_event: EventWriter<SaveGameStatsEventToMemory>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
     if **required_xp <= **current_xp && **current_level < **max_level {
@@ -245,6 +252,7 @@ pub fn handle_player_xp(
         **current_xp -= **required_xp;
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
+        save_game_stats_event.send(SaveGameStatsEventToMemory);
     }
 }
 

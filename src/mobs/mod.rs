@@ -1,2 +1,2 @@
-pub mod enemy;
 pub mod boss;
+pub mod enemy;

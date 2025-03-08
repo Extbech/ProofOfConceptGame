@@ -43,7 +43,7 @@ pub const WIZARD_WIDTH: u32 = 32;
 pub enum Character {
     Jotun,
     Warrior,
-    Wizard
+    Wizard,
 }
 
 impl Character {
@@ -51,7 +51,7 @@ impl Character {
         match self {
             Character::Jotun => "characters/jotun.png",
             Character::Warrior => "characters/viking.png",
-            Character::Wizard => "characters/wizard.png"
+            Character::Wizard => "characters/wizard.png",
         }
     }
 
@@ -77,7 +77,7 @@ impl Character {
                 ),
                 0,
             )),
-            _ => None
+            _ => None,
         }
     }
 }

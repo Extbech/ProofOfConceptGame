@@ -1,6 +1,7 @@
 use crate::{cleanup, AppState};
 use crate::{cleanup::ExitPauseScreen, GameState};
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
+
 pub struct PauseGamePlugin;
 
 impl Plugin for PauseGamePlugin {
