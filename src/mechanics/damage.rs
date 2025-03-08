@@ -28,6 +28,7 @@ pub struct Circle {
 #[derive(Component, Clone, Copy)]
 pub enum DealDamageHitBox {
     Circle(Circle),
+    Global
 }
 
 #[derive(Component, Clone, Copy)]
@@ -56,7 +57,7 @@ impl Plugin for DamagePlugin {
     }
 }
 
-pub fn overlapping(
+fn overlapping(
     hitbox1: DealDamageHitBox,
     pos1: Vec2,
     hitbox2: TakeDamageHitbox,
@@ -65,6 +66,9 @@ pub fn overlapping(
     match hitbox1 {
         DealDamageHitBox::Circle(circle) => {
             pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
+        },
+        DealDamageHitBox::Global => {
+            true
         }
     }
 }
