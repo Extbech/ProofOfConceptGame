@@ -79,7 +79,11 @@ pub fn spawn_lightning(
                 player_transform.translation.xy(),
                 enemy_transform.translation.xy(),
                 0.0,
-                if let DealDamageHitBox::Circle(circle) = hitbox {circle.radius} else {panic!()},
+                if let DealDamageHitBox::Circle(circle) = hitbox {
+                    circle.radius
+                } else {
+                    panic!()
+                },
             ) {
                 commands.spawn(thors_lightning_strike_bundle(
                     enemy_transform.translation.x,

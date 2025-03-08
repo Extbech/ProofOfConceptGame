@@ -20,7 +20,7 @@ pub struct Damage(pub u32);
 
 #[derive(Clone, Copy)]
 pub struct Circle {
-    pub radius: f32
+    pub radius: f32,
 }
 
 #[derive(Component, Clone, Copy)]
@@ -31,11 +31,16 @@ pub enum DealDamageHitBox {
 #[derive(Component, Clone, Copy)]
 pub struct TakeDamageHitbox(pub Circle);
 
-fn overlapping(hitbox1: DealDamageHitBox, pos1: Vec2, hitbox2: TakeDamageHitbox, pos2: Vec2) -> bool {
+fn overlapping(
+    hitbox1: DealDamageHitBox,
+    pos1: Vec2,
+    hitbox2: TakeDamageHitbox,
+    pos2: Vec2,
+) -> bool {
     match hitbox1 {
         DealDamageHitBox::Circle(circle) => {
             pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
-        },
+        }
     }
 }
 
@@ -71,7 +76,7 @@ pub fn handle_enemy_damage_from_friendly(
         for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
             if let Some(hitlist) = &hitlist {
                 if hitlist.contains(&ent) {
-                    continue
+                    continue;
                 }
             } else {
                 #[cfg(debug_assertions)]
@@ -79,11 +84,18 @@ pub fn handle_enemy_damage_from_friendly(
                     panic!("There is a damaging entity with neither hitlist nor cooldown")
                 }
             }
-            if overlapping(*hitbox, projectile_transform.translation().xy(), *enemy_hitbox, enemy_transform.translation().xy())
-            {
+            if overlapping(
+                *hitbox,
+                projectile_transform.translation().xy(),
+                *enemy_hitbox,
+                enemy_transform.translation().xy(),
+            ) {
                 const MAXHITCOOLDOWN: f32 = 1.;
                 let hit_count = if let Some(hitcd) = &mut hitcd {
-                    hitcd.entry(ent).or_default().reset(Duration::from_secs_f32(MAXHITCOOLDOWN))
+                    hitcd
+                        .entry(ent)
+                        .or_default()
+                        .reset(Duration::from_secs_f32(MAXHITCOOLDOWN))
                 } else {
                     1
                 };

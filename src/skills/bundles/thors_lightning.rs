@@ -26,7 +26,7 @@ pub fn thors_lightning_bundle() -> impl Bundle {
         AttackCooldown(default()),
         MaxAttackCooldown(Duration::from_secs_f32(5.0)),
         Damage(3),
-        DealDamageHitBox::Circle(Circle{radius:500.0}),
+        DealDamageHitBox::Circle(Circle { radius: 500.0 }),
         ThorLightningMarker,
         DamageTrackerKind::Lightning,
     )
