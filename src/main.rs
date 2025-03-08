@@ -176,8 +176,12 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitPauseScreen;
+
     #[derive(Component)]
     pub struct ExitLossScreen;
+
+    #[derive(Component)]
+    pub struct ExitWinScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component

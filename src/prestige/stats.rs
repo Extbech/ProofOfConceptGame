@@ -2,9 +2,9 @@ use std::fs;
 
 use bevy::ecs::system::Resource;
 
-#[derive(Resource, serde::Serialize, serde::Deserialize)]
+#[derive(Resource, serde::Serialize, serde::Deserialize, Clone, Copy)]
 pub struct Stats {
-    damage_increase: f32,
+    pub damage_increase: f32,
 }
 
 impl Default for Stats {

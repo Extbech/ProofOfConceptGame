@@ -23,6 +23,7 @@ use crate::{
         boss::{check_for_victory, spawn_boss},
         enemy::{spawn_enemies, update_enemies},
     },
+    prestige::save_game_plugin::SaveGamePlguin,
     skills::skills::{animate_lightning, spawn_lightning},
     tools::debug::show_radius,
     ui::{
@@ -30,6 +31,7 @@ use crate::{
         level_up_plugin::LevelUpPlugin,
         loss_plugin::LossPlugin,
         pause_game_plugin::{check_if_paused, PauseGamePlugin},
+        win_plguin::WinPlugin,
     },
     update_cursor, AppState, GameState,
 };
@@ -62,6 +64,8 @@ impl Plugin for GamePlugin {
         .add_plugins(PauseGamePlugin)
         .add_plugins(MapPlugin)
         .add_plugins(LossPlugin)
+        .add_plugins(WinPlugin)
+        .add_plugins(SaveGamePlguin)
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
