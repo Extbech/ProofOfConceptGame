@@ -76,6 +76,7 @@ impl Plugin for MapPlugin {
             .add_systems(Startup, setup_map);
     }
 }
+
 pub fn setup_map(
     mut commands: Commands,
     asset_server: Res<AssetServer>,

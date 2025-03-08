@@ -251,17 +251,11 @@ fn handle_damager_with_global_hit_cooldown(
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
 ) {
-    for (
-        projectile_transform,
-        &damage,
-        damage_tracker_kind,
-        mut attack_cd,
-        max_cd,
-        hitbox,
-    ) in damager_query.iter_mut()
+    for (projectile_transform, &damage, damage_tracker_kind, mut attack_cd, max_cd, hitbox) in
+        damager_query.iter_mut()
     {
         if !attack_cd.is_ready(max_cd.0) {
-            continue
+            continue;
         }
         for (enemy_transform, mut health, enemy_hitbox) in enemy_query.iter_mut() {
             if overlapping(
@@ -275,7 +269,10 @@ fn handle_damager_with_global_hit_cooldown(
                 }
                 attack_cd.reset(max_cd.0);
                 **health = health.saturating_sub(*damage);
-                damage_events.send(PlayerDamageEvent{pos:enemy_transform.translation().xy(), damage});
+                damage_events.send(PlayerDamageEvent {
+                    pos: enemy_transform.translation().xy(),
+                    damage,
+                });
                 if let Some(damage_tracker_kind) = damage_tracker_kind {
                     damage_tracker.update(*damage_tracker_kind, *damage);
                 }
