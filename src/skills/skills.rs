@@ -5,10 +5,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{
-            overlapping, spawn_damage_text, Circle, Damage, DealDamageHitBox, Health,
-            TakeDamageHitbox,
-        },
+        damage::{overlapping, Circle, Damage, DealDamageHitBox, Health, TakeDamageHitbox},
         projectiles::OrbitalRadius,
     },
     mobs::enemy::Enemy,
@@ -16,7 +13,6 @@ use crate::{
         orb_jutsu::orb_jutsu_bundle,
         thors_lightning::{
             thors_lightning_bundle, thors_lightning_strike_bundle, LightningEffectMarker,
-            ThorLightningMarker,
         },
     },
     tools::damage_tracking::{DamageTracker, DamageTrackerKind},
@@ -51,7 +47,7 @@ pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Enti
         child.spawn(thors_lightning_bundle());
     });
 }
-
+/*
 pub fn spawn_lightning(
     mut commands: Commands,
     mut damage_tracker: ResMut<DamageTracker>,
@@ -105,7 +101,7 @@ pub fn spawn_lightning(
         }
     }
 }
-
+*/
 pub fn animate_lightning(
     mut lightning_query: Query<(&LifeTime, &mut Sprite), With<LightningEffectMarker>>,
 ) {

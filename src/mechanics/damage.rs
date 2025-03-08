@@ -6,6 +6,7 @@ use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
+use crate::GameState;
 use crate::{
     characters::player::{Player, Range, Vulnerability},
     mechanics::cooldown::Cooldown,
@@ -32,6 +33,29 @@ pub enum DealDamageHitBox {
 #[derive(Component, Clone, Copy)]
 pub struct TakeDamageHitbox(pub Circle);
 
+#[derive(Component, Deref, DerefMut)]
+pub struct Health(pub u32);
+
+/// Damaging entities with a [HitList] can only hit another entity once
+#[derive(Component, Deref, DerefMut, Default)]
+pub struct HitList(pub Vec<Entity>);
+
+pub struct DamagePlugin;
+
+impl Plugin for DamagePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (
+                handle_enemy_damage_from_friendly,
+                tick_entity_hit_cooldown,
+                handle_enemy_damage_to_player,
+            )
+                .run_if(in_state(GameState::Running)),
+        );
+    }
+}
+
 pub fn overlapping(
     hitbox1: DealDamageHitBox,
     pos1: Vec2,
@@ -50,14 +74,7 @@ pub fn damaging(damage: Damage, hitbox: DealDamageHitBox) -> impl Bundle {
     (damage, hitbox)
 }
 
-#[derive(Component, Deref, DerefMut)]
-pub struct Health(pub u32);
-
-/// Damaging entities with a [HitList] can only hit another entity once
-#[derive(Component, Deref, DerefMut, Default)]
-pub struct HitList(pub Vec<Entity>);
-
-pub fn handle_enemy_damage_from_friendly(
+fn handle_enemy_damage_from_friendly(
     mut damage_tracker: ResMut<DamageTracker>,
     mut damager_query: Query<(
         &GlobalTransform,
@@ -78,7 +95,7 @@ pub fn handle_enemy_damage_from_friendly(
         damage_tracker_kind,
         mut hitcd,
         mut hitlist,
-        mut attackcd,
+        attackcd,
         hitbox,
     ) in damager_query.iter_mut()
     {
@@ -149,7 +166,7 @@ pub fn handle_enemy_damage_from_friendly(
 #[derive(Component, Default, Deref, DerefMut)]
 pub struct EntityHitCooldown(HashMap<Entity, Cooldown>);
 
-pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Res<Time>) {
+fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Res<Time>) {
     for mut cd_hm in &mut ent_hit {
         for cd in cd_hm.values_mut() {
             cd.tick(&time)
@@ -157,7 +174,7 @@ pub fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time
     }
 }
 
-pub fn spawn_damage_text(
+fn spawn_damage_text(
     commands: &mut Commands,
     damage: &Damage,
     asset_server: &Res<AssetServer>,
@@ -185,7 +202,7 @@ pub fn spawn_damage_text(
         ));
 }
 
-pub fn handle_enemy_damage_to_player(
+fn handle_enemy_damage_to_player(
     enemy_query: Query<(&GlobalTransform, &DealDamageHitBox), With<Enemy>>,
     mut player_query: Query<
         (
