@@ -186,6 +186,9 @@ pub fn handle_button_continue_click(
                 app_state.set(AppState::MainMenu);
             }
             Interaction::Hovered => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::HoverButtonSound,
+                )));
                 *background_color = css::ORANGE.into();
             }
             Interaction::None => *background_color = css::BLUE.into(),

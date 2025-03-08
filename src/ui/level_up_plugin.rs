@@ -193,6 +193,9 @@ pub fn handle_selection_cursor(
                 game_state.set(GameState::Running);
             }
             Interaction::Hovered => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::HoverButtonSound,
+                )));
                 *background_color = css::GRAY.into();
             }
             Interaction::None => *background_color = css::DARK_GRAY.into(),
