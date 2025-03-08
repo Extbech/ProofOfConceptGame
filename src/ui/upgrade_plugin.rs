@@ -4,7 +4,7 @@ use crate::{
     cleanup,
     sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
     tools::damage_tracking::DamageTracker,
-    AppState, GameState,
+    AppState,
 };
 
 pub struct UpgradePlugin;
