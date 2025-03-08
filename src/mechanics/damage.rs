@@ -6,7 +6,6 @@ use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
-use crate::{GameRng, GameState};
 use crate::{
     characters::player::{Player, Range, Vulnerability},
     mechanics::cooldown::Cooldown,
@@ -14,6 +13,7 @@ use crate::{
     mobs::enemy::Enemy,
     Heading, MovementSpeed,
 };
+use crate::{GameRng, GameState};
 
 use super::projectiles::projectile;
 
@@ -41,14 +41,13 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerDamageEvent>()
-        .add_systems(
+        app.add_event::<PlayerDamageEvent>().add_systems(
             Update,
             (
                 handle_enemy_damage_from_friendly,
                 tick_entity_hit_cooldown,
                 handle_damage_to_player,
-                display_player_damage
+                display_player_damage,
             )
                 .run_if(in_state(GameState::Running)),
         );
@@ -56,7 +55,10 @@ impl Plugin for DamagePlugin {
 }
 
 #[derive(Event)]
-struct PlayerDamageEvent{pos: Vec2, damage: Damage}
+struct PlayerDamageEvent {
+    pos: Vec2,
+    damage: Damage,
+}
 
 fn display_player_damage(
     mut commands: Commands,
@@ -66,25 +68,25 @@ fn display_player_damage(
 ) {
     for PlayerDamageEvent { pos, damage } in dmg_event.read() {
         commands
-        .spawn(projectile(
-            Heading::new(Vec2::new(0., 1.)),
-            MovementSpeed(20.),
-            Range(15.),
-            ShouldRotate(false),
-        ))
-        .insert((
-            Text2d::new(format!("{:.1}", **damage)),
-            TextFont {
-                font_size: 10.0,
-                font: asset_server.load("font/pixel-font.ttf"),
-                ..default()
-            },
-            TextColor(css::WHITE.into()),
-            Transform {
-                translation: (pos + rng.rand_vec(0.,5.)).extend(PROJECTILES_Z),
-                ..default()
-            },
-        ));
+            .spawn(projectile(
+                Heading::new(Vec2::new(0., 1.)),
+                MovementSpeed(20.),
+                Range(15.),
+                ShouldRotate(false),
+            ))
+            .insert((
+                Text2d::new(format!("{:.1}", **damage)),
+                TextFont {
+                    font_size: 10.0,
+                    font: asset_server.load("font/pixel-font.ttf"),
+                    ..default()
+                },
+                TextColor(css::WHITE.into()),
+                Transform {
+                    translation: (pos + rng.rand_vec(0., 5.)).extend(PROJECTILES_Z),
+                    ..default()
+                },
+            ));
     }
 }
 
@@ -123,13 +125,9 @@ fn handle_damager_with_hitlist(
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
 ) {
-    for (
-        projectile_transform,
-        &damage,
-        damage_tracker_kind,
-        mut hitlist,
-        hitbox,
-    ) in damager_query.iter_mut() {
+    for (projectile_transform, &damage, damage_tracker_kind, mut hitlist, hitbox) in
+        damager_query.iter_mut()
+    {
         for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
             if hitlist.contains(&ent) {
                 continue;
@@ -142,9 +140,12 @@ fn handle_damager_with_hitlist(
             ) {
                 if let Some(new_health) = health.checked_sub(*damage) {
                     if let Some(damage_tracker_kind) = damage_tracker_kind {
-                        damage_tracker.update(*damage_tracker_kind, health.0-new_health);
+                        damage_tracker.update(*damage_tracker_kind, health.0 - new_health);
                     }
-                    damage_events.send(PlayerDamageEvent{pos:enemy_transform.translation().xy(), damage});
+                    damage_events.send(PlayerDamageEvent {
+                        pos: enemy_transform.translation().xy(),
+                        damage,
+                    });
                     health.0 = new_health;
                     hitlist.push(ent);
                 } else {
@@ -179,13 +180,9 @@ fn handle_damager_with_per_entity_cooldown(
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
 ) {
-    for (
-        projectile_transform,
-        &damage,
-        damage_tracker_kind,
-        mut cd,
-        hitbox,
-    ) in damager_query.iter_mut() {
+    for (projectile_transform, &damage, damage_tracker_kind, mut cd, hitbox) in
+        damager_query.iter_mut()
+    {
         for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
             if overlapping(
                 *hitbox,
@@ -195,15 +192,18 @@ fn handle_damager_with_per_entity_cooldown(
             ) {
                 const MAXHITCOOLDOWN: f32 = 1.;
                 let hit_count = cd
-                        .entry(ent)
-                        .or_default()
-                        .reset(Duration::from_secs_f32(MAXHITCOOLDOWN));
+                    .entry(ent)
+                    .or_default()
+                    .reset(Duration::from_secs_f32(MAXHITCOOLDOWN));
                 for _ in 0..hit_count {
                     if let Some(new_health) = health.checked_sub(*damage) {
                         if let Some(damage_tracker_kind) = damage_tracker_kind {
-                            damage_tracker.update(*damage_tracker_kind, health.0-new_health);
+                            damage_tracker.update(*damage_tracker_kind, health.0 - new_health);
                         }
-                        damage_events.send(PlayerDamageEvent{pos:enemy_transform.translation().xy(), damage});
+                        damage_events.send(PlayerDamageEvent {
+                            pos: enemy_transform.translation().xy(),
+                            damage,
+                        });
                         health.0 = new_health;
                     } else {
                         health.0 = 0;
@@ -278,7 +278,10 @@ fn handle_enemy_damage_from_friendly(
                         break;
                     }
                     **health = health.saturating_sub(*damage);
-                    damage_events.send(PlayerDamageEvent{pos:enemy_transform.translation().xy(), damage});
+                    damage_events.send(PlayerDamageEvent {
+                        pos: enemy_transform.translation().xy(),
+                        damage,
+                    });
                     if let Some(damage_tracker_kind) = damage_tracker_kind {
                         damage_tracker.update(*damage_tracker_kind, *damage);
                     }

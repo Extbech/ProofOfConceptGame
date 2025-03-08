@@ -10,7 +10,6 @@ mod sprites;
 mod start_game;
 mod tools;
 mod ui;
-mod rng;
 
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
@@ -20,13 +19,13 @@ use mobs::{
     enemy::{SpawnCooldown, SpawnRate},
 };
 use prestige::stats::Stats;
-use rng::{GameRng, RngPlugin};
 use skills::skills_tooltips::SkillTooltips;
 use sound::sound_plugin::SoundPlugin;
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
 use tools::damage_tracking::DamageTracker;
+use tools::rng::{GameRng, RngPlugin};
 use ui::start_menu::StartMenuPlugin;
 use winit::window::Icon;
 
@@ -87,7 +86,6 @@ impl Default for Heading {
         }
     }
 }
-
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
