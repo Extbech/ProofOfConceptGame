@@ -73,7 +73,7 @@ pub fn update_xp_bar_and_level(
             child
                 .spawn(Node {
                     width: Val::Percent(100.0),
-                    height: Val::Percent(10.0),
+                    height: Val::Percent(8.0),
                     align_self: AlignSelf::End,
                     flex_direction: FlexDirection::Row,
                     ..default()
@@ -83,16 +83,19 @@ pub fn update_xp_bar_and_level(
                         width: Val::Percent(85.0),
                         height: Val::Percent(100.0),
                         align_self: AlignSelf::End,
+                        flex_direction: FlexDirection::Row,
                         ..default()
                     });
+                    let level_text = format!("lvl. {}", **level);
                     grandchild.spawn((
-                        Text::new(format!("lvl. {}", **level)),
+                        Text::new(level_text),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 60.0,
+                            font_size: 40.0,
                             ..default()
                         },
                         TextColor(Color::WHITE),
+                        TextLayout::new_with_justify(JustifyText::Center),
                     ));
                 });
         });
