@@ -11,10 +11,7 @@ use crate::{
     map::map_plugin::MapPlugin,
     mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
-        damage::{
-            handle_enemy_damage_from_friendly, handle_enemy_damage_to_player,
-            tick_entity_hit_cooldown,
-        },
+        damage::DamagePlugin,
         projectiles::{
             handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
         },
@@ -24,7 +21,7 @@ use crate::{
         enemy::{spawn_enemies, update_enemies},
     },
     prestige::save_game_plugin::SaveGamePlguin,
-    skills::skills::{animate_lightning, spawn_lightning},
+    skills::skills::animate_lightning,
     tools::debug::show_radius,
     ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
@@ -92,6 +89,7 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
+            .add_plugins(DamagePlugin)
             .add_systems(
                 PreUpdate,
                 show_radius, // Debug system
@@ -104,17 +102,14 @@ impl Plugin for RunningPlugin {
                         pickup_loot,
                         player_attack_facing_from_mouse,
                         handle_player_death,
-                        handle_enemy_damage_to_player,
                         sync_player_and_camera_pos,
                         speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
                         spawn_enemies,
-                        handle_enemy_damage_from_friendly,
-                        tick_entity_hit_cooldown,
                         update_enemies,
                         orbital_movement,
                         orbital_position,
                     ),
-                    (spawn_lightning, animate_lightning, spawn_boss),
+                    (animate_lightning, spawn_boss),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,

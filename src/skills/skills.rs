@@ -2,24 +2,16 @@ use bevy::prelude::*;
 use std::f32::consts::TAU;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{
-            overlapping, spawn_damage_text, Circle, Damage, DealDamageHitBox, Health,
-            TakeDamageHitbox,
-        },
         projectiles::OrbitalRadius,
     },
-    mobs::enemy::Enemy,
     skills::bundles::{
         orb_jutsu::orb_jutsu_bundle,
         thors_lightning::{
-            thors_lightning_bundle, thors_lightning_strike_bundle, LightningEffectMarker,
-            ThorLightningMarker,
+            thors_lightning_bundle, LightningEffectMarker,
         },
     },
-    tools::damage_tracking::{DamageTracker, DamageTrackerKind},
 };
 
 /// This func handles correct angle distance between orb projectiles.
@@ -51,7 +43,7 @@ pub fn enable_thors_lightning_skill(commands: &mut Commands, player_entity: Enti
         child.spawn(thors_lightning_bundle());
     });
 }
-
+/*
 pub fn spawn_lightning(
     mut commands: Commands,
     mut damage_tracker: ResMut<DamageTracker>,
@@ -105,7 +97,7 @@ pub fn spawn_lightning(
         }
     }
 }
-
+*/
 pub fn animate_lightning(
     mut lightning_query: Query<(&LifeTime, &mut Sprite), With<LightningEffectMarker>>,
 ) {
