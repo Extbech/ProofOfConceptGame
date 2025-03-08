@@ -26,7 +26,7 @@ use start_game::GamePlugin;
 use std::time::Duration;
 use tools::damage_tracking::DamageTracker;
 use tools::rng::{GameRng, RngPlugin};
-use ui::start_menu::StartMenuPlugin;
+use ui::{start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin};
 use winit::window::Icon;
 
 fn main() {
@@ -38,6 +38,7 @@ fn main() {
             state: AppState::MainMenu,
         })
         .add_plugins(RngPlugin)
+        .add_plugins(UpgradePlugin)
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .add_systems(Update, add_sprite)
@@ -52,7 +53,9 @@ fn set_state_not_started(mut state: ResMut<NextState<GameState>>) {
 enum AppState {
     MainMenu,
     InGame,
+    Upgrade,
 }
+
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 enum GameState {
     Paused,
@@ -182,6 +185,9 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitWinScreen;
+
+    #[derive(Component)]
+    pub struct ExitUpgradeScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
