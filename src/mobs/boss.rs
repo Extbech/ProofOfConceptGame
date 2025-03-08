@@ -1,12 +1,24 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use test_game::ENEMY_Z;
 use rand::prelude::*;
+use test_game::ENEMY_Z;
 
-use crate::{characters::player::Player, cleanup, mechanics::{cooldown::InGameTime, damage::{Circle, DealDamageHitBox, Health}}, sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH}, GameRng, Heading, MovementSpeed};
+use crate::{
+    characters::player::Player,
+    cleanup,
+    mechanics::{
+        cooldown::InGameTime,
+        damage::{Circle, Health, TakeDamageHitbox},
+    },
+    sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
+    GameRng, GameState, Heading, MovementSpeed,
+};
 
 use super::enemy::Enemy;
+
+#[derive(Component)]
+pub struct EndGameIfDead;
 
 pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
     (
@@ -15,9 +27,12 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         Health(10),
         MovementSpeed(100.),
         Heading::default(),
-        DealDamageHitBox::Circle(Circle{radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.}),
+        TakeDamageHitbox(Circle {
+            radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.,
+        }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
+        EndGameIfDead,
     )
 }
 
@@ -40,13 +55,21 @@ pub fn spawn_boss(
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
-    if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs(60*0) {
+    if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs(60 * 0) {
         boss_spawned.0 = true;
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(wizard_bundle(
-            enemy_position.x,
-            enemy_position.y,
-        ));
+        commands.spawn(wizard_bundle(enemy_position.x, enemy_position.y));
+    }
+}
+
+pub fn check_for_victory(
+    mut game_state: ResMut<NextState<GameState>>,
+    query: Query<&Health, With<EndGameIfDead>>,
+) {
+    if let Some(health) = query.iter().next() {
+        if **health == 0 {
+            game_state.set(GameState::Win);
+        }
     }
 }

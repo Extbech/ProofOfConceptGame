@@ -25,8 +25,8 @@ pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
         Health(health),
         MovementSpeed(100.),
         Heading::default(),
-        DealDamageHitBox::Circle(Circle{radius}),
-        TakeDamageHitbox(Circle{radius}),
+        DealDamageHitBox::Circle(Circle { radius }),
+        TakeDamageHitbox(Circle { radius }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),
     )
