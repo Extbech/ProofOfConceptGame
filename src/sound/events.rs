@@ -15,6 +15,7 @@ pub enum UiSound {
     HoverButtonSound,
     ClickButtonSound,
 }
+
 impl UiSound {
     fn get_sound_info(&self) -> (&'static str, f32, f32) {
         match self {
@@ -55,6 +56,7 @@ impl PlayerSound {
         }
     }
 }
+
 pub enum SoundEffectKind {
     UiSound(UiSound),
     SkillSound(SkillSound),
