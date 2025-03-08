@@ -18,8 +18,8 @@ pub enum UiSound {
 impl UiSound {
     fn get_sound_info(&self) -> (&'static str, f32) {
         match self {
-            UiSound::HoverButtonSound => ("sounds/effects/pew-laser.wav", 1.),
-            UiSound::ClickButtonSound => ("sounds/effects/pew-laser.wav", 1.),
+            UiSound::HoverButtonSound => ("sounds/effects/skills/pew-laser.wav", 1.),
+            UiSound::ClickButtonSound => ("sounds/effects/ui/button-click.mp3", 1.),
         }
     }
 }
@@ -33,9 +33,9 @@ pub enum SkillSound {
 impl SkillSound {
     fn get_sound_info(&self) -> (&'static str, f32) {
         match self {
-            SkillSound::PrimaryAttack => ("sounds/effects/pew-laser.wav", 1.),
-            SkillSound::OrbJutsu => ("sounds/effects/pew-laser.wav", 1.),
-            SkillSound::LightningAttack => ("sounds/effects/pew-laser.wav", 1.),
+            SkillSound::PrimaryAttack => ("sounds/effects/skills/pew-laser.wav", 1.),
+            SkillSound::OrbJutsu => ("sounds/effects/skills/pew-laser.wav", 1.),
+            SkillSound::LightningAttack => ("sounds/effects/skills/pew-laser.wav", 1.),
         }
     }
 }
@@ -47,7 +47,7 @@ pub enum DamageSound {
 impl DamageSound {
     fn get_sound_info(&self) -> (&'static str, f32) {
         match self {
-            DamageSound::PlayerTakeDamage => ("sounds/effects/pew-laser.wav", 1.),
+            DamageSound::PlayerTakeDamage => ("sounds/effects/skills/pew-laser.wav", 1.),
         }
     }
 }

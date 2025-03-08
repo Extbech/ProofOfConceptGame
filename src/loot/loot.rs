@@ -221,10 +221,7 @@ pub fn pickup_loot(
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     commands.spawn((
-        damaging(
-            Damage(100),
-            DealDamageHitBox::Global,
-        ),
+        damaging(Damage(100), DealDamageHitBox::Global),
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
         Transform {

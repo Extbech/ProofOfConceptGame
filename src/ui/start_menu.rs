@@ -1,3 +1,4 @@
+use crate::sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound};
 use crate::{cleanup, AppState};
 use bevy::color::palettes::css;
 use bevy::prelude::*;
@@ -108,9 +109,13 @@ fn handle_button_click(
         (Changed<Interaction>, With<Button>),
     >,
     mut app_state: ResMut<NextState<AppState>>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, menu_button_action) in &interaction_query {
         if *interaction == Interaction::Pressed {
+            sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                UiSound::ClickButtonSound,
+            )));
             match menu_button_action {
                 MenuButtonAction::Play => app_state.set(AppState::InGame),
             }

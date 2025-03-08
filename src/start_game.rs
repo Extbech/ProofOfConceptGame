@@ -22,7 +22,7 @@ use crate::{
     },
     prestige::save_game_plugin::SaveGamePlguin,
     skills::skills::animate_lightning,
-    tools::debug::show_radius,
+    tools::{damage_tracking::reset_stats, debug::show_radius},
     ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
         level_up_plugin::LevelUpPlugin,
@@ -67,7 +67,7 @@ impl Plugin for GamePlugin {
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
         )
-        .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>,))
+        .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
         .add_systems(
             Update,
             (

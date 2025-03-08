@@ -2,15 +2,10 @@ use bevy::prelude::*;
 use std::f32::consts::TAU;
 
 use crate::{
-    mechanics::{
-        cooldown::LifeTime,
-        projectiles::OrbitalRadius,
-    },
+    mechanics::{cooldown::LifeTime, projectiles::OrbitalRadius},
     skills::bundles::{
         orb_jutsu::orb_jutsu_bundle,
-        thors_lightning::{
-            thors_lightning_bundle, LightningEffectMarker,
-        },
+        thors_lightning::{thors_lightning_bundle, LightningEffectMarker},
     },
 };
 
