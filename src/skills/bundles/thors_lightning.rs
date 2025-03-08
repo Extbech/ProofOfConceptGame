@@ -12,7 +12,7 @@ use crate::{
     characters::player::{AttackCooldown, MaxAttackCooldown},
     mechanics::{
         cooldown::LifeTime,
-        damage::{self, Circle, Damage, DealDamageHitBox},
+        damage::{Circle, Damage, DealDamageHitBox},
     },
     sprites::{Skill, SpriteKind},
     tools::damage_tracking::DamageTrackerKind,

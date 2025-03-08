@@ -2,20 +2,16 @@ use bevy::prelude::*;
 use std::f32::consts::TAU;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown, Player},
     mechanics::{
         cooldown::LifeTime,
-        damage::{overlapping, Circle, Damage, DealDamageHitBox, Health, TakeDamageHitbox},
         projectiles::OrbitalRadius,
     },
-    mobs::enemy::Enemy,
     skills::bundles::{
         orb_jutsu::orb_jutsu_bundle,
         thors_lightning::{
-            thors_lightning_bundle, thors_lightning_strike_bundle, LightningEffectMarker,
+            thors_lightning_bundle, LightningEffectMarker,
         },
     },
-    tools::damage_tracking::{DamageTracker, DamageTrackerKind},
 };
 
 /// This func handles correct angle distance between orb projectiles.
