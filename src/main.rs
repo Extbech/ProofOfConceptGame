@@ -9,6 +9,7 @@ mod sprites;
 mod start_game;
 mod tools;
 mod ui;
+mod rng;
 
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
@@ -18,7 +19,7 @@ use mobs::{
     enemy::{SpawnCooldown, SpawnRate},
 };
 use prestige::stats::Stats;
-use rand::{rngs::SmallRng, SeedableRng};
+use rng::{GameRng, RngPlugin};
 use skills::skills_tooltips::SkillTooltips;
 use sprites::add_sprite;
 use start_game::GamePlugin;
@@ -34,6 +35,7 @@ fn main() {
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
         })
+        .add_plugins(RngPlugin)
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .add_systems(Update, add_sprite)
@@ -83,8 +85,6 @@ impl Default for Heading {
     }
 }
 
-#[derive(Resource, Deref, DerefMut)]
-struct GameRng(SmallRng);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
@@ -104,7 +104,6 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
         MyGameCamera,
     ));
     commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
-    commands.insert_resource(GameRng(SmallRng::from_entropy()));
     commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());

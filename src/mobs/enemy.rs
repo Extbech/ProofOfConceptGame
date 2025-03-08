@@ -1,7 +1,8 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
 use crate::mechanics::damage::{Circle, DealDamageHitBox, Health, TakeDamageHitbox};
+use crate::rng::GameRng;
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
-use crate::{cleanup, GameRng, MovementSpeed};
+use crate::{cleanup, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -57,11 +58,7 @@ pub fn update_enemies(
 }
 
 pub fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
-    let angle: f32 = rng.gen_range(0.0..(2. * std::f32::consts::PI));
-    let r: f32 = rng.gen_range(500.0..1000.0);
-    let x = r * angle.sin();
-    let y = r * angle.cos();
-    Vec2::new(pos.x + x, pos.y + y)
+    pos + rng.rand_vec(500., 1000.)
 }
 
 pub fn spawn_enemies(
