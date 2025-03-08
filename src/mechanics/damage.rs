@@ -32,7 +32,7 @@ pub enum DealDamageHitBox {
 #[derive(Component, Clone, Copy)]
 pub struct TakeDamageHitbox(pub Circle);
 
-fn overlapping(
+pub fn overlapping(
     hitbox1: DealDamageHitBox,
     pos1: Vec2,
     hitbox2: TakeDamageHitbox,
