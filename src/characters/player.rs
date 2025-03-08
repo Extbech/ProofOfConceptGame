@@ -3,12 +3,13 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 
 use std::time::Duration;
 
-use crate::mechanics::cooldown::{Cooldown, LifeTime};
+use crate::mechanics::cooldown::Cooldown;
 use crate::mechanics::damage::damaging;
 use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
-use crate::prestige::save_game_plugin::SaveGameStatsEventToMemory;
+use crate::prestige::events::SaveGameStatsEventToMemory;
+use crate::sound::events::{PlaySoundEffectEvent, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
 use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
@@ -156,7 +157,6 @@ pub fn player_attack_facing_from_mouse(
 /// System for shooting where the direction of the projectiles go from the player towards the cursor
 pub fn player_shooting(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     keys: Res<ButtonInput<MouseButton>>,
     mut player: Query<
         (
@@ -170,6 +170,7 @@ pub fn player_shooting(
         ),
         With<Player>,
     >,
+    mut event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (
         &player_trans,
@@ -186,11 +187,11 @@ pub fn player_shooting(
             player_shoot(
                 &mut commands,
                 *player_position,
-                &asset_server,
                 attack_direction,
                 projectile_speed,
                 damage,
                 range,
+                &mut event,
             );
         }
     } else {
@@ -201,11 +202,11 @@ pub fn player_shooting(
 fn player_shoot(
     commands: &mut Commands,
     player_position: Vec2,
-    asset_server: &Res<AssetServer>,
     dir: &Heading,
     projectile_speed: ProjectileSpeed,
     damage: PlayerDamage,
     range: Range,
+    sound_event: &mut EventWriter<PlaySoundEffectEvent>,
 ) {
     let diff = player_position - **dir;
     commands.spawn((
@@ -226,11 +227,9 @@ fn player_shoot(
         HitList::default(),
         DamageTrackerKind::PrimaryAttack,
     ));
-    commands.spawn((
-        AudioPlayer::<AudioSource>(asset_server.load("sounds/effects/pew-laser.wav")),
-        PlaybackSettings::ONCE,
-        LifeTime(Duration::from_secs(1)),
-    ));
+    sound_event.send(PlaySoundEffectEvent(SoundEffectKind::SkillSound(
+        SkillSound::PrimaryAttack,
+    )));
 }
 
 pub fn handle_player_xp(
