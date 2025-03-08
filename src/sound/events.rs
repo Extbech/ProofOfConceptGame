@@ -40,22 +40,23 @@ impl SkillSound {
     }
 }
 
-pub enum DamageSound {
+pub enum PlayerSound {
+    Levelup,
     PlayerTakeDamage,
 }
 
-impl DamageSound {
+impl PlayerSound {
     fn get_sound_info(&self) -> (&'static str, f32, f32) {
         match self {
-            DamageSound::PlayerTakeDamage => ("sounds/effects/skills/pew-laser.wav", 1., 1.),
+            PlayerSound::Levelup => ("sounds/effects/player-sound/level-up.mp3", 1., 1.),
+            &PlayerSound::PlayerTakeDamage => ("sounds/effects/skills/pew-laser.wav", 1., 1.),
         }
     }
 }
-
 pub enum SoundEffectKind {
     UiSound(UiSound),
     SkillSound(SkillSound),
-    DamageSound(DamageSound),
+    PlayerSound(PlayerSound),
 }
 
 impl SoundEffectKind {
@@ -63,7 +64,7 @@ impl SoundEffectKind {
         match self {
             SoundEffectKind::UiSound(ui) => ui.get_sound_info(),
             SoundEffectKind::SkillSound(skill) => skill.get_sound_info(),
-            SoundEffectKind::DamageSound(damage) => damage.get_sound_info(),
+            SoundEffectKind::PlayerSound(player_sound) => player_sound.get_sound_info(),
         }
     }
 }

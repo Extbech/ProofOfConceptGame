@@ -1,11 +1,10 @@
 use crate::mechanics::cooldown::{Cooldown, InGameTime};
 use crate::mechanics::damage::{Circle, DealDamageHitBox, Health, TakeDamageHitbox};
-use crate::rng::GameRng;
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
+use crate::tools::rng::GameRng;
 use crate::{cleanup, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
-use rand::prelude::*;
 use std::time::Duration;
 use test_game::ENEMY_Z;
 

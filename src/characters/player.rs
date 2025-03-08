@@ -9,7 +9,7 @@ use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
 use crate::prestige::events::SaveGameStatsEventToMemory;
-use crate::sound::events::{PlaySoundEffectEvent, SkillSound, SoundEffectKind};
+use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
 use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
@@ -83,7 +83,7 @@ fn player_bundle() -> impl Bundle {
             MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats(PlayerDamage(1), ProjectileSpeed(450.), Range(500.)),
             CurrentXP(0.0),
-            RequiredXP(100.0),
+            RequiredXP(10.0),
             CurrentLevel(1),
             MaxLevel(100),
             XpPickUpRadius(100.0 * SCALE),
@@ -244,6 +244,7 @@ pub fn handle_player_xp(
     >,
     mut game_state: ResMut<NextState<GameState>>,
     mut save_game_stats_event: EventWriter<SaveGameStatsEventToMemory>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
     if **required_xp <= **current_xp && **current_level < **max_level {
@@ -252,6 +253,9 @@ pub fn handle_player_xp(
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
         save_game_stats_event.send(SaveGameStatsEventToMemory);
+        sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+            PlayerSound::Levelup,
+        )));
     }
 }
 
