@@ -22,7 +22,7 @@ use crate::{
     },
     prestige::save_game_plugin::SaveGamePlguin,
     skills::skills::animate_lightning,
-    tools::{damage_tracking::reset_stats, debug::show_radius},
+    tools::{damage_tracking::reset_stats, debug::DebugPlugin},
     ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
         level_up_plugin::LevelUpPlugin,
@@ -89,11 +89,10 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
-            .add_plugins(DamagePlugin)
-            .add_systems(
-                PreUpdate,
-                show_radius, // Debug system
-            )
+            .add_plugins((
+                DamagePlugin,
+                DebugPlugin
+            ))
             .add_systems(
                 Update,
                 (

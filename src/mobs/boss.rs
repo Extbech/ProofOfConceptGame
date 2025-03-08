@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{f32::consts::PI, time::Duration};
 
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -9,7 +9,7 @@ use crate::{
     cleanup,
     mechanics::{
         cooldown::InGameTime,
-        damage::{Circle, Health, TakeDamageHitbox},
+        damage::{Circle, Cone, DealDamageHitbox, Health, TakeDamageHitbox},
     },
     sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
     GameRng, GameState, Heading, MovementSpeed,
@@ -25,20 +25,21 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         cleanup::ExitGame,
         Enemy,
         Health(10),
-        MovementSpeed(100.),
+        MovementSpeed(0.),
         Heading::default(),
         TakeDamageHitbox(Circle {
             radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.,
         }),
+        DealDamageHitbox::Cone(Cone { mid_angle: Vec2::new(50., 50.), angular_width: (1./8.)*PI }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
         EndGameIfDead,
     )
 }
 
-pub fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
+fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
     let angle: f32 = rng.gen_range(0.0..(2. * std::f32::consts::PI));
-    let r: f32 = rng.gen_range(500.0..1000.0);
+    let r: f32 = rng.gen_range(50.0..100.0);
     let x = r * angle.sin();
     let y = r * angle.cos();
     Vec2::new(pos.x + x, pos.y + y)
