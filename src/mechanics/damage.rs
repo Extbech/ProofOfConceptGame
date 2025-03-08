@@ -44,7 +44,9 @@ impl Plugin for DamagePlugin {
         app.add_event::<PlayerDamageEvent>().add_systems(
             Update,
             (
-                handle_enemy_damage_from_friendly,
+                handle_damager_with_hitlist,
+                handle_damager_with_per_entity_cooldown,
+                handle_damager_with_global_hit_cooldown,
                 tick_entity_hit_cooldown,
                 handle_damage_to_player,
                 display_player_damage,
@@ -215,86 +217,50 @@ fn handle_damager_with_per_entity_cooldown(
     }
 }
 
-fn handle_enemy_damage_from_friendly(
+/// Used for effects that only hit *some* of the enemies in their radius
+/// Cannot hit more than once per tick
+fn handle_damager_with_global_hit_cooldown(
     mut damage_tracker: ResMut<DamageTracker>,
     mut damager_query: Query<(
         &GlobalTransform,
         &Damage,
         Option<&DamageTrackerKind>,
-        Option<&mut EntityHitCooldown>,
-        Option<&mut HitList>,
-        Option<(&mut AttackCooldown, &MaxAttackCooldown)>,
+        &mut AttackCooldown,
+        &MaxAttackCooldown,
         &DealDamageHitBox,
     )>,
-    mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
+    mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
 ) {
     for (
         projectile_transform,
         &damage,
         damage_tracker_kind,
-        mut hitcd,
-        mut hitlist,
-        attackcd,
+        mut attack_cd,
+        max_cd,
         hitbox,
     ) in damager_query.iter_mut()
     {
-        let mut total_hit_count: Option<u32> = if let Some((mut cd, max_cd)) = attackcd {
-            Some(cd.reset(max_cd.0))
-        } else {
-            None
-        };
-        for (enemy_transform, mut health, enemy_hitbox, ent) in enemy_query.iter_mut() {
-            if let Some(0) = &mut total_hit_count {
-                break;
-            }
-            if let Some(hitlist) = &hitlist {
-                if hitlist.contains(&ent) {
-                    continue;
-                }
-            } else {
-                #[cfg(debug_assertions)]
-                if let None = hitcd {
-                    panic!("There is a damaging entity with neither hitlist nor cooldown")
-                }
-            }
+        if !attack_cd.is_ready(max_cd.0) {
+            continue
+        }
+        for (enemy_transform, mut health, enemy_hitbox) in enemy_query.iter_mut() {
             if overlapping(
                 *hitbox,
                 projectile_transform.translation().xy(),
                 *enemy_hitbox,
                 enemy_transform.translation().xy(),
             ) {
-                const MAXHITCOOLDOWN: f32 = 1.;
-                let hit_count = if let Some(hitcd) = &mut hitcd {
-                    hitcd
-                        .entry(ent)
-                        .or_default()
-                        .reset(Duration::from_secs_f32(MAXHITCOOLDOWN))
-                } else {
-                    1
-                };
-                for _ in 0..hit_count {
-                    if health.0 == 0 {
-                        break;
-                    }
-                    **health = health.saturating_sub(*damage);
-                    damage_events.send(PlayerDamageEvent {
-                        pos: enemy_transform.translation().xy(),
-                        damage,
-                    });
-                    if let Some(damage_tracker_kind) = damage_tracker_kind {
-                        damage_tracker.update(*damage_tracker_kind, *damage);
-                    }
-                    if let Some(total_hit_count) = &mut total_hit_count {
-                        *total_hit_count = total_hit_count.saturating_sub(1);
-                        if *total_hit_count == 0 {
-                            break;
-                        }
-                    }
+                if health.0 == 0 {
+                    continue;
                 }
-                if let Some(hitlist) = &mut hitlist {
-                    hitlist.push(ent)
+                attack_cd.reset(max_cd.0);
+                **health = health.saturating_sub(*damage);
+                damage_events.send(PlayerDamageEvent{pos:enemy_transform.translation().xy(), damage});
+                if let Some(damage_tracker_kind) = damage_tracker_kind {
+                    damage_tracker.update(*damage_tracker_kind, *damage);
                 }
+                break;
             }
         }
     }
