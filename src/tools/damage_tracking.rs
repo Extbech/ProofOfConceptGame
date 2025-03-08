@@ -1,6 +1,9 @@
 use std::{cmp::Reverse, vec};
 
-use bevy::ecs::{component::Component, system::Resource};
+use bevy::ecs::{
+    component::Component,
+    system::{ResMut, Resource},
+};
 
 #[derive(Component, Clone, Copy)]
 pub enum DamageTrackerKind {
@@ -63,4 +66,14 @@ impl DamageTracker {
 
         return damage_tracking_sorted;
     }
+
+    pub fn reset(&mut self) {
+        self.primary_attack.amount = 0;
+        self.orb_justu.amount = 0;
+        self.lightning_strike.amount = 0;
+    }
+}
+
+pub fn reset_stats(mut damage_tracker: ResMut<DamageTracker>) {
+    damage_tracker.reset();
 }

@@ -28,7 +28,7 @@ pub struct Circle {
 #[derive(Component, Clone, Copy)]
 pub enum DealDamageHitBox {
     Circle(Circle),
-    Global
+    Global,
 }
 
 #[derive(Component, Clone, Copy)]
@@ -97,10 +97,8 @@ fn overlapping(
     match hitbox1 {
         DealDamageHitBox::Circle(circle) => {
             pos1.distance(pos2.clone()) <= circle.radius + hitbox2.0.radius
-        },
-        DealDamageHitBox::Global => {
-            true
         }
+        DealDamageHitBox::Global => true,
     }
 }
 

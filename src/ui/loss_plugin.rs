@@ -1,6 +1,11 @@
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
-use crate::{cleanup, tools::damage_tracking::DamageTracker, AppState, GameState};
+use crate::{
+    cleanup,
+    sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
+    tools::damage_tracking::DamageTracker,
+    AppState, GameState,
+};
 
 pub struct LossPlugin;
 
@@ -172,14 +177,21 @@ pub fn handle_button_continue_click(
     >,
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::ClickButtonSound,
+                )));
                 game_state.set(GameState::NotStarted);
                 app_state.set(AppState::MainMenu);
             }
             Interaction::Hovered => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::HoverButtonSound,
+                )));
                 *background_color = css::ORANGE.into();
             }
             Interaction::None => *background_color = css::BLUE.into(),

@@ -9,6 +9,7 @@ use crate::{
         skills::{enable_thors_lightning_skill, spawn_new_orb},
         skills_tooltips::{SkillTooltips, SkillType},
     },
+    sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
     AppState, GameRng, GameState, MovementSpeed,
 };
 pub struct LevelUpPlugin;
@@ -147,6 +148,7 @@ pub fn handle_selection_cursor(
     >,
     mut orb_query: Query<Entity, With<OrbitalRadius>>,
     mut game_state: ResMut<NextState<GameState>>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (
         mut pick_up_radius,
@@ -159,6 +161,9 @@ pub fn handle_selection_cursor(
     for (interaction, item_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::ClickButtonSound,
+                )));
                 match **item_type {
                     SkillType::PassiveDamageIncrease => {
                         **player_damage += 1;
@@ -188,6 +193,9 @@ pub fn handle_selection_cursor(
                 game_state.set(GameState::Running);
             }
             Interaction::Hovered => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::HoverButtonSound,
+                )));
                 *background_color = css::GRAY.into();
             }
             Interaction::None => *background_color = css::DARK_GRAY.into(),

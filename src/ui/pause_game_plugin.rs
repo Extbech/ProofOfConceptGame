@@ -1,3 +1,4 @@
+use crate::sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound};
 use crate::{cleanup, AppState};
 use crate::{cleanup::ExitPauseScreen, GameState};
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
@@ -159,15 +160,24 @@ pub fn handle_options_interaction(
     >,
     mut game_state: ResMut<NextState<GameState>>,
     mut app_state: ResMut<NextState<AppState>>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, action_type, mut background_color) in &mut interaction_query {
         match interaction {
-            Interaction::Pressed => match action_type {
-                OptionsButtonAction::Continue => game_state.set(GameState::Running),
-                OptionsButtonAction::Settings => {}
-                OptionsButtonAction::Exit => app_state.set(AppState::MainMenu),
-            },
+            Interaction::Pressed => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::ClickButtonSound,
+                )));
+                match action_type {
+                    OptionsButtonAction::Continue => game_state.set(GameState::Running),
+                    OptionsButtonAction::Settings => {}
+                    OptionsButtonAction::Exit => app_state.set(AppState::MainMenu),
+                }
+            }
             Interaction::Hovered => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::HoverButtonSound,
+                )));
                 *background_color = css::ORANGE.into();
             }
             Interaction::None => {

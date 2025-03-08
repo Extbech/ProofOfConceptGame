@@ -5,6 +5,7 @@ mod mechanics;
 mod mobs;
 mod prestige;
 mod skills;
+mod sound;
 mod sprites;
 mod start_game;
 mod tools;
@@ -21,6 +22,7 @@ use mobs::{
 use prestige::stats::Stats;
 use rng::{GameRng, RngPlugin};
 use skills::skills_tooltips::SkillTooltips;
+use sound::sound_plugin::SoundPlugin;
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
@@ -31,6 +33,7 @@ use winit::window::Icon;
 fn main() {
     App::new()
         .add_plugins(GamePlugin)
+        .add_plugins(SoundPlugin)
         .insert_state(AppState::MainMenu)
         .add_plugins(StartMenuPlugin {
             state: AppState::MainMenu,
