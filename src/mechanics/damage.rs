@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 use std::time::Duration;
 
 use bevy::color::palettes::css;
@@ -6,6 +5,7 @@ use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
+use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SoundEffectKind};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
     characters::player::{Player, Range, Vulnerability},
@@ -29,7 +29,7 @@ pub struct Circle {
 #[derive(Clone, Copy)]
 pub struct Cone {
     pub mid_angle: Vec2,
-    pub angular_width: f32
+    pub angular_width: f32,
 }
 
 #[derive(Component, Clone, Copy)]
@@ -108,18 +108,21 @@ fn overlapping(
 ) -> bool {
     let radius2 = hitbox2.0.radius;
     match hitbox1 {
-        DealDamageHitbox::Circle(Circle{radius}) => {
+        DealDamageHitbox::Circle(Circle { radius }) => {
             pos1.distance(pos2.clone()) <= radius + radius2
         }
         DealDamageHitbox::Global => true,
-        DealDamageHitbox::Cone(Cone{ mid_angle, angular_width }) => {
-            let v = pos2-pos1;
+        DealDamageHitbox::Cone(Cone {
+            mid_angle,
+            angular_width,
+        }) => {
+            let v = pos2 - pos1;
             let v = v.rotate_towards(mid_angle, angular_width);
             if v.distance(Vec2::ZERO) <= radius2 || v.distance(mid_angle) <= radius2 {
                 true
-            } else  {
+            } else {
                 let proj = v.dot(mid_angle);
-                0. <= proj && proj*proj <= v.length_squared() * mid_angle.length_squared()
+                0. <= proj && proj * proj <= v.length_squared() * mid_angle.length_squared()
             }
         }
     }
@@ -295,6 +298,7 @@ fn handle_damage_to_player(
         ),
         With<Player>,
     >,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
         player_query.single_mut();
@@ -307,6 +311,9 @@ fn handle_damage_to_player(
             if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+                    PlayerSound::PlayerTakeDamage,
+                )));
                 return;
             }
         }
