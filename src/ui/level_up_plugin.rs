@@ -4,7 +4,7 @@ use rand::prelude::*;
 use crate::{
     characters::player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
     cleanup,
-    mechanics::{damage::Health, projectiles::OrbitalRadius},
+    mechanics::{damage::Health, movement::orbiting::OrbitalRadius},
     skills::{
         skills::{enable_thors_lightning_skill, spawn_new_orb},
         skills_tooltips::{SkillTooltips, SkillType},

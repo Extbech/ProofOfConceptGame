@@ -10,13 +10,13 @@ use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
     characters::player::{Player, Range, Vulnerability},
     mechanics::cooldown::Cooldown,
-    mechanics::projectiles::ShouldRotate,
+    mechanics::movement::ShouldRotate,
     mobs::enemy::Enemy,
     Heading, MovementSpeed,
 };
 use crate::{GameRng, GameState};
 
-use super::projectiles::projectile;
+use super::movement::projectile;
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(pub u32);

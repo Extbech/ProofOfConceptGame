@@ -12,8 +12,8 @@ use crate::{
     mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::DamagePlugin,
-        projectiles::{
-            handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
+        movement::{
+            orbiting::{orbital_movement, update_orbital_position}, ProjectilePlugin,
         },
     },
     mobs::{
@@ -89,7 +89,7 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
-            .add_plugins((DamagePlugin, DebugPlugin))
+            .add_plugins((DamagePlugin, DebugPlugin, ProjectilePlugin))
             .add_systems(
                 Update,
                 (
@@ -99,11 +99,10 @@ impl Plugin for RunningPlugin {
                         player_attack_facing_from_mouse,
                         handle_player_death,
                         sync_player_and_camera_pos,
-                        speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
                         spawn_enemies,
                         update_enemies,
                         orbital_movement,
-                        orbital_position,
+                        update_orbital_position,
                     ),
                     (animate_lightning, spawn_boss),
                     (
@@ -117,7 +116,6 @@ impl Plugin for RunningPlugin {
                         player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
                         render_stop_watch,
                         check_if_paused,
-                        handle_projectile_rotation,
                         handle_xp_orb_movement,
                         check_for_victory,
                     ),

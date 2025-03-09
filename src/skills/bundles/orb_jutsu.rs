@@ -3,7 +3,7 @@ use bevy::ecs::bundle::Bundle;
 use crate::{
     mechanics::{
         damage::{damaging, Circle, Damage, DealDamageHitbox, EntityHitCooldown},
-        projectiles::{Angle, AngularVelocity, OrbitalRadius},
+        movement::orbiting::{Angle, AngularVelocity, OrbitalRadius},
     },
     sprites::{Skill, SpriteKind},
     tools::damage_tracking::DamageTrackerKind,

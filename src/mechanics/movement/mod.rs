@@ -1,8 +1,18 @@
 use crate::{
-    characters::player::Range, cleanup, mechanics::cooldown::LifeTime, Heading, MovementSpeed,
-    SCALE,
+    characters::player::{sync_player_and_camera_pos, Range}, cleanup, mechanics::cooldown::LifeTime, GameState, Heading, MovementSpeed, SCALE
 };
 use bevy::prelude::*;
+
+pub struct ProjectilePlugin;
+
+impl Plugin for ProjectilePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (
+            handle_projectile_rotation,
+            speed_to_movement.before(sync_player_and_camera_pos)
+        ).run_if(in_state(GameState::Running)));
+    }
+}
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct RemDistance(pub f32);
@@ -29,7 +39,7 @@ pub fn projectile(
     )
 }
 
-pub fn handle_projectile_rotation(
+fn handle_projectile_rotation(
     mut q: Query<(&Heading, &mut Transform, &ShouldRotate), With<ProjectileMarker>>,
 ) {
     for (dir, mut tran, should_rotate) in &mut q {
@@ -39,7 +49,8 @@ pub fn handle_projectile_rotation(
         }
     }
 }
-pub fn speed_to_movement(
+
+fn speed_to_movement(
     time: Res<Time>,
     mut q: Query<(&Heading, &mut Transform, &MovementSpeed)>,
 ) {
@@ -50,24 +61,5 @@ pub fn speed_to_movement(
     }
 }
 
-#[derive(Component, Default, Deref, DerefMut)]
-pub struct AngularVelocity(pub f32);
+pub mod orbiting;
 
-#[derive(Component, Default, Deref, DerefMut)]
-pub struct Angle(pub f32);
-
-#[derive(Component, Default, Deref, DerefMut)]
-pub struct OrbitalRadius(pub f32);
-
-pub fn orbital_movement(time: Res<Time>, mut query: Query<(&AngularVelocity, &mut Angle)>) {
-    for (vel, mut ang) in &mut query {
-        **ang += **vel * time.delta_secs();
-        **ang %= std::f32::consts::TAU;
-    }
-}
-
-pub fn orbital_position(mut query: Query<(&mut Transform, &OrbitalRadius, &Angle)>) {
-    for (mut trans, rad, ang) in &mut query {
-        (trans.translation.x, trans.translation.y) = (**rad * Vec2::from_angle(**ang)).into();
-    }
-}

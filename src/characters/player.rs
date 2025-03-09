@@ -7,7 +7,7 @@ use crate::mechanics::cooldown::Cooldown;
 use crate::mechanics::damage::damaging;
 use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
-use crate::mechanics::projectiles::{projectile, ShouldRotate};
+use crate::mechanics::movement::{projectile, ShouldRotate};
 use crate::prestige::events::SaveGameStatsEventToMemory;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
