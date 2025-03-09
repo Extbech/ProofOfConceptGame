@@ -2,36 +2,23 @@ use crate::{
     characters::player::{
         handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_shooting,
         spawn_player_hero,
-    },
-    cleanup,
-    loot::loot::{
+    }, cleanup, loot::loot::{
         activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
         pickup_loot, xp_orbs_collision,
-    },
-    map::map_plugin::MapPlugin,
-    mechanics::{
+    }, map::map_plugin::MapPlugin, mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::DamagePlugin,
         movement::{
             orbiting::{orbital_movement, update_orbital_position},
             ProjectilePlugin,
         },
-    },
-    mobs::{
-        boss::{check_for_victory, spawn_boss},
-        enemy::{spawn_enemies, update_enemies},
-    },
-    prestige::save_game_plugin::SaveGamePlugin,
-    skills::skills::animate_lightning,
-    tools::{damage_tracking::reset_stats, debug::DebugPlugin},
-    ui::{
+    }, mobs::MobPlugin, prestige::save_game_plugin::SaveGamePlugin, skills::skills::animate_lightning, tools::{damage_tracking::reset_stats, debug::DebugPlugin}, ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
         level_up_plugin::LevelUpPlugin,
         loss_plugin::LossPlugin,
         pause_game_plugin::{check_if_paused, PauseGamePlugin},
         win_plguin::WinPlugin,
-    },
-    update_cursor, AppState, GameState,
+    }, update_cursor, AppState, GameState
 };
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_tilemap::TilemapPlugin;
@@ -61,6 +48,7 @@ impl Plugin for GamePlugin {
             RunningPlugin,
             LevelUpPlugin,
             PauseGamePlugin,
+            MobPlugin,
             MapPlugin,
             LossPlugin,
             WinPlugin,
@@ -97,12 +85,10 @@ impl Plugin for RunningPlugin {
                         pickup_loot,
                         player_attack_facing_from_mouse,
                         handle_player_death,
-                        spawn_enemies,
-                        update_enemies,
                         orbital_movement,
                         update_orbital_position,
                     ),
-                    (animate_lightning, spawn_boss),
+                    (animate_lightning),
                     (
                         check_for_dead_enemies,
                         xp_orbs_collision,
@@ -114,7 +100,6 @@ impl Plugin for RunningPlugin {
                         render_stop_watch,
                         check_if_paused,
                         handle_xp_orb_movement,
-                        check_for_victory,
                     ),
                 )
                     .run_if(in_state(STATE)),
