@@ -89,10 +89,7 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
-            .add_plugins((
-                DamagePlugin,
-                DebugPlugin
-            ))
+            .add_plugins((DamagePlugin, DebugPlugin))
             .add_systems(
                 Update,
                 (

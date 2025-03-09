@@ -30,7 +30,7 @@ fn show_weakness(
         blue: 0.,
         alpha: 0.3,
     }));
-    for (TakeDamageHitbox(damage::Circle{radius}), ent) in &q {
+    for (TakeDamageHitbox(damage::Circle { radius }), ent) in &q {
         if let Some(mut inent) = commands.get_entity(ent) {
             inent.insert(ShowWeaknessHitbox);
             inent.with_children(|parent| {
@@ -74,10 +74,12 @@ fn show_damaging(
                     angular_width,
                 }) => {
                     let mut tf = Transform::from_xyz(0., 0., 100.);
-                    tf.rotate_z(2.*PI-mid_angle.to_angle().rem_euclid(2.*PI));
+                    tf.rotate_z(2. * PI - mid_angle.to_angle().rem_euclid(2. * PI));
                     inent.with_children(|parent| {
                         parent.spawn((
-                            Mesh2d(meshes.add(CircularSector::new(mid_angle.length(), *angular_width))),
+                            Mesh2d(
+                                meshes.add(CircularSector::new(mid_angle.length(), *angular_width)),
+                            ),
                             MeshMaterial2d(color.clone()),
                             tf,
                         ));
