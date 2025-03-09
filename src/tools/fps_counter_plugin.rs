@@ -5,6 +5,8 @@ use bevy::{
 };
 use test_game::FPS_COUNTER_Z;
 
+/// Plugin for enabling a fps counter in the game.
+/// This fps counter can be toggled on/off by pressing the `f12` key.
 pub struct FPSCouterPlugin;
 
 impl Plugin for FPSCouterPlugin {
