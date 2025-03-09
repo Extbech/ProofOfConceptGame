@@ -1,5 +1,8 @@
 use crate::{
-    characters::player::{Player, Range}, cleanup, mechanics::cooldown::LifeTime, GameState, Heading, MovementSpeed, MyGameCamera, SCALE
+    characters::player::{Player, Range},
+    cleanup,
+    mechanics::cooldown::LifeTime,
+    GameState, Heading, MovementSpeed, MyGameCamera, SCALE,
 };
 use bevy::prelude::*;
 
@@ -7,13 +10,20 @@ pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
-            handle_projectile_rotation,
-            player_movement,
-            sync_player_and_camera_pos,
-            speed_to_movement.before(sync_player_and_camera_pos)
-        ).run_if(in_state(GameState::Running)));
-        app.add_systems(PostUpdate, sync_player_and_camera_pos.run_if(in_state(GameState::Running)));
+        app.add_systems(
+            Update,
+            (
+                handle_projectile_rotation,
+                player_movement,
+                sync_player_and_camera_pos,
+                speed_to_movement.before(sync_player_and_camera_pos),
+            )
+                .run_if(in_state(GameState::Running)),
+        );
+        app.add_systems(
+            PostUpdate,
+            sync_player_and_camera_pos.run_if(in_state(GameState::Running)),
+        );
     }
 }
 
@@ -96,10 +106,7 @@ fn handle_projectile_rotation(
     }
 }
 
-fn speed_to_movement(
-    time: Res<Time>,
-    mut q: Query<(&Heading, &mut Transform, &MovementSpeed)>,
-) {
+fn speed_to_movement(time: Res<Time>, mut q: Query<(&Heading, &mut Transform, &MovementSpeed)>) {
     for (dir, mut tran, &speed) in &mut q {
         let pos = &mut tran.translation;
         (pos.x, pos.y) =
@@ -108,4 +115,3 @@ fn speed_to_movement(
 }
 
 pub mod orbiting;
-

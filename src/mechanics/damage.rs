@@ -109,7 +109,7 @@ fn overlapping(
     let radius2 = hitbox2.0.radius;
     match hitbox1 {
         DealDamageHitbox::Circle(Circle { radius }) => {
-            pos1.distance(pos2.clone()) <= radius + radius2
+            pos1.distance(pos2) <= radius + radius2
         }
         DealDamageHitbox::Global => true,
         DealDamageHitbox::Cone(Cone {

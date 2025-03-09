@@ -1,7 +1,7 @@
 use crate::{
     characters::player::{
-        handle_player_death, handle_player_xp, player_attack_facing_from_mouse,
-        player_shooting, spawn_player_hero,
+        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_shooting,
+        spawn_player_hero,
     },
     cleanup,
     loot::loot::{
@@ -13,7 +13,8 @@ use crate::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::DamagePlugin,
         movement::{
-            orbiting::{orbital_movement, update_orbital_position}, ProjectilePlugin
+            orbiting::{orbital_movement, update_orbital_position},
+            ProjectilePlugin,
         },
     },
     mobs::{
@@ -63,7 +64,7 @@ impl Plugin for GamePlugin {
             MapPlugin,
             LossPlugin,
             WinPlugin,
-            SaveGamePlugin
+            SaveGamePlugin,
         ))
         .add_systems(
             OnEnter(STATE),
@@ -72,11 +73,7 @@ impl Plugin for GamePlugin {
         .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
         .add_systems(
             Update,
-            (
-                animate_sprite,
-                update_health_ui,
-            )
-                .run_if(in_state(STATE)),
+            (animate_sprite, update_health_ui).run_if(in_state(STATE)),
         );
     }
 }

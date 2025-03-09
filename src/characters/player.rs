@@ -12,7 +12,7 @@ use crate::prestige::events::SaveGameStatsEventToMemory;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
-use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
+use crate::{cleanup, CursorTranslation, GameState, MovementSpeed};
 use crate::{Heading, SCALE};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;

@@ -3,7 +3,6 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 use crate::{
     cleanup,
     sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
-    tools::damage_tracking::DamageTracker,
     AppState,
 };
 
