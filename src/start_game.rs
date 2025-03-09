@@ -20,7 +20,7 @@ use crate::{
         boss::{check_for_victory, spawn_boss},
         enemy::{spawn_enemies, update_enemies},
     },
-    prestige::save_game_plugin::SaveGamePlguin,
+    prestige::save_game_plugin::SaveGamePlugin,
     skills::skills::animate_lightning,
     tools::{damage_tracking::reset_stats, debug::DebugPlugin},
     ui::{
@@ -54,15 +54,17 @@ impl Plugin for GamePlugin {
                 }),
         )
         .insert_state(GameState::NotStarted)
-        .add_plugins(TilemapPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(RunningPlugin)
-        .add_plugins(LevelUpPlugin)
-        .add_plugins(PauseGamePlugin)
-        .add_plugins(MapPlugin)
-        .add_plugins(LossPlugin)
-        .add_plugins(WinPlugin)
-        .add_plugins(SaveGamePlguin)
+        .add_plugins((
+            TilemapPlugin,
+            WorldInspectorPlugin::new(),
+            RunningPlugin,
+            LevelUpPlugin,
+            PauseGamePlugin,
+            MapPlugin,
+            LossPlugin,
+            WinPlugin,
+            SaveGamePlugin
+        ))
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
