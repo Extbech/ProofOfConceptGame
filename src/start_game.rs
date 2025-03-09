@@ -1,7 +1,7 @@
 use crate::{
     characters::player::{
-        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
-        player_shooting, spawn_player_hero, sync_player_and_camera_pos,
+        handle_player_death, handle_player_xp, player_attack_facing_from_mouse,
+        player_shooting, spawn_player_hero,
     },
     cleanup,
     loot::loot::{
@@ -13,7 +13,7 @@ use crate::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::DamagePlugin,
         movement::{
-            orbiting::{orbital_movement, update_orbital_position}, ProjectilePlugin,
+            orbiting::{orbital_movement, update_orbital_position}, ProjectilePlugin
         },
     },
     mobs::{
@@ -72,7 +72,7 @@ impl Plugin for GamePlugin {
             Update,
             (
                 animate_sprite,
-                update_health_ui.after(sync_player_and_camera_pos),
+                update_health_ui,
             )
                 .run_if(in_state(STATE)),
         );
@@ -98,7 +98,6 @@ impl Plugin for RunningPlugin {
                         pickup_loot,
                         player_attack_facing_from_mouse,
                         handle_player_death,
-                        sync_player_and_camera_pos,
                         spawn_enemies,
                         update_enemies,
                         orbital_movement,
@@ -112,8 +111,7 @@ impl Plugin for RunningPlugin {
                         update_xp_bar_and_level,
                         handle_player_xp.before(update_xp_bar_and_level),
                         update_cursor,
-                        player_movement,
-                        player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
+                        player_shooting,
                         render_stop_watch,
                         check_if_paused,
                         handle_xp_orb_movement,
