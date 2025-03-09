@@ -48,12 +48,6 @@ pub fn spawn_upgrade_ui(
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 flex_direction: FlexDirection::Column,
-                margin: UiRect {
-                    left: Val::Percent(0.),
-                    right: Val::Percent(0.),
-                    top: Val::Percent(0.),
-                    bottom: Val::Percent(10.),
-                },
                 ..default()
             },
             BackgroundColor(css::BLACK.into()),
@@ -105,8 +99,8 @@ pub fn spawn_upgrade_ui(
                     button_box_child
                         .spawn((
                             Node {
-                                width: Val::Percent(50.),
-                                height: Val::Percent(50.),
+                                width: Val::Px(350.),
+                                height: Val::Px(100.),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 ..default()
