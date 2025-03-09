@@ -69,7 +69,6 @@ pub fn spawn_enemies(
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
-    return;
     for _ in 0..spawncooldown.reset(**spawnrate) {
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
