@@ -9,6 +9,7 @@ pub const GAME_TITLE: &str = "To be Announced";
 enum MenuButtonAction {
     Play,
     Upgrade,
+    ExitGame,
 }
 #[derive(Component)]
 struct MainMenuScreen;
@@ -47,13 +48,14 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                 .spawn((
                     Node {
                         width: Val::Percent(70.0),
-                        height: Val::Percent(50.0),
+                        height: Val::Percent(90.0),
                         align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceEvenly,
                         flex_direction: FlexDirection::Column,
                         margin: UiRect {
                             left: Val::Percent(0.0),
                             right: Val::Percent(0.0),
-                            top: Val::Percent(10.0),
+                            top: Val::Percent(5.0),
                             bottom: Val::Percent(0.0),
                         },
                         ..default()
@@ -73,14 +75,8 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                     grandchild
                         .spawn((
                             Node {
-                                width: Val::Px(300.0),
-                                height: Val::Px(100.0),
-                                margin: UiRect {
-                                    left: Val::Percent(0.0),
-                                    right: Val::Percent(0.0),
-                                    top: Val::Percent(15.0),
-                                    bottom: Val::Percent(0.0),
-                                },
+                                width: Val::Px(350.),
+                                height: Val::Px(100.),
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
                                 ..default()
@@ -93,7 +89,7 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                             great_grandchild.spawn((
                                 Text::new("Start Game"),
                                 TextFont {
-                                    font_size: 30.0,
+                                    font_size: 30.,
                                     font: asset_server.load("font/pixel-font.ttf"),
                                     ..Default::default()
                                 },
@@ -103,14 +99,8 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                     grandchild
                         .spawn((
                             Node {
-                                width: Val::Px(300.0),
-                                height: Val::Px(100.0),
-                                margin: UiRect {
-                                    left: Val::Percent(0.0),
-                                    right: Val::Percent(0.0),
-                                    top: Val::Percent(15.0),
-                                    bottom: Val::Percent(0.0),
-                                },
+                                width: Val::Px(350.),
+                                height: Val::Px(100.),
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
                                 ..default()
@@ -123,7 +113,31 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                             great_grandchild.spawn((
                                 Text::new("Upgrades"),
                                 TextFont {
-                                    font_size: 30.0,
+                                    font_size: 30.,
+                                    font: asset_server.load("font/pixel-font.ttf"),
+                                    ..Default::default()
+                                },
+                                TextColor(css::WHITE.into()),
+                            ));
+                        });
+                    grandchild
+                        .spawn((
+                            Node {
+                                width: Val::Px(350.),
+                                height: Val::Px(100.),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                ..default()
+                            },
+                            Button,
+                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
+                            MenuButtonAction::ExitGame,
+                        ))
+                        .with_children(|great_grandchild| {
+                            great_grandchild.spawn((
+                                Text::new("Exit Game"),
+                                TextFont {
+                                    font_size: 30.,
                                     font: asset_server.load("font/pixel-font.ttf"),
                                     ..Default::default()
                                 },
@@ -141,6 +155,7 @@ fn handle_button_click(
     >,
     mut app_state: ResMut<NextState<AppState>>,
     mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut exit: EventWriter<AppExit>,
 ) {
     for (interaction, menu_button_action, mut background_color) in &mut interaction_query {
         match *interaction {
@@ -151,6 +166,9 @@ fn handle_button_click(
                 match menu_button_action {
                     MenuButtonAction::Play => app_state.set(AppState::InGame),
                     MenuButtonAction::Upgrade => app_state.set(AppState::Upgrade),
+                    MenuButtonAction::ExitGame => {
+                        exit.send(AppExit::Success);
+                    }
                 }
             }
             Interaction::Hovered => {
