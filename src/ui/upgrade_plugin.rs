@@ -2,8 +2,8 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
 use crate::{
     cleanup,
+    prestige::stats::Stats,
     sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
-    tools::damage_tracking::DamageTracker,
     AppState,
 };
 
@@ -35,6 +35,7 @@ pub fn spawn_upgrade_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UpgradeUi>>,
     asset_server: Res<AssetServer>,
+    stats: ResMut<Stats>,
 ) {
     for entity in &ui_query {
         commands.entity(entity).despawn_recursive();
@@ -63,7 +64,7 @@ pub fn spawn_upgrade_ui(
                     margin: UiRect {
                         left: Val::Percent(0.),
                         right: Val::Percent(0.),
-                        top: Val::Percent(10.),
+                        top: Val::Percent(5.),
                         bottom: Val::Percent(0.),
                     },
                     ..default()
@@ -73,10 +74,20 @@ pub fn spawn_upgrade_ui(
                         Text::new("Upgrade Your Character !"),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 50.0,
+                            font_size: 32.0,
                             ..Default::default()
                         },
                         TextColor(css::ORANGE.into()),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
+                    text_info_child.spawn((
+                        Text::new(format!("Coins: {}", stats.coins)),
+                        TextFont {
+                            font: asset_server.load("font/pixel-font.ttf"),
+                            font_size: 16.0,
+                            ..Default::default()
+                        },
+                        TextColor(css::WHITE.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
                 });

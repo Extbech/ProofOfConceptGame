@@ -67,7 +67,7 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                         Text::new(GAME_TITLE),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 60.0,
+                            font_size: 50.0,
                             ..Default::default()
                         },
                         TextColor(css::ORANGE.into()),

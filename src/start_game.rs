@@ -4,10 +4,7 @@ use crate::{
         player_shooting, spawn_player_hero, sync_player_and_camera_pos,
     },
     cleanup,
-    loot::loot::{
-        activate_xp_orb_movement, animate_sprite, check_for_dead_enemies, handle_xp_orb_movement,
-        pickup_loot, xp_orbs_collision,
-    },
+    loot::loot_plugin::LootPlugin,
     map::map_plugin::MapPlugin,
     mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
@@ -57,6 +54,7 @@ impl Plugin for GamePlugin {
         .add_plugins(TilemapPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(RunningPlugin)
+        .add_plugins(LootPlugin)
         .add_plugins(LevelUpPlugin)
         .add_plugins(PauseGamePlugin)
         .add_plugins(MapPlugin)
@@ -70,11 +68,7 @@ impl Plugin for GamePlugin {
         .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
         .add_systems(
             Update,
-            (
-                animate_sprite,
-                update_health_ui.after(sync_player_and_camera_pos),
-            )
-                .run_if(in_state(STATE)),
+            (update_health_ui.after(sync_player_and_camera_pos),).run_if(in_state(STATE)),
         );
     }
 }
@@ -95,7 +89,6 @@ impl Plugin for RunningPlugin {
                 (
                     (
                         handle_ingametime,
-                        pickup_loot,
                         player_attack_facing_from_mouse,
                         handle_player_death,
                         sync_player_and_camera_pos,
@@ -107,9 +100,6 @@ impl Plugin for RunningPlugin {
                     ),
                     (animate_lightning, spawn_boss),
                     (
-                        check_for_dead_enemies,
-                        xp_orbs_collision,
-                        activate_xp_orb_movement,
                         update_xp_bar_and_level,
                         handle_player_xp.before(update_xp_bar_and_level),
                         update_cursor,
@@ -118,7 +108,6 @@ impl Plugin for RunningPlugin {
                         render_stop_watch,
                         check_if_paused,
                         handle_projectile_rotation,
-                        handle_xp_orb_movement,
                         check_for_victory,
                     ),
                 )
