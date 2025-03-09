@@ -4,7 +4,7 @@ use bevy::{
     state::condition::in_state,
 };
 
-use crate::AppState;
+use crate::GameState;
 
 use super::{
     loot::{check_for_dead_enemies, pickup_loot},
@@ -25,7 +25,7 @@ impl Plugin for LootPlugin {
                 activate_xp_orb_movement,
                 handle_xp_orb_movement,
             )
-                .run_if(in_state(AppState::InGame)),
+                .run_if(in_state(GameState::Running)),
         );
     }
 }
