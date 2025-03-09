@@ -24,3 +24,6 @@ pub const FPS_COUNTER_Z: i32 = 100;
 
 /// Location of save file.
 pub const SAVE_FILE: &'static str = "save/save_file.json";
+
+/// Game Title.
+pub const GAME_TITLE: &str = "To be Announced";

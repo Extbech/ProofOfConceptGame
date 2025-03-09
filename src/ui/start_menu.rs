@@ -2,7 +2,7 @@ use crate::sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound};
 use crate::{cleanup, AppState};
 use bevy::color::palettes::css;
 use bevy::prelude::*;
-pub const GAME_TITLE: &str = "To be Announced";
+use test_game::GAME_TITLE;
 
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component, Clone, Copy)]

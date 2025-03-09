@@ -24,6 +24,7 @@ use sound::sound_plugin::SoundPlugin;
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
+use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
 use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
 use ui::{start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin};
@@ -121,7 +122,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let mut curr_window = window.single_mut();
-    curr_window.title = ui::start_menu::GAME_TITLE.to_string();
+    curr_window.title = GAME_TITLE.to_string();
 }
 
 /// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html
