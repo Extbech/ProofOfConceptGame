@@ -24,13 +24,14 @@ use sound::sound_plugin::SoundPlugin;
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
-use tools::damage_tracking::DamageTracker;
 use tools::rng::{GameRng, RngPlugin};
+use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
 use ui::{start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin};
 use winit::window::Icon;
 
 fn main() {
     App::new()
+        .add_plugins(FPSCouterPlugin)
         .add_plugins(GamePlugin)
         .add_plugins(SoundPlugin)
         .insert_state(AppState::MainMenu)

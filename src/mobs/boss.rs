@@ -30,7 +30,10 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         TakeDamageHitbox(Circle {
             radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.,
         }),
-        DealDamageHitbox::Cone(Cone { mid_angle: Vec2::new(50., 50.), angular_width: (1./8.)*PI }),
+        DealDamageHitbox::Cone(Cone {
+            mid_angle: Vec2::new(50., 50.),
+            angular_width: (1. / 8.) * PI,
+        }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
         EndGameIfDead,

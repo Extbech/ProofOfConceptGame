@@ -123,8 +123,9 @@ fn overlapping(
             } else {
                 let proj = v.dot(mid_angle);
                 let proj_ortho = v.dot(mid_angle.rotate(Vec2::new(0., 1.)));
-                0. <= proj && proj <= mid_angle.length_squared()
-                && proj_ortho*proj_ortho <= radius2*radius2*mid_angle.length_squared()
+                0. <= proj
+                    && proj <= mid_angle.length_squared()
+                    && proj_ortho * proj_ortho <= radius2 * radius2 * mid_angle.length_squared()
             }
         }
     }
