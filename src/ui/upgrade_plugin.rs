@@ -35,7 +35,6 @@ pub fn spawn_upgrade_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UpgradeUi>>,
     asset_server: Res<AssetServer>,
-    damage_tracker: Res<DamageTracker>,
 ) {
     for entity in &ui_query {
         commands.entity(entity).despawn_recursive();
@@ -80,23 +79,10 @@ pub fn spawn_upgrade_ui(
                         Text::new("Upgrade Your Character !"),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 40.0,
+                            font_size: 50.0,
                             ..Default::default()
                         },
-                        TextColor(css::GREEN.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
-                    ));
-                    text_info_child.spawn((
-                        Text::new(format!(
-                            "Total damage: {}",
-                            damage_tracker.get_total_damage()
-                        )),
-                        TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 25.0,
-                            ..Default::default()
-                        },
-                        TextColor(css::GREEN.into()),
+                        TextColor(css::ORANGE.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
                 });

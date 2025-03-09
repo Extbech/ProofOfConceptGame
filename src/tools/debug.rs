@@ -68,8 +68,11 @@ fn show_damaging(
                             Transform::from_xyz(0., 0., 100.),
                         ));
                     });
-                },
-                DealDamageHitbox::Cone(damage::Cone { mid_angle, angular_width }) => {
+                }
+                DealDamageHitbox::Cone(damage::Cone {
+                    mid_angle,
+                    angular_width,
+                }) => {
                     let mut tf = Transform::from_xyz(0., 0., 100.);
                     tf.rotate_z(2.*PI-mid_angle.to_angle().rem_euclid(2.*PI));
                     inent.with_children(|parent| {
@@ -79,10 +82,9 @@ fn show_damaging(
                             tf,
                         ));
                     });
-                },
-                DealDamageHitbox::Global => {},
+                }
+                DealDamageHitbox::Global => {}
             }
-
         };
     }
 }

@@ -15,6 +15,7 @@ pub enum UiSound {
     HoverButtonSound,
     ClickButtonSound,
 }
+
 impl UiSound {
     fn get_sound_info(&self) -> (&'static str, f32, f32) {
         match self {
@@ -49,10 +50,13 @@ impl PlayerSound {
     fn get_sound_info(&self) -> (&'static str, f32, f32) {
         match self {
             PlayerSound::Levelup => ("sounds/effects/player-sound/level-up.mp3", 1., 1.),
-            &PlayerSound::PlayerTakeDamage => ("sounds/effects/skills/pew-laser.wav", 1., 1.),
+            &PlayerSound::PlayerTakeDamage => {
+                ("sounds/effects/player-sound/take-damage.mp3", 1., 1.)
+            }
         }
     }
 }
+
 pub enum SoundEffectKind {
     UiSound(UiSound),
     SkillSound(SkillSound),
