@@ -11,8 +11,8 @@ pub enum UpgradeOptions {
 }
 
 pub struct UpgradeOptionsTooltip {
-    kind: UpgradeOptions,
-    description: &'static str,
+    kinds: UpgradeOptions,
+    tier: u64,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Copy)]
@@ -128,8 +128,8 @@ impl Stats {
         }
     }
 
-    pub fn upgrade(&mut self, upgrade_options: UpgradeOptions) {
-        match upgrade_options {
+    pub fn upgrade(&mut self, upgrade_option: UpgradeOptions) {
+        match upgrade_option {
             UpgradeOptions::MaximumHealth => {
                 self.uprade_max_health();
             }
@@ -142,5 +142,11 @@ impl Stats {
         }
     }
 
-    pub fn get_upgrade_info(self) {}
+    pub fn get_upgrade_info(self, upgrade_option: UpgradeOptions) {
+        match upgrade_option {
+            UpgradeOptions::MaximumHealth => todo!(),
+            UpgradeOptions::HealthRegen => todo!(),
+            UpgradeOptions::DamageMultiplier => todo!(),
+        }
+    }
 }

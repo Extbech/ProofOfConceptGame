@@ -90,6 +90,16 @@ pub fn spawn_upgrade_ui(
                         TextColor(css::WHITE.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
+                    text_info_child.spawn((
+                        Text::new(format!("Coins: {}", stats.coins)),
+                        TextFont {
+                            font: asset_server.load("font/pixel-font.ttf"),
+                            font_size: 16.0,
+                            ..Default::default()
+                        },
+                        TextColor(css::WHITE.into()),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
                 });
             child
                 .spawn((Node {
