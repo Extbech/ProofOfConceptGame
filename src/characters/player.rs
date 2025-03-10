@@ -8,7 +8,6 @@ use crate::mechanics::damage::damaging;
 use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::projectiles::{projectile, ShouldRotate};
-use crate::prestige::events::SaveGameStatsEventToMemory;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
@@ -243,7 +242,6 @@ pub fn handle_player_xp(
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
-    mut save_game_stats_event: EventWriter<SaveGameStatsEventToMemory>,
     mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
@@ -252,7 +250,6 @@ pub fn handle_player_xp(
         **current_xp -= **required_xp;
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
-        save_game_stats_event.send(SaveGameStatsEventToMemory);
         sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
             PlayerSound::Levelup,
         )));
