@@ -49,7 +49,7 @@ pub fn spawn_xp(xp_reward: f32, x: f32, y: f32) -> impl Bundle {
 }
 
 /// Handles the animation sequence for the xp orbs.
-pub fn animate_sprite(
+pub(super) fn animate_sprite(
     time: Res<Time>,
     mut query: Query<(&AnimationIndices, &mut AnimationTimer, &mut Sprite)>,
 ) {

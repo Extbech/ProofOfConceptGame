@@ -1,7 +1,7 @@
 use crate::{
     characters::player::{
-        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_movement,
-        player_shooting, spawn_player_hero, sync_player_and_camera_pos,
+        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_shooting,
+        spawn_player_hero,
     },
     cleanup,
     loot::loot_plugin::LootPlugin,
@@ -53,25 +53,21 @@ impl Plugin for GamePlugin {
             TilemapPlugin,
             WorldInspectorPlugin::new(),
             RunningPlugin,
-            WorldInspectorPlugin::new(),
-            RunningPlugin,
             LootPlugin,
             LevelUpPlugin,
             PauseGamePlugin,
             MapPlugin,
             LossPlugin,
             WinPlugin,
-            SaveGamePlguin,
+            SaveGamePlugin,
+            MobPlugin,
         ))
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
         )
         .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
-        .add_systems(
-            Update,
-            (animate_sprite, update_health_ui).run_if(in_state(STATE)),
-        );
+        .add_systems(Update, (update_health_ui).run_if(in_state(STATE)));
     }
 }
 
@@ -104,7 +100,6 @@ impl Plugin for RunningPlugin {
                         player_shooting,
                         render_stop_watch,
                         check_if_paused,
-                        handle_xp_orb_movement,
                     ),
                 )
                     .run_if(in_state(STATE)),
