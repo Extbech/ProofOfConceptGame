@@ -90,17 +90,25 @@ pub fn spawn_upgrade_ui(
                         TextColor(css::WHITE.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
-                    text_info_child.spawn(upgrade_options_bundle(
+                });
+            child
+                .spawn(Node {
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::SpaceBetween,
+                    ..default()
+                })
+                .with_children(|upgrade_child| {
+                    upgrade_child.spawn(upgrade_options_bundle(
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::DamageMultiplier,
                     ));
-                    text_info_child.spawn(upgrade_options_bundle(
+                    upgrade_child.spawn(upgrade_options_bundle(
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::HealthRegen,
                     ));
-                    text_info_child.spawn(upgrade_options_bundle(
+                    upgrade_child.spawn(upgrade_options_bundle(
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::MaximumHealth,
