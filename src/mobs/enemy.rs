@@ -17,7 +17,7 @@ pub struct SpawnCooldown(pub Cooldown);
 #[derive(Component)]
 pub struct Enemy;
 
-pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
+fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
     (
         cleanup::ExitGame,
@@ -32,7 +32,7 @@ pub fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     )
 }
 
-pub fn update_enemies(
+pub(super) fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
     mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
 ) {
@@ -56,11 +56,11 @@ pub fn update_enemies(
     }
 }
 
-pub fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
+fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
     pos + rng.rand_vec(500., 1000.)
 }
 
-pub fn spawn_enemies(
+pub(super) fn spawn_enemies(
     mut commands: Commands,
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
@@ -80,6 +80,6 @@ pub fn spawn_enemies(
     }
 }
 
-pub fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
+fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
     10 + (in_game_time.time().as_secs_f32() / 30.0).floor() as u32
 }

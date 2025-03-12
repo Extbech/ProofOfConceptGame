@@ -9,15 +9,13 @@ use crate::{
     mechanics::{
         cooldown::{handle_ingametime, reset_ingametime, CooldownPlugin},
         damage::DamagePlugin,
-        projectiles::{
-            handle_projectile_rotation, orbital_movement, orbital_position, speed_to_movement,
+        movement::{
+            orbiting::{orbital_movement, update_orbital_position},
+            ProjectilePlugin,
         },
     },
-    mobs::{
-        boss::{check_for_victory, spawn_boss},
-        enemy::{spawn_enemies, update_enemies},
-    },
-    prestige::save_game_plugin::SaveGamePlguin,
+    mobs::MobPlugin,
+    prestige::save_game_plugin::SaveGamePlugin,
     skills::skills::animate_lightning,
     tools::{damage_tracking::reset_stats, debug::DebugPlugin},
     ui::{
@@ -51,16 +49,20 @@ impl Plugin for GamePlugin {
                 }),
         )
         .insert_state(GameState::NotStarted)
-        .add_plugins(TilemapPlugin)
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(RunningPlugin)
-        .add_plugins(LootPlugin)
-        .add_plugins(LevelUpPlugin)
-        .add_plugins(PauseGamePlugin)
-        .add_plugins(MapPlugin)
-        .add_plugins(LossPlugin)
-        .add_plugins(WinPlugin)
-        .add_plugins(SaveGamePlguin)
+        .add_plugins((
+            TilemapPlugin,
+            WorldInspectorPlugin::new(),
+            RunningPlugin,
+            WorldInspectorPlugin::new(),
+            RunningPlugin,
+            LootPlugin,
+            LevelUpPlugin,
+            PauseGamePlugin,
+            MapPlugin,
+            LossPlugin,
+            WinPlugin,
+            SaveGamePlguin,
+        ))
         .add_systems(
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
@@ -68,7 +70,7 @@ impl Plugin for GamePlugin {
         .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
         .add_systems(
             Update,
-            (update_health_ui.after(sync_player_and_camera_pos),).run_if(in_state(STATE)),
+            (animate_sprite, update_health_ui).run_if(in_state(STATE)),
         );
     }
 }
@@ -83,7 +85,7 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
-            .add_plugins((DamagePlugin, DebugPlugin))
+            .add_plugins((DamagePlugin, DebugPlugin, ProjectilePlugin))
             .add_systems(
                 Update,
                 (
@@ -91,24 +93,18 @@ impl Plugin for RunningPlugin {
                         handle_ingametime,
                         player_attack_facing_from_mouse,
                         handle_player_death,
-                        sync_player_and_camera_pos,
-                        speed_to_movement.before(sync_player_and_camera_pos), // Has to be before to avoid stutter
-                        spawn_enemies,
-                        update_enemies,
                         orbital_movement,
-                        orbital_position,
+                        update_orbital_position,
                     ),
-                    (animate_lightning, spawn_boss),
+                    (animate_lightning),
                     (
                         update_xp_bar_and_level,
                         handle_player_xp.before(update_xp_bar_and_level),
                         update_cursor,
-                        player_movement,
-                        player_shooting.after(sync_player_and_camera_pos), // Has to be after so we have updated player position
+                        player_shooting,
                         render_stop_watch,
                         check_if_paused,
-                        handle_projectile_rotation,
-                        check_for_victory,
+                        handle_xp_orb_movement,
                     ),
                 )
                     .run_if(in_state(STATE)),

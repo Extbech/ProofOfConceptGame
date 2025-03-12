@@ -7,11 +7,12 @@ use crate::mechanics::cooldown::Cooldown;
 use crate::mechanics::damage::damaging;
 use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
 use crate::mechanics::damage::{Health, HitList};
-use crate::mechanics::projectiles::{projectile, ShouldRotate};
+use crate::mechanics::movement::{projectile, ShouldRotate};
+use crate::prestige::events::SaveGameStatsEventToMemory;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
-use crate::{cleanup, CursorTranslation, GameState, MovementSpeed, MyGameCamera};
+use crate::{cleanup, CursorTranslation, GameState, MovementSpeed};
 use crate::{Heading, SCALE};
 
 pub const XP_SCALING_FACTOR: f32 = 25.0;
@@ -99,49 +100,6 @@ fn player_bundle() -> impl Bundle {
 
 pub fn spawn_player_hero(mut commands: Commands) {
     commands.spawn(player_bundle());
-}
-
-pub fn sync_player_and_camera_pos(
-    player: Query<&Transform, With<Player>>,
-    mut cam: Query<&mut Transform, (With<MyGameCamera>, Without<Player>)>,
-) {
-    let player = player.single();
-    let mut cam = cam.single_mut();
-    cam.translation.x = player.translation.x;
-    cam.translation.y = player.translation.y;
-}
-
-pub fn player_movement(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut player: Query<(&mut Transform, &mut Heading, &mut Sprite), With<Player>>,
-) {
-    let (mut player_trans, mut player_dir, mut player_sprite) = player.single_mut();
-    let player_position = &mut player_trans.translation;
-    let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
-        - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };
-    let keyboard_dir_y = if keys.pressed(KeyCode::KeyW) { 1. } else { 0. }
-        - if keys.pressed(KeyCode::KeyS) { 1. } else { 0. };
-    const BOUND: f32 = 1900.;
-
-    if keyboard_dir_x != 0. {
-        if let Some(atlas) = &mut player_sprite.texture_atlas {
-            atlas.index = 3;
-        }
-        player_sprite.flip_x = keyboard_dir_x == -1.;
-    } else if keyboard_dir_y == 1. {
-        if let Some(atlas) = &mut player_sprite.texture_atlas {
-            atlas.index = 2;
-        }
-    } else if keyboard_dir_y == -1. {
-        if let Some(atlas) = &mut player_sprite.texture_atlas {
-            atlas.index = 1;
-        }
-    }
-    (player_position.x, player_position.y) = player_position
-        .xy()
-        .clamp(-Vec2::splat(BOUND), Vec2::splat(BOUND))
-        .into();
-    *player_dir = Heading::new(Vec2::new(keyboard_dir_x, keyboard_dir_y));
 }
 
 pub fn player_attack_facing_from_mouse(

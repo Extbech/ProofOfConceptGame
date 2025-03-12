@@ -9,9 +9,9 @@ use super::events::{
     save_game_stats, save_prestige, SaveGameStatsEventToFile, SaveGameStatsEventToMemory,
 };
 
-pub struct SaveGamePlguin;
+pub struct SaveGamePlugin;
 
-impl Plugin for SaveGamePlguin {
+impl Plugin for SaveGamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SaveGameStatsEventToFile>()
             .add_event::<SaveGameStatsEventToMemory>()
