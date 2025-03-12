@@ -2,7 +2,7 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
 use crate::{
     cleanup,
-    prestige::stats::Stats,
+    prestige::stats::{Stats, UpgradeOptions},
     sound::events::{PlaySoundEffectEvent, SoundEffectKind, UiSound},
     AppState,
 };
@@ -35,7 +35,7 @@ pub fn spawn_upgrade_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UpgradeUi>>,
     asset_server: Res<AssetServer>,
-    stats: ResMut<Stats>,
+    mut stats: ResMut<Stats>,
 ) {
     for entity in &ui_query {
         commands.entity(entity).despawn_recursive();
@@ -90,15 +90,20 @@ pub fn spawn_upgrade_ui(
                         TextColor(css::WHITE.into()),
                         TextLayout::new_with_justify(JustifyText::Center),
                     ));
-                    text_info_child.spawn((
-                        Text::new(format!("Coins: {}", stats.coins)),
-                        TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 16.0,
-                            ..Default::default()
-                        },
-                        TextColor(css::WHITE.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                    text_info_child.spawn(upgrade_options_bundle(
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::DamageMultiplier,
+                    ));
+                    text_info_child.spawn(upgrade_options_bundle(
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::HealthRegen,
+                    ));
+                    text_info_child.spawn(upgrade_options_bundle(
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::MaximumHealth,
                     ));
                 });
             child
@@ -173,4 +178,22 @@ pub fn handle_button_continue_click(
             Interaction::None => *background_color = css::MIDNIGHT_BLUE.into(),
         }
     }
+}
+
+fn upgrade_options_bundle(
+    asset_server: &Res<'_, AssetServer>,
+    stats: &mut Stats,
+    upgrade_options: UpgradeOptions,
+) -> impl Bundle {
+    (
+        Text::new(stats.get_upgrade_info(upgrade_options)),
+        TextFont {
+            font: asset_server.load("font/pixel-font.ttf"),
+            font_size: 16.0,
+            ..Default::default()
+        },
+        TextColor(css::WHITE.into()),
+        TextLayout::new_with_justify(JustifyText::Center),
+        upgrade_options,
+    )
 }
