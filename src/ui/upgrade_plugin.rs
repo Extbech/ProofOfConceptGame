@@ -57,18 +57,19 @@ pub fn spawn_upgrade_ui(
         ))
         .with_children(|child| {
             child
-                .spawn(Node {
-                    width: Val::Percent(80.),
-                    height: Val::Percent(80.),
-                    flex_direction: FlexDirection::Column,
-                    margin: UiRect {
-                        left: Val::Percent(0.),
-                        right: Val::Percent(0.),
-                        top: Val::Percent(5.),
-                        bottom: Val::Percent(0.),
+                .spawn((
+                    Node {
+                        flex_direction: FlexDirection::Column,
+                        margin: UiRect {
+                            left: Val::Percent(0.),
+                            right: Val::Percent(0.),
+                            top: Val::Percent(5.),
+                            bottom: Val::Percent(5.),
+                        },
+                        ..default()
                     },
-                    ..default()
-                })
+                    BackgroundColor(css::BLUE.into()),
+                ))
                 .with_children(|text_info_child| {
                     text_info_child.spawn((
                         Text::new("Upgrade Your Character !"),
@@ -92,27 +93,54 @@ pub fn spawn_upgrade_ui(
                     ));
                 });
             child
-                .spawn(Node {
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::SpaceBetween,
-                    ..default()
-                })
+                .spawn((
+                    Node {
+                        width: Val::Percent(80.),
+                        height: Val::Percent(80.),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::SpaceBetween,
+                        overflow: Overflow::scroll_y(),
+                        ..default()
+                    },
+                    BackgroundColor(css::RED.into()),
+                ))
                 .with_children(|upgrade_child| {
-                    upgrade_child.spawn(upgrade_options_bundle(
+                    upgrade_options_bundle(
+                        upgrade_child,
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::DamageMultiplier,
-                    ));
-                    upgrade_child.spawn(upgrade_options_bundle(
+                    );
+                    upgrade_options_bundle(
+                        upgrade_child,
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::HealthRegen,
-                    ));
-                    upgrade_child.spawn(upgrade_options_bundle(
+                    );
+                    upgrade_options_bundle(
+                        upgrade_child,
                         &asset_server,
                         &mut stats,
                         UpgradeOptions::MaximumHealth,
-                    ));
+                    );
+                    upgrade_options_bundle(
+                        upgrade_child,
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::DamageMultiplier,
+                    );
+                    upgrade_options_bundle(
+                        upgrade_child,
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::HealthRegen,
+                    );
+                    upgrade_options_bundle(
+                        upgrade_child,
+                        &asset_server,
+                        &mut stats,
+                        UpgradeOptions::MaximumHealth,
+                    );
                 });
             child
                 .spawn((Node {
@@ -189,19 +217,66 @@ pub fn handle_button_continue_click(
 }
 
 fn upgrade_options_bundle(
+    builder: &mut ChildBuilder,
     asset_server: &Res<'_, AssetServer>,
     stats: &mut Stats,
     upgrade_options: UpgradeOptions,
-) -> impl Bundle {
-    (
-        Text::new(stats.get_upgrade_info(upgrade_options)),
-        TextFont {
-            font: asset_server.load("font/pixel-font.ttf"),
-            font_size: 16.0,
-            ..Default::default()
-        },
-        TextColor(css::WHITE.into()),
-        TextLayout::new_with_justify(JustifyText::Center),
-        upgrade_options,
-    )
+) {
+    builder
+        .spawn((
+            Node {
+                width: Val::Percent(100.),
+                height: Val::Px(100.),
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::SpaceBetween,
+                margin: UiRect {
+                    left: Val::Px(0.),
+                    right: Val::Px(0.),
+                    top: Val::Px(0.),
+                    bottom: Val::Px(3.),
+                },
+                ..default()
+            },
+            BackgroundColor(css::ORANGE.into()),
+        ))
+        .with_children(|child| {
+            child.spawn((
+                Text::new(stats.get_upgrade_info(upgrade_options)),
+                TextFont {
+                    font: asset_server.load("font/pixel-font.ttf"),
+                    font_size: 16.,
+                    ..Default::default()
+                },
+                TextColor(css::WHITE.into()),
+                TextLayout::new_with_justify(JustifyText::Center),
+                upgrade_options,
+            ));
+            let button_color = match stats.is_upgradeable(upgrade_options) {
+                Some(true) => css::GREEN,
+                Some(false) => css::RED,
+                None => css::GRAY,
+            };
+            child
+                .spawn((
+                    Node { ..default() },
+                    BackgroundColor(button_color.into()),
+                    Button,
+                ))
+                .with_children(|button_box_text| {
+                    let price_text = match stats.get_next_price(upgrade_options) {
+                        Some(price) => &format!("{price}"),
+                        None => "MAX",
+                    };
+                    button_box_text.spawn((
+                        Text::new(price_text),
+                        TextFont {
+                            font: asset_server.load("font/pixel-font.ttf"),
+                            font_size: 16.,
+                            ..default()
+                        },
+                        TextColor(css::WHITE.into()),
+                        TextLayout::new_with_justify(JustifyText::Center),
+                    ));
+                });
+        });
 }

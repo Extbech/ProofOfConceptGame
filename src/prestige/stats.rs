@@ -254,4 +254,16 @@ impl Stats {
             UpgradeOptions::DamageMultiplier => self.damage_multiplier.description(),
         }
     }
+
+    pub fn get_next_price(self, upgrade_option: UpgradeOptions) -> Option<u32> {
+        match upgrade_option {
+            UpgradeOptions::MaximumHealth => Some(self.maximum_health.next()?.price()),
+            UpgradeOptions::HealthRegen => Some(self.health_regen.next()?.price()),
+            UpgradeOptions::DamageMultiplier => Some(self.damage_multiplier.next()?.price()),
+        }
+    }
+
+    pub fn is_upgradeable(self, upgrade_option: UpgradeOptions) -> Option<bool> {
+        Some(self.get_next_price(upgrade_option)? <= self.coins)
+    }
 }
