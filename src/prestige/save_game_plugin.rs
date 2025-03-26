@@ -16,6 +16,7 @@ impl Plugin for SaveGamePlugin {
         app.add_event::<SaveGameStatsEventToFile>()
             .add_event::<SaveGameStatsEventToMemory>()
             .add_systems(Update, (save_game_stats,))
-            .add_systems(OnExit(AppState::InGame), (save_prestige,));
+            .add_systems(OnExit(AppState::InGame), (save_prestige,))
+            .add_systems(OnExit(AppState::Upgrade), (save_prestige,));
     }
 }
