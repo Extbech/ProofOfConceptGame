@@ -14,7 +14,8 @@ impl Plugin for UpgradePlugin {
         app.add_systems(OnEnter(AppState::Upgrade), (spawn_upgrade_ui,))
             .add_systems(
                 Update,
-                (handle_button_continue_click).run_if(in_state(AppState::Upgrade)),
+                ((handle_button_continue_click, handle_button_upgrade),)
+                    .run_if(in_state(AppState::Upgrade)),
             )
             .add_systems(
                 OnExit(AppState::Upgrade),
@@ -31,7 +32,7 @@ pub enum ButtonAction {
     MainMenu,
 }
 
-pub fn spawn_upgrade_ui(
+fn spawn_upgrade_ui(
     mut commands: Commands,
     ui_query: Query<Entity, With<UpgradeUi>>,
     asset_server: Res<AssetServer>,
@@ -187,7 +188,7 @@ pub fn spawn_upgrade_ui(
         });
 }
 
-pub fn handle_button_continue_click(
+fn handle_button_continue_click(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &ButtonAction),
         (Changed<Interaction>, With<Button>),
@@ -249,7 +250,6 @@ fn upgrade_options_bundle(
                 },
                 TextColor(css::WHITE.into()),
                 TextLayout::new_with_justify(JustifyText::Center),
-                upgrade_options,
             ));
             let button_color = match stats.is_upgradeable(upgrade_options) {
                 Some(true) => css::GREEN,
@@ -258,9 +258,18 @@ fn upgrade_options_bundle(
             };
             child
                 .spawn((
-                    Node { ..default() },
+                    Node {
+                        width: Val::Px(100.0),
+                        height: Val::Px(45.0),
+                        border: UiRect::all(Val::Px(5.0)),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    BorderRadius::MAX,
                     BackgroundColor(button_color.into()),
                     Button,
+                    upgrade_options,
                 ))
                 .with_children(|button_box_text| {
                     let price_text = match stats.get_next_price(upgrade_options) {
@@ -279,4 +288,17 @@ fn upgrade_options_bundle(
                     ));
                 });
         });
+}
+
+fn handle_button_upgrade(
+    interaction_query: Query<(&Interaction, &UpgradeOptions), (Changed<Interaction>, With<Button>)>,
+    mut stats: ResMut<Stats>,
+) {
+    for (interaction, upgradeoption) in interaction_query.iter() {
+        match interaction {
+            Interaction::Pressed => stats.upgrade(*upgradeoption),
+            Interaction::Hovered => (),
+            Interaction::None => (),
+        }
+    }
 }
