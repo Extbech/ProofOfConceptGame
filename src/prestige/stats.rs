@@ -175,7 +175,7 @@ pub struct Stats {
 impl Default for Stats {
     fn default() -> Self {
         Self {
-            coins: 0,
+            coins: 1000,
             damage_multiplier: DamageMultiplierTier(0),
             maximum_health: MaximumHealthTier(0),
             health_regen: HealthRegenTier(0),
