@@ -221,7 +221,7 @@ fn upgrade_options_bundle(
     builder: &mut ChildBuilder,
     asset_server: &Res<'_, AssetServer>,
     stats: &mut Stats,
-    upgrade_options: UpgradeOptions,
+    upgrade_options: UpgradeOptions
 ) {
     builder
         .spawn((
@@ -293,10 +293,16 @@ fn upgrade_options_bundle(
 fn handle_button_upgrade(
     interaction_query: Query<(&Interaction, &UpgradeOptions), (Changed<Interaction>, With<Button>)>,
     mut stats: ResMut<Stats>,
+    mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, upgradeoption) in interaction_query.iter() {
         match interaction {
-            Interaction::Pressed => stats.upgrade(*upgradeoption),
+            Interaction::Pressed => {
+                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                    UiSound::ClickButtonSound,
+                )));
+                stats.upgrade(*upgradeoption);
+            },
             Interaction::Hovered => (),
             Interaction::None => (),
         }
