@@ -10,7 +10,8 @@ impl Plugin for PauseGamePlugin {
         app.add_systems(OnEnter(GameState::Paused), render_pause_options_node)
             .add_systems(
                 Update,
-                (handle_options_interaction).run_if(in_state(GameState::Paused)),
+                ((handle_options_interaction, handle_escape_press))
+                    .run_if(in_state(GameState::Paused)),
             )
             .add_systems(
                 OnExit(GameState::Paused),
@@ -23,7 +24,7 @@ pub fn check_if_paused(
     mut game_state: ResMut<NextState<GameState>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    if keys.pressed(KeyCode::Escape) {
+    if keys.just_pressed(KeyCode::Escape) {
         game_state.set(GameState::Paused);
     }
 }
@@ -153,7 +154,7 @@ pub fn render_pause_options_node(
         });
 }
 
-pub fn handle_options_interaction(
+fn handle_options_interaction(
     mut interaction_query: Query<
         (&Interaction, &OptionsButtonAction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
@@ -184,5 +185,14 @@ pub fn handle_options_interaction(
                 *background_color = css::MIDNIGHT_BLUE.into();
             }
         }
+    }
+}
+
+fn handle_escape_press(
+    mut key: ResMut<ButtonInput<KeyCode>>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    if key.clear_just_pressed(KeyCode::Escape) {
+        game_state.set(GameState::Running)
     }
 }
