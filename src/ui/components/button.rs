@@ -6,6 +6,7 @@ pub enum ButtonSize {
     Large,
     Custom(f32, f32),
 }
+
 impl ButtonSize {
     fn width(&self) -> f32 {
         match self {
