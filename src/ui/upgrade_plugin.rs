@@ -7,6 +7,8 @@ use crate::{
     AppState,
 };
 
+use super::components::button::{custom_button, ButtonSize};
+
 pub struct UpgradePlugin;
 
 impl Plugin for UpgradePlugin {
@@ -226,6 +228,15 @@ fn upgrade_options_bundle(
     stats: &mut Stats,
     upgrade_options: UpgradeOptions,
 ) {
+    let price_text = match stats.get_next_price(upgrade_options) {
+        Some(price) => &format!("{price}"),
+        None => "MAX",
+    };
+    let button_color = match stats.is_upgradeable(upgrade_options) {
+        Some(true) => css::GREEN,
+        Some(false) => css::RED,
+        None => css::GRAY,
+    };
     builder
         .spawn((
             Node {
@@ -254,42 +265,15 @@ fn upgrade_options_bundle(
                 TextColor(css::WHITE.into()),
                 TextLayout::new_with_justify(JustifyText::Center),
             ));
-            let button_color = match stats.is_upgradeable(upgrade_options) {
-                Some(true) => css::GREEN,
-                Some(false) => css::RED,
-                None => css::GRAY,
-            };
-            child
-                .spawn((
-                    Node {
-                        width: Val::Px(100.0),
-                        height: Val::Px(45.0),
-                        border: UiRect::all(Val::Px(5.0)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    BorderRadius::MAX,
-                    BackgroundColor(button_color.into()),
-                    Button,
-                    upgrade_options,
-                ))
-                .with_children(|button_box_text| {
-                    let price_text = match stats.get_next_price(upgrade_options) {
-                        Some(price) => &format!("{price}"),
-                        None => "MAX",
-                    };
-                    button_box_text.spawn((
-                        Text::new(price_text),
-                        TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 16.,
-                            ..default()
-                        },
-                        TextColor(css::WHITE.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
-                    ));
-                });
+            custom_button(
+                child,
+                asset_server,
+                upgrade_options,
+                button_color,
+                Color::WHITE,
+                price_text,
+                ButtonSize::Medium,
+            );
         });
 }
 

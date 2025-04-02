@@ -1,3 +1,4 @@
+pub mod components;
 pub mod in_game;
 pub mod level_up_plugin;
 pub mod loss_plugin;
