@@ -13,19 +13,16 @@ pub struct UpgradePlugin;
 
 impl Plugin for UpgradePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            ((
-                handle_button_continue_click,
-                handle_button_upgrade,
-                spawn_upgrade_ui,
-            ),)
-                .run_if(in_state(AppState::Upgrade)),
-        )
-        .add_systems(
-            OnExit(AppState::Upgrade),
-            (cleanup::<cleanup::ExitUpgradeScreen>,),
-        );
+        app.add_systems(OnEnter(AppState::Upgrade), spawn_upgrade_ui)
+            .add_systems(
+                Update,
+                ((handle_button_continue_click, handle_button_upgrade),)
+                    .run_if(in_state(AppState::Upgrade)),
+            )
+            .add_systems(
+                OnExit(AppState::Upgrade),
+                (cleanup::<cleanup::ExitUpgradeScreen>,),
+            );
     }
 }
 
