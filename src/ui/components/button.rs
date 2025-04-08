@@ -12,7 +12,7 @@ impl ButtonSize {
         match self {
             ButtonSize::Small => 50.,
             ButtonSize::Medium => 100.,
-            ButtonSize::Large => 150.,
+            ButtonSize::Large => 300.,
             ButtonSize::Custom(width, _) => *width,
         }
     }
@@ -20,12 +20,17 @@ impl ButtonSize {
         match self {
             ButtonSize::Small => 25.,
             ButtonSize::Medium => 50.,
-            ButtonSize::Large => 75.,
+            ButtonSize::Large => 100.,
             ButtonSize::Custom(_, height) => *height,
         }
     }
     fn font_size(&self) -> f32 {
-        self.height() / 2.
+        match self {
+            ButtonSize::Small => 12.,
+            ButtonSize::Medium => 16.,
+            ButtonSize::Large => 22.,
+            ButtonSize::Custom(_, _) => 42.,
+        }
     }
 }
 pub fn custom_button(
@@ -47,7 +52,12 @@ pub fn custom_button(
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BorderRadius::MAX,
+            BorderRadius {
+                top_left: Val::Percent(30.),
+                top_right: Val::Percent(30.),
+                bottom_left: Val::Percent(30.),
+                bottom_right: Val::Percent(30.),
+            },
             BackgroundColor(background_color.into()),
             Button,
             marker,

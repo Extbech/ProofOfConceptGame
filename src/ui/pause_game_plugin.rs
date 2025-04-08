@@ -3,6 +3,8 @@ use crate::{cleanup, AppState};
 use crate::{cleanup::ExitPauseScreen, GameState};
 use bevy::{app::Plugin, color::palettes::css, prelude::*};
 
+use super::components::button::{custom_button, ButtonSize};
+
 pub struct PauseGamePlugin;
 
 impl Plugin for PauseGamePlugin {
@@ -74,82 +76,33 @@ pub fn render_pause_options_node(
                     BackgroundColor(css::DARK_GRAY.into()),
                 ))
                 .with_children(|grandchild| {
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Percent(60.0),
-                                height: Val::Percent(20.0),
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                margin: UiRect::all(Val::Px(10.0)),
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            OptionsButtonAction::Continue,
-                        ))
-                        .with_children(|text_child| {
-                            text_child.spawn((
-                                Text::new("Continue"),
-                                TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 38.0,
-                                    ..Default::default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Percent(60.0),
-                                height: Val::Percent(20.0),
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                margin: UiRect::all(Val::Px(10.0)),
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            OptionsButtonAction::Settings,
-                        ))
-                        .with_children(|text_child| {
-                            text_child.spawn((
-                                Text::new("Settings"),
-                                TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 38.0,
-                                    ..Default::default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
-
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Percent(60.0),
-                                height: Val::Percent(20.0),
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                margin: UiRect::all(Val::Px(10.0)),
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            OptionsButtonAction::Exit,
-                        ))
-                        .with_children(|text_child| {
-                            text_child.spawn((
-                                Text::new("Exit Game"),
-                                TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 38.0,
-                                    ..Default::default()
-                                },
-                                TextColor(Color::WHITE),
-                            ));
-                        });
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        OptionsButtonAction::Continue,
+                        css::MIDNIGHT_BLUE,
+                        Color::WHITE,
+                        "Continue",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        OptionsButtonAction::Settings,
+                        css::MIDNIGHT_BLUE,
+                        Color::WHITE,
+                        "Settings",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        OptionsButtonAction::Exit,
+                        css::MIDNIGHT_BLUE,
+                        Color::WHITE,
+                        "Exit Game",
+                        ButtonSize::Large,
+                    );
                 });
         });
 }
