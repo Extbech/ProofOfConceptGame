@@ -24,7 +24,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
     (
         cleanup::ExitGame,
         Enemy,
-        Health(10),
+        Health(200),
         MovementSpeed(0.),
         Heading::default(),
         TakeDamageHitbox(Circle {

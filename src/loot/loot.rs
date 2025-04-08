@@ -4,7 +4,7 @@ use crate::characters::player::MaxHealth;
 use crate::loot::coin::handle_coin_pickup;
 use crate::loot::xp::activate_all_xp_orbs;
 use crate::mechanics::cooldown::LifeTime;
-use crate::mechanics::damage::{damaging, Damage, DealDamageHitbox, Health, HitList};
+use crate::mechanics::damage::{damaging, BaseDamage, DealDamageHitbox, Health, HitList};
 use crate::prestige::stats::Stats;
 use crate::sprites::{Item, SpriteKind};
 use crate::SCALE;
@@ -122,7 +122,7 @@ pub fn pickup_loot(
 
 pub fn spawn_bomb(commands: &mut Commands, pos: Vec2) {
     commands.spawn((
-        damaging(Damage(100), DealDamageHitbox::Global),
+        damaging(BaseDamage(1000), DealDamageHitbox::Global),
         LifeTime(Duration::from_secs_f32(1.)),
         HitList::default(),
         Transform {

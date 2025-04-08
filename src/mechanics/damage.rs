@@ -5,6 +5,7 @@ use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
+use crate::prestige::stats::Stats;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SoundEffectKind};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
@@ -17,6 +18,9 @@ use crate::{
 use crate::{GameRng, GameState};
 
 use super::movement::projectile;
+
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct BaseDamage(pub u32);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Damage(pub u32);
@@ -58,6 +62,7 @@ impl Plugin for DamagePlugin {
                 tick_entity_hit_cooldown,
                 handle_damage_to_player,
                 display_player_damage,
+                damage_multiplier,
             )
                 .run_if(in_state(GameState::Running)),
         );
@@ -130,8 +135,8 @@ fn overlapping(
 }
 
 /// Bundle for entity that can do contact damage
-pub fn damaging(damage: Damage, hitbox: DealDamageHitbox) -> impl Bundle {
-    (damage, hitbox)
+pub fn damaging(base_damage: BaseDamage, hitbox: DealDamageHitbox) -> impl Bundle {
+    (base_damage, Damage(0), hitbox)
 }
 
 /// Damaging entities with a [HitList] can only hit another entity once in their lifetime
@@ -320,5 +325,14 @@ fn handle_damage_to_player(
         }
     } else {
         sprite.color = sprite.color.with_alpha(0.6);
+    }
+}
+
+fn damage_multiplier(
+    mut damage_query: Query<(&BaseDamage, &mut Damage), Without<Enemy>>,
+    stats: Res<Stats>,
+) {
+    for (base_damage, mut damage) in &mut damage_query {
+        **damage = (**base_damage as f32 * stats.damage_multiplier.get_multiplier()) as u32;
     }
 }

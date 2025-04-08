@@ -2,7 +2,7 @@ use bevy::ecs::bundle::Bundle;
 
 use crate::{
     mechanics::{
-        damage::{damaging, Circle, Damage, DealDamageHitbox, EntityHitCooldown},
+        damage::{damaging, BaseDamage, Circle, DealDamageHitbox, EntityHitCooldown},
         movement::orbiting::{Angle, AngularVelocity, OrbitalRadius},
     },
     sprites::{Skill, SpriteKind},
@@ -16,7 +16,7 @@ pub fn orb_jutsu_bundle(angle: f32) -> impl Bundle {
         Angle(angle),
         OrbitalRadius(200. * SCALE),
         damaging(
-            Damage(2),
+            BaseDamage(10),
             DealDamageHitbox::Circle(Circle { radius: (20.) }),
         ),
         EntityHitCooldown::default(),

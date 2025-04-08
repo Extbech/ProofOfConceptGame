@@ -24,7 +24,7 @@ pub trait PrestigeTier: Sized {
 pub struct DamageMultiplierTier(u32);
 
 impl DamageMultiplierTier {
-    fn get_multiplier(&self) -> f32 {
+    pub fn get_multiplier(&self) -> f32 {
         1. + self.0 as f32 * 0.1
     }
 }

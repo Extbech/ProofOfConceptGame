@@ -81,5 +81,5 @@ pub(super) fn spawn_enemies(
 }
 
 fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
-    10 + (in_game_time.time().as_secs_f32() / 30.0).floor() as u32
+    100 + (in_game_time.time().as_secs_f32() / 3.0).floor() as u32
 }
