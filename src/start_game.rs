@@ -14,7 +14,7 @@ use crate::{
             ProjectilePlugin,
         },
     },
-    mobs::MobPlugin,
+    mobs::{boss::reset_boss_spawn, MobPlugin},
     prestige::save_game_plugin::SaveGamePlugin,
     skills::SkillsPlugin,
     tools::{damage_tracking::reset_stats, debug::DebugPlugin},
@@ -66,7 +66,10 @@ impl Plugin for GamePlugin {
             OnEnter(STATE),
             (reset_ingametime, start_game, spawn_player_hero),
         )
-        .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
+        .add_systems(
+            OnExit(STATE),
+            (cleanup::<cleanup::ExitGame>, reset_stats, reset_boss_spawn),
+        )
         .add_systems(Update, (update_health_ui).run_if(in_state(STATE)));
     }
 }

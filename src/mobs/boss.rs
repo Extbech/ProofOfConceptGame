@@ -59,7 +59,7 @@ pub fn spawn_boss(
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
-    if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs(60 * 1) {
+    if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs(60 * 0) {
         boss_spawned.0 = true;
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
@@ -76,4 +76,8 @@ pub fn check_for_victory(
             game_state.set(GameState::Win);
         }
     }
+}
+
+pub fn reset_boss_spawn(mut res: ResMut<BossSpawned>) {
+    res.0 = false;
 }
