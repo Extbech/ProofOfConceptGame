@@ -16,7 +16,7 @@ use crate::{
     },
     mobs::MobPlugin,
     prestige::save_game_plugin::SaveGamePlugin,
-    skills::skills::animate_lightning,
+    skills::SkillsPlugin,
     tools::{damage_tracking::reset_stats, debug::DebugPlugin},
     ui::{
         in_game::{render_stop_watch, update_health_ui, update_xp_bar_and_level},
@@ -81,27 +81,22 @@ impl Plugin for RunningPlugin {
     fn build(&self, app: &mut App) {
         const STATE: GameState = GameState::Running;
         app.add_plugins(CooldownPlugin)
-            .add_plugins((DamagePlugin, DebugPlugin, ProjectilePlugin))
+            .add_plugins((DamagePlugin, DebugPlugin, ProjectilePlugin, SkillsPlugin))
             .add_systems(
                 Update,
-                (
-                    (
-                        handle_ingametime,
-                        player_attack_facing_from_mouse,
-                        handle_player_death,
-                        orbital_movement,
-                        update_orbital_position,
-                    ),
-                    (animate_lightning),
-                    (
-                        update_xp_bar_and_level,
-                        handle_player_xp.before(update_xp_bar_and_level),
-                        update_cursor,
-                        player_shooting,
-                        render_stop_watch,
-                        check_if_paused,
-                    ),
-                )
+                ((
+                    handle_ingametime,
+                    player_attack_facing_from_mouse,
+                    handle_player_death,
+                    orbital_movement,
+                    update_orbital_position,
+                    update_xp_bar_and_level,
+                    handle_player_xp.before(update_xp_bar_and_level),
+                    update_cursor,
+                    player_shooting,
+                    render_stop_watch,
+                    check_if_paused,
+                ),)
                     .run_if(in_state(STATE)),
             );
     }
