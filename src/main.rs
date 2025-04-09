@@ -20,7 +20,7 @@ use mobs::{
 };
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
-use sound::sound_plugin::SoundPlugin;
+use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
@@ -117,6 +117,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(DamageTracker::default());
     commands.insert_resource(BossSpawned::default());
     commands.insert_resource(Stats::get_save().unwrap_or_default());
+    commands.insert_resource(SoundVolume::get_save().unwrap_or_default());
     app_window_config(window);
 }
 

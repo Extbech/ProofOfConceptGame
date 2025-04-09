@@ -1,7 +1,7 @@
 use std::{fs, time::Duration};
 
 use bevy::ecs::{component::Component, system::Resource};
-use test_game::SAVE_FILE;
+use test_game::STATS_SAVE_FILE;
 
 #[derive(Component, Clone, Copy)]
 pub enum UpgradeOptions {
@@ -187,11 +187,11 @@ impl Stats {
     pub fn save_stats(&self) {
         let json = serde_json::to_string(&self).expect("Failed to serialize stats");
         let _ = fs::create_dir("save");
-        fs::write(SAVE_FILE, json).expect("Failed to write to file");
+        fs::write(STATS_SAVE_FILE, json).expect("Failed to write to file");
     }
 
     pub fn get_save() -> Option<Stats> {
-        if let Some(json_str) = fs::read_to_string(SAVE_FILE).ok() {
+        if let Some(json_str) = fs::read_to_string(STATS_SAVE_FILE).ok() {
             if let Some(json) = serde_json::from_str(&json_str).ok() {
                 return json;
             }
