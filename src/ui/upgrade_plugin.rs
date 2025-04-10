@@ -27,23 +27,15 @@ impl Plugin for UpgradePlugin {
 }
 
 #[derive(Component)]
-pub struct UpgradeUi;
-
-#[derive(Component)]
 pub enum ButtonAction {
     MainMenu,
 }
 
 fn spawn_upgrade_ui(
     mut commands: Commands,
-    ui_query: Query<Entity, With<UpgradeUi>>,
     asset_server: Res<AssetServer>,
     mut stats: ResMut<Stats>,
 ) {
-    for entity in &ui_query {
-        commands.entity(entity).despawn_recursive();
-    }
-
     commands
         .spawn((
             Node {
@@ -55,7 +47,6 @@ fn spawn_upgrade_ui(
                 ..default()
             },
             BackgroundColor(css::BLACK.into()),
-            UpgradeUi,
             cleanup::ExitUpgradeScreen,
         ))
         .with_children(|child| {

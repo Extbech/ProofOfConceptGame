@@ -10,7 +10,11 @@ use super::sound_volume::SoundVolume;
 #[derive(Component)]
 pub struct GameMusic;
 
-pub fn play_game_music(mut commands: Commands, asset_server: Res<AssetServer>, sound_volume: Res<SoundVolume>) {
+pub fn play_game_music(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    sound_volume: Res<SoundVolume>,
+) {
     commands.spawn((
         cleanup::ExitGame,
         AudioPlayer::<AudioSource>(asset_server.load("sounds/music/in-game.wav")),

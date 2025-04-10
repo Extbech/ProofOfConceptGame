@@ -17,6 +17,13 @@ impl Plugin for SoundPlugin {
         app.add_event::<PlaySoundEffectEvent>()
             .add_event::<SetSoundVolume>()
             .add_systems(OnEnter(GameState::Running), play_game_music)
-            .add_systems(Update, (play_sound_effect_event, update_volume, update_in_game_music_volume));
+            .add_systems(
+                Update,
+                (
+                    play_sound_effect_event,
+                    update_volume,
+                    update_in_game_music_volume,
+                ),
+            );
     }
 }
