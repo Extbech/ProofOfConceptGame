@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use boss::{check_for_victory, spawn_boss};
+use boss::{check_for_victory, spawn_boss, spawn_fire_volley};
 use enemy::{spawn_enemies, update_enemies};
 
 use crate::GameState;
@@ -13,7 +13,7 @@ impl Plugin for MobPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_enemies, spawn_boss, update_enemies, check_for_victory)
+            (spawn_enemies, spawn_boss, update_enemies, check_for_victory, spawn_fire_volley)
                 .run_if(in_state(GameState::Running)),
         );
     }

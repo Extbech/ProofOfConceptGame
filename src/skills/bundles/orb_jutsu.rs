@@ -17,7 +17,7 @@ pub fn orb_jutsu_bundle(angle: f32) -> impl Bundle {
         OrbitalRadius(200. * SCALE),
         damaging(
             BaseDamage(10),
-            DealDamageHitbox::Circle(Circle { radius: (20.) }),
+            DealDamageHitbox::Circle(Circle { radius: 20. }),
         ),
         EntityHitCooldown::default(),
         SpriteKind::Skill(Skill::OrbJutsu),
