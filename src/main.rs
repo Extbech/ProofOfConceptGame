@@ -13,17 +13,13 @@ mod ui;
 
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
-use mechanics::cooldown::InGameTime;
-use mobs::{
-    boss::BossSpawned,
-    enemy::{SpawnCooldown, SpawnRate},
-};
+use mechanics::cooldown::{Cooldown, InGameTime};
+use mobs::{boss::BossSpawned, enemy::SpawnCooldown};
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
 use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
 use sprites::add_sprite;
 use start_game::GamePlugin;
-use std::time::Duration;
 use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
 use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
@@ -86,6 +82,11 @@ impl Heading {
             v: v.normalize_or_zero(),
         }
     }
+    fn from_angle(angle: f32) -> Self {
+        Heading {
+            v: Vec2::from_angle(angle),
+        }
+    }
 }
 
 impl Default for Heading {
@@ -113,8 +114,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
         },
         MyGameCamera,
     ));
-    commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
-    commands.insert_resource(SpawnCooldown(default()));
+    commands.insert_resource(SpawnCooldown(Cooldown::new(1.)));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
     commands.insert_resource(SkillTooltips::default());

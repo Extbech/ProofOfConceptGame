@@ -5,6 +5,7 @@ use crate::{
     GameState, Heading, MovementSpeed, MyGameCamera, SCALE,
 };
 use bevy::prelude::*;
+use orbiting::AngularVelocity;
 
 pub struct ProjectilePlugin;
 
@@ -17,6 +18,7 @@ impl Plugin for ProjectilePlugin {
                 player_movement,
                 sync_player_and_camera_pos,
                 speed_to_movement.before(sync_player_and_camera_pos),
+                curve_projectile,
             )
                 .run_if(in_state(GameState::Running)),
         );
@@ -113,5 +115,12 @@ fn speed_to_movement(time: Res<Time>, mut q: Query<(&Heading, &mut Transform, &M
             (Vec2::new(pos.x, pos.y) + *speed * SCALE * time.delta_secs() * dir.v).into();
     }
 }
-
+pub(super) fn curve_projectile(
+    mut query: Query<(&AngularVelocity, &mut Heading)>,
+    time: Res<Time>,
+) {
+    for (av, mut heading) in query.iter_mut() {
+        *heading = Heading::new(heading.rotate(Vec2::from_angle(**av * time.delta_secs())));
+    }
+}
 pub mod orbiting;

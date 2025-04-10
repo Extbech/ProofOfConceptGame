@@ -15,20 +15,19 @@ use crate::{
 #[derive(Resource, Component, Clone)]
 pub struct Cooldown {
     timer: Duration,
+    pub period: Duration,
     waiting: bool,
 }
 
-impl Default for Cooldown {
-    /// defaults to being ready for almost any length of cooldown, but only processing one duration
-    fn default() -> Self {
+impl Cooldown {
+    /// Init Cooldown
+    pub fn new(period_secs: f32) -> Self {
         Self {
             timer: Duration::from_secs_f32(10000000.),
+            period: Duration::from_secs_f32(period_secs),
             waiting: true,
         }
     }
-}
-
-impl Cooldown {
     /// Resets the cooldown without returning any information about what the original value was
     pub fn fill(&mut self) {
         self.timer = Duration::ZERO;
@@ -37,11 +36,11 @@ impl Cooldown {
     /// Resets the cooldown with `period_length` waiting time per period and returns the number of periods elapsed.
     /// Also resets the waiting status of the timer.
     /// When waiting additional conditions only one cooldown period can pass.
-    pub fn reset(&mut self, period_length: Duration) -> u32 {
+    pub fn reset(&mut self) -> u32 {
         let mut count = 0;
-        assert!(!period_length.is_zero());
-        while period_length <= self.timer {
-            self.timer -= period_length;
+        assert!(!self.period.is_zero());
+        while self.period <= self.timer {
+            self.timer -= self.period;
             count += 1;
         }
         if self.waiting && 0 < count {
@@ -54,11 +53,11 @@ impl Cooldown {
     }
 
     /// Same as [Cooldown::reset], except it sets the status to waiting.
-    pub fn reset_and_wait(&mut self, period_length: Duration) -> u32 {
+    pub fn reset_and_wait(&mut self) -> u32 {
         let mut count = 0;
-        assert!(!period_length.is_zero());
-        while period_length <= self.timer {
-            self.timer -= period_length;
+        assert!(!self.period.is_zero());
+        while self.period <= self.timer {
+            self.timer -= self.period;
             count += 1;
         }
         if self.waiting && 0 < count {
@@ -79,8 +78,8 @@ impl Cooldown {
         self.timer += time.delta();
     }
 
-    pub fn is_ready(&self, period_length: Duration) -> bool {
-        period_length <= self.timer
+    pub fn is_ready(&self) -> bool {
+        self.period <= self.timer
     }
 }
 

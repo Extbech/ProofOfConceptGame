@@ -4,7 +4,7 @@ use bevy::color::palettes::css;
 use bevy::{prelude::*, utils::HashMap};
 use test_game::PROJECTILES_Z;
 
-use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
+use crate::characters::player::AttackCooldown;
 use crate::prestige::stats::Stats;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SoundEffectKind};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
@@ -223,8 +223,8 @@ fn handle_damager_with_per_entity_cooldown(
                 const MAXHITCOOLDOWN: f32 = 1.;
                 let hit_count = cd
                     .entry(ent)
-                    .or_default()
-                    .reset(Duration::from_secs_f32(MAXHITCOOLDOWN));
+                    .or_insert_with(|| Cooldown::new(MAXHITCOOLDOWN))
+                    .reset();
                 for _ in 0..hit_count {
                     if let Some(new_health) = health.checked_sub(*damage) {
                         if let Some(damage_tracker_kind) = damage_tracker_kind {
@@ -254,16 +254,15 @@ fn handle_damager_with_global_hit_cooldown(
         &Damage,
         Option<&DamageTrackerKind>,
         &mut AttackCooldown,
-        &MaxAttackCooldown,
         &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox), With<Enemy>>,
     mut damage_events: EventWriter<PlayerDamageEvent>,
 ) {
-    for (projectile_transform, &damage, damage_tracker_kind, mut attack_cd, max_cd, hitbox) in
+    for (projectile_transform, &damage, damage_tracker_kind, mut attack_cd, hitbox) in
         damager_query.iter_mut()
     {
-        if !attack_cd.is_ready(max_cd.0) {
+        if !attack_cd.is_ready() {
             continue;
         }
         for (enemy_transform, mut health, enemy_hitbox) in enemy_query.iter_mut() {
@@ -276,7 +275,7 @@ fn handle_damager_with_global_hit_cooldown(
                 if health.0 == 0 {
                     continue;
                 }
-                attack_cd.reset(max_cd.0);
+                attack_cd.reset();
                 **health = health.saturating_sub(*damage);
                 damage_events.send(PlayerDamageEvent {
                     pos: enemy_transform.translation().xy(),
@@ -309,14 +308,13 @@ fn handle_damage_to_player(
     let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
         player_query.single_mut();
     let player_pos = player_trans.translation().xy();
-    let invuln_timer = Duration::from_secs_f32(2.);
-    if vulnerability.is_ready(invuln_timer) {
+    if vulnerability.is_ready() {
         sprite.color = sprite.color.with_alpha(1.0);
         for (enemy_trans, enemy_hitbox) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
             if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
-                vulnerability.reset(invuln_timer);
+                vulnerability.reset();
                 sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
                     PlayerSound::PlayerTakeDamage,
                 )));

@@ -5,11 +5,7 @@ use crate::tools::rng::GameRng;
 use crate::{cleanup, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
-use std::time::Duration;
 use test_game::ENEMY_Z;
-
-#[derive(Resource, Deref, DerefMut)]
-pub struct SpawnRate(pub Duration);
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnCooldown(pub Cooldown);
@@ -65,11 +61,10 @@ pub(super) fn spawn_enemies(
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
     mut spawncooldown: ResMut<SpawnCooldown>,
-    spawnrate: Res<SpawnRate>,
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
-    for _ in 0..spawncooldown.reset(**spawnrate) {
+    for _ in 0..spawncooldown.reset() {
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(jotun_bundle(

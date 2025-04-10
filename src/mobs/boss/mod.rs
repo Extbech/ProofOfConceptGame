@@ -1,17 +1,23 @@
-use std::{f32::consts::{PI, TAU}, time::Duration};
+mod fire_volley;
+
+use std::{
+    f32::consts::{PI, TAU},
+    time::Duration,
+};
 
 use bevy::prelude::*;
+use fire_volley::{spawn_fire_volley, spawn_fire_volley_spell};
 use rand::prelude::*;
 use test_game::ENEMY_Z;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown, Player},
+    characters::player::Player,
     cleanup,
     mechanics::{
-        cooldown::{Cooldown, InGameTime, LifeTime},
-        damage::{damaging, BaseDamage, Circle, Cone, DealDamageHitbox, Health, TakeDamageHitbox},
+        cooldown::InGameTime,
+        damage::{Circle, Cone, DealDamageHitbox, Health, TakeDamageHitbox},
     },
-    sprites::{Character, Skill, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
+    sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
     GameRng, GameState, Heading, MovementSpeed,
 };
 
@@ -37,41 +43,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
         EndGameIfDead,
-        FireVolleyCount(4),
-        AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(3.0)),
     )
-}
-
-#[derive(Component, Deref, DerefMut, Clone, Copy)]
-pub (super) struct FireVolleyCount(pub (super) u32);
-
-pub(super) fn fire_volley_bundle(x: f32, y: f32) -> impl Bundle {
-    (
-        LifeTime::from_secs_f32(2.),
-        damaging(
-            BaseDamage(10),
-            DealDamageHitbox::Circle(Circle { radius: 20. }),
-        ),
-        SpriteKind::Skill(Skill::OrbJutsu),
-        Transform::from_translation(Vec3::new(x, y, ENEMY_Z)),
-    )
-}
-
-pub(super) fn spawn_fire_volley(mut commands: Commands, mut boss_query: Query<(&Health, &Transform, &FireVolleyCount, &mut AttackCooldown, &MaxAttackCooldown), With<EndGameIfDead>>) {
-    for (health, transform, fv_count, mut fv_cooldown, fv_max_cooldown) in &mut boss_query {
-        if **health > 0 && fv_cooldown.is_ready(**fv_max_cooldown) {
-            for _ in 0..(fv_cooldown.reset_and_wait(**fv_max_cooldown)) {
-                let start_angle: f32 = rand::thread_rng().gen_range(0.0..TAU);
-                for n in 1..=**fv_count {
-                    let angle = start_angle + (n as f32 * (TAU / **fv_count as f32));
-                    let x = 20.0 * angle.sin() + transform.translation.x;
-                    let y = 20.0 * angle.cos() + transform.translation.y;
-                    commands.spawn(fire_volley_bundle(x, y));
-                }
-            }
-        }
-    }
 }
 
 /// TODO: This should be a system that spawns the boss at a random position around the player.
@@ -98,7 +70,11 @@ pub fn spawn_boss(
         boss_spawned.0 = true;
         let player = query.single().translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(wizard_bundle(enemy_position.x, enemy_position.y));
+        commands
+            .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
+            .with_children(|spells| {
+                spawn_fire_volley_spell(spells);
+            });
     }
 }
 
@@ -115,4 +91,15 @@ pub fn check_for_victory(
 
 pub fn reset_boss_spawn(mut res: ResMut<BossSpawned>) {
     res.0 = false;
+}
+
+pub(super) struct BossPlugin;
+
+impl Plugin for BossPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (spawn_boss, spawn_fire_volley, check_for_victory).run_if(in_state(GameState::Running)),
+        );
+    }
 }
