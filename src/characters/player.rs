@@ -4,11 +4,10 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 use std::time::Duration;
 
 use crate::mechanics::cooldown::Cooldown;
-use crate::mechanics::damage::damaging;
-use crate::mechanics::damage::{self, Damage, TakeDamageHitbox};
+use crate::mechanics::damage::{self, TakeDamageHitbox};
+use crate::mechanics::damage::{damaging, BaseDamage};
 use crate::mechanics::damage::{Health, HitList};
 use crate::mechanics::movement::{projectile, ShouldRotate};
-use crate::prestige::events::SaveGameStatsEventToMemory;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SkillSound, SoundEffectKind};
 use crate::sprites::{Character, Skill, SpriteKind, PLAYER_HEIGHT, PLAYER_WIDTH};
 use crate::tools::damage_tracking::DamageTrackerKind;
@@ -81,7 +80,7 @@ fn player_bundle() -> impl Bundle {
             MovementSpeed(300.),
             AttackCooldown(default()),
             MaxAttackCooldown(Duration::from_secs_f32(0.5)),
-            projectile_stats(PlayerDamage(1), ProjectileSpeed(450.), Range(500.)),
+            projectile_stats(PlayerDamage(10), ProjectileSpeed(450.), Range(500.)),
             CurrentXP(0.0),
             RequiredXP(10.0),
             CurrentLevel(1),
@@ -161,7 +160,7 @@ fn player_shoot(
     player_position: Vec2,
     dir: &Heading,
     projectile_speed: ProjectileSpeed,
-    damage: PlayerDamage,
+    base_damage: PlayerDamage,
     range: Range,
     sound_event: &mut EventWriter<PlaySoundEffectEvent>,
 ) {
@@ -174,7 +173,7 @@ fn player_shoot(
             ShouldRotate(true),
         ),
         damaging(
-            Damage(*damage),
+            BaseDamage(*base_damage),
             damage::DealDamageHitbox::Circle(damage::Circle { radius: 10. }),
         ),
         SpriteKind::Skill(Skill::PrimaryAttack),
@@ -200,7 +199,6 @@ pub fn handle_player_xp(
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
-    mut save_game_stats_event: EventWriter<SaveGameStatsEventToMemory>,
     mut sound_event: EventWriter<PlaySoundEffectEvent>,
 ) {
     let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
@@ -209,7 +207,6 @@ pub fn handle_player_xp(
         **current_xp -= **required_xp;
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
-        save_game_stats_event.send(SaveGameStatsEventToMemory);
         sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
             PlayerSound::Levelup,
         )));

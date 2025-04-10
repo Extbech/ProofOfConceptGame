@@ -4,18 +4,20 @@ use bevy::prelude::*;
 #[derive(Component, Clone, Copy)]
 pub enum Item {
     XPOrb,
-    XPMagnet,
+    Magnet,
     Potion,
     ThorsHammer,
+    Coin,
 }
 
 impl Item {
     fn image_path(&self) -> &'static str {
         match self {
             Item::XPOrb => "loot/rotating_orbs.png",
-            Item::XPMagnet => "loot/magnet.png",
+            Item::Magnet => "loot/magnet.png",
             Item::Potion => "loot/potion.png",
             Item::ThorsHammer => "loot/hammeritem.png",
+            Item::Coin => "loot/coin.png",
         }
     }
 

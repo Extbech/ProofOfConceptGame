@@ -4,12 +4,15 @@ use bevy::color::palettes::css;
 use bevy::prelude::*;
 use test_game::GAME_TITLE;
 
+use super::components::button::{custom_button, ButtonSize};
+
 // Tag component used to tag entities added on the main menu screen
 #[derive(Component, Clone, Copy)]
 enum MenuButtonAction {
     Play,
     Upgrade,
     ExitGame,
+    Settings,
 }
 #[derive(Component)]
 struct MainMenuScreen;
@@ -67,83 +70,47 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                         Text::new(GAME_TITLE),
                         TextFont {
                             font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 60.0,
+                            font_size: 50.0,
                             ..Default::default()
                         },
                         TextColor(css::ORANGE.into()),
                     ));
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Px(350.),
-                                height: Val::Px(100.),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            MenuButtonAction::Play,
-                        ))
-                        .with_children(|great_grandchild| {
-                            great_grandchild.spawn((
-                                Text::new("Start Game"),
-                                TextFont {
-                                    font_size: 30.,
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    ..Default::default()
-                                },
-                                TextColor(css::WHITE.into()),
-                            ));
-                        });
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Px(350.),
-                                height: Val::Px(100.),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            MenuButtonAction::Upgrade,
-                        ))
-                        .with_children(|great_grandchild| {
-                            great_grandchild.spawn((
-                                Text::new("Upgrades"),
-                                TextFont {
-                                    font_size: 30.,
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    ..Default::default()
-                                },
-                                TextColor(css::WHITE.into()),
-                            ));
-                        });
-                    grandchild
-                        .spawn((
-                            Node {
-                                width: Val::Px(350.),
-                                height: Val::Px(100.),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::Center,
-                                ..default()
-                            },
-                            Button,
-                            BackgroundColor(css::MIDNIGHT_BLUE.into()),
-                            MenuButtonAction::ExitGame,
-                        ))
-                        .with_children(|great_grandchild| {
-                            great_grandchild.spawn((
-                                Text::new("Exit Game"),
-                                TextFont {
-                                    font_size: 30.,
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    ..Default::default()
-                                },
-                                TextColor(css::WHITE.into()),
-                            ));
-                        });
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        MenuButtonAction::Play,
+                        css::MIDNIGHT_BLUE,
+                        css::WHITE,
+                        "Start Game",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        MenuButtonAction::Upgrade,
+                        css::MIDNIGHT_BLUE,
+                        css::WHITE,
+                        "Upgrades",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        MenuButtonAction::Settings,
+                        css::MIDNIGHT_BLUE,
+                        css::WHITE,
+                        "Settings",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
+                        MenuButtonAction::ExitGame,
+                        css::MIDNIGHT_BLUE,
+                        css::WHITE,
+                        "Exit Game",
+                        ButtonSize::Large,
+                    );
                 });
         });
 }
@@ -166,6 +133,7 @@ fn handle_button_click(
                 match menu_button_action {
                     MenuButtonAction::Play => app_state.set(AppState::InGame),
                     MenuButtonAction::Upgrade => app_state.set(AppState::Upgrade),
+                    MenuButtonAction::Settings => app_state.set(AppState::Settings),
                     MenuButtonAction::ExitGame => {
                         exit.send(AppExit::Success);
                     }

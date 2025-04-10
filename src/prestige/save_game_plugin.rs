@@ -6,8 +6,7 @@ use bevy::{
 use crate::AppState;
 
 use super::events::{
-    save_game_stats, save_game_stats_in_memory, save_prestige, SaveGameStatsEventToFile,
-    SaveGameStatsEventToMemory,
+    save_game_stats, save_prestige, SaveGameStatsEventToFile, SaveGameStatsEventToMemory,
 };
 
 pub struct SaveGamePlugin;
@@ -16,7 +15,8 @@ impl Plugin for SaveGamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SaveGameStatsEventToFile>()
             .add_event::<SaveGameStatsEventToMemory>()
-            .add_systems(Update, (save_game_stats, save_game_stats_in_memory))
-            .add_systems(OnExit(AppState::InGame), (save_prestige,));
+            .add_systems(Update, (save_game_stats,))
+            .add_systems(OnExit(AppState::InGame), (save_prestige,))
+            .add_systems(OnExit(AppState::Upgrade), (save_prestige,));
     }
 }
