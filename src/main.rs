@@ -20,14 +20,16 @@ use mobs::{
 };
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
-use sound::sound_plugin::SoundPlugin;
+use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
 use sprites::add_sprite;
 use start_game::GamePlugin;
 use std::time::Duration;
 use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
 use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
-use ui::{start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin};
+use ui::{
+    settings_plugin::SettingsPlugin, start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin,
+};
 use winit::window::Icon;
 
 fn main() {
@@ -41,6 +43,7 @@ fn main() {
         })
         .add_plugins(RngPlugin)
         .add_plugins(UpgradePlugin)
+        .add_plugins(SettingsPlugin)
         .add_systems(Startup, (setup, set_window_icon))
         .add_systems(OnExit(AppState::InGame), set_state_not_started)
         .add_systems(Update, add_sprite)
@@ -56,6 +59,7 @@ enum AppState {
     MainMenu,
     InGame,
     Upgrade,
+    Settings,
 }
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
@@ -117,6 +121,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(DamageTracker::default());
     commands.insert_resource(BossSpawned::default());
     commands.insert_resource(Stats::get_save().unwrap_or_default());
+    commands.insert_resource(SoundVolume::get_save().unwrap_or_default());
     app_window_config(window);
 }
 
@@ -190,6 +195,9 @@ mod cleanup {
 
     #[derive(Component)]
     pub struct ExitUpgradeScreen;
+
+    #[derive(Component)]
+    pub struct ExitSettingsScreen;
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component

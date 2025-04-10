@@ -12,6 +12,7 @@ enum MenuButtonAction {
     Play,
     Upgrade,
     ExitGame,
+    Settings,
 }
 #[derive(Component)]
 struct MainMenuScreen;
@@ -95,6 +96,15 @@ pub fn render_start_menu(mut commands: Commands, asset_server: Res<AssetServer>)
                     custom_button(
                         grandchild,
                         &asset_server,
+                        MenuButtonAction::Settings,
+                        css::MIDNIGHT_BLUE,
+                        css::WHITE,
+                        "Settings",
+                        ButtonSize::Large,
+                    );
+                    custom_button(
+                        grandchild,
+                        &asset_server,
                         MenuButtonAction::ExitGame,
                         css::MIDNIGHT_BLUE,
                         css::WHITE,
@@ -123,6 +133,7 @@ fn handle_button_click(
                 match menu_button_action {
                     MenuButtonAction::Play => app_state.set(AppState::InGame),
                     MenuButtonAction::Upgrade => app_state.set(AppState::Upgrade),
+                    MenuButtonAction::Settings => app_state.set(AppState::Settings),
                     MenuButtonAction::ExitGame => {
                         exit.send(AppExit::Success);
                     }
