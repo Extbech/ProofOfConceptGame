@@ -9,7 +9,7 @@ use crate::{
     mechanics::{
         cooldown::{Cooldown, LifeTime},
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
-        movement::orbiting::{Angle, AngularVelocity},
+        movement::orbiting::AngularVelocity,
     },
     mobs::enemy::Enemy,
     sprites::{Skill, SpriteKind},
