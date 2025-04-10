@@ -89,6 +89,7 @@ pub enum Skill {
     PrimaryAttack,
     OrbJutsu,
     LightningAttack,
+    FireBall,
 }
 
 impl Skill {
@@ -97,6 +98,7 @@ impl Skill {
             Skill::PrimaryAttack => "skills/axe.png",
             Skill::OrbJutsu => "skills/orb_purple.png",
             Skill::LightningAttack => "skills/lightning-strike.png",
+            Skill::FireBall => "skills/fireball.png",
         }
     }
 

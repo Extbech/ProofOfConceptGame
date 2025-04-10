@@ -11,6 +11,7 @@ use crate::{
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
         movement::orbiting::{Angle, AngularVelocity},
     },
+    mobs::enemy::Enemy,
     sprites::{Skill, SpriteKind},
     Heading, MovementSpeed,
 };
@@ -28,8 +29,9 @@ fn fire_volley_bundle(pos: Vec2, angle: f32) -> impl Bundle {
             BaseDamage(10),
             DealDamageHitbox::Circle(Circle { radius: 20. }),
         ),
-        SpriteKind::Skill(Skill::OrbJutsu),
+        SpriteKind::Skill(Skill::FireBall),
         Transform::from_translation(Vec3::new(pos.x, pos.y, ENEMY_Z)),
+        Enemy,
     )
 }
 

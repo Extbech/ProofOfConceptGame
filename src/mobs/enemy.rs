@@ -11,7 +11,12 @@ use test_game::ENEMY_Z;
 pub struct SpawnCooldown(pub Cooldown);
 
 #[derive(Component)]
+/// Entities that can damage player.
 pub struct Enemy;
+
+/// Entities that move towards the player.
+#[derive(Component)]
+pub struct PlayerHoming;
 
 fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
@@ -25,12 +30,16 @@ fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
         TakeDamageHitbox(Circle { radius }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),
+        PlayerHoming,
     )
 }
 
-pub(super) fn update_enemies(
+pub(super) fn update_player_homing(
     q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
+    mut q_enmy: Query<
+        (&Transform, &mut Heading, &mut Sprite),
+        (With<PlayerHoming>, Without<Player>),
+    >,
 ) {
     let player_position = q_pl.single().translation.xy();
     for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
