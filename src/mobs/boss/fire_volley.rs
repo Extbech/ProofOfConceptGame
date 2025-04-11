@@ -52,8 +52,6 @@ pub(super) fn spawn_fire_volley(
             let start_angle: f32 = rand::thread_rng().gen_range(0.0..TAU);
             for n in 1..=**fv_count {
                 let angle = start_angle + (n as f32 * (TAU / **fv_count as f32));
-                let x = 20.0 * angle.sin() + transform.translation().x;
-                let y = 20.0 * angle.cos() + transform.translation().y;
                 commands.spawn(fire_volley_bundle(transform.translation().xy(), angle));
             }
         }
