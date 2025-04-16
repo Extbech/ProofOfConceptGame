@@ -21,7 +21,7 @@ use crate::{
     GameRng, GameState, Heading, MovementSpeed,
 };
 
-use super::enemy::Enemy;
+use super::enemy::{Enemy, PlayerHoming};
 
 #[derive(Component)]
 pub struct EndGameIfDead;
@@ -31,7 +31,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         cleanup::ExitGame,
         Enemy,
         Health(200),
-        MovementSpeed(0.),
+        MovementSpeed(25.),
         Heading::default(),
         TakeDamageHitbox(Circle {
             radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.,
@@ -43,6 +43,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
         EndGameIfDead,
+        PlayerHoming,
     )
 }
 
