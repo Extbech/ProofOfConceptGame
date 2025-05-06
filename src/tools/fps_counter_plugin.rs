@@ -7,9 +7,9 @@ use test_game::FPS_COUNTER_Z;
 
 /// Plugin for enabling a fps counter in the game.
 /// This fps counter can be toggled on/off by pressing the `f12` key.
-pub struct FPSCouterPlugin;
+pub struct FPSCounterPlugin;
 
-impl Plugin for FPSCouterPlugin {
+impl Plugin for FPSCounterPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(FrameTimeDiagnosticsPlugin)
             .add_systems(Startup, setup_fps_counter)

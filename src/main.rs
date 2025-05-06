@@ -26,7 +26,7 @@ use start_game::GamePlugin;
 use std::time::Duration;
 use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
-use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
+use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCounterPlugin};
 use ui::{
     settings_plugin::SettingsPlugin, start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin,
 };
@@ -34,7 +34,7 @@ use winit::window::Icon;
 
 fn main() {
     App::new()
-        .add_plugins(FPSCouterPlugin)
+        .add_plugins(FPSCounterPlugin)
         .add_plugins(GamePlugin)
         .add_plugins(SoundPlugin)
         .insert_state(AppState::MainMenu)
