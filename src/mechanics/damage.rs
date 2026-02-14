@@ -53,7 +53,7 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerDamageEvent>().add_systems(
+        app.add_message::<PlayerDamageEvent>().add_systems(
             Update,
             (
                 handle_damager_with_hitlist,
@@ -63,8 +63,7 @@ impl Plugin for DamagePlugin {
                 handle_damage_to_player,
                 display_player_damage,
                 damage_multiplier,
-            )
-                .run_if(in_state(GameState::Running)),
+            ).run_if(in_state(GameState::Running)),
         );
     }
 }

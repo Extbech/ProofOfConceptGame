@@ -2,7 +2,8 @@ use std::{cmp::Reverse, vec};
 
 use bevy::ecs::{
     component::Component,
-    system::{ResMut, Resource},
+    system::ResMut,
+    resource::Resource
 };
 
 #[derive(Component, Clone, Copy)]
