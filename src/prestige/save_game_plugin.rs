@@ -13,8 +13,8 @@ pub struct SaveGamePlugin;
 
 impl Plugin for SaveGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SaveGameStatsEventToFile>()
-            .add_event::<SaveGameStatsEventToMemory>()
+        app.add_message::<SaveGameStatsEventToFile>()
+            .add_message::<SaveGameStatsEventToMemory>()
             .add_systems(Update, (save_game_stats,))
             .add_systems(OnExit(AppState::InGame), (save_prestige,))
             .add_systems(OnExit(AppState::Upgrade), (save_prestige,));

@@ -1,6 +1,6 @@
 use std::{fs, time::Duration};
 
-use bevy::ecs::{component::Component, system::Resource};
+use bevy::ecs::{component::Component, resource::Resource};
 use test_game::STATS_SAVE_FILE;
 
 #[derive(Component, Clone, Copy)]
