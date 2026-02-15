@@ -155,7 +155,7 @@ pub fn handle_lifetime(
 ) {
     for (mut lt, ent) in &mut q {
         if !lt.try_decrease(time.delta()) {
-            commands.entity(ent).despawn_recursive();
+            commands.entity(ent).despawn();
         }
     }
 }

@@ -126,7 +126,7 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
 }
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
-    let mut curr_window = window.single_mut();
+    let mut curr_window = window.single_mut().expect("Err");
     curr_window.title = GAME_TITLE.to_string();
 }
 
@@ -159,10 +159,10 @@ fn update_cursor(
 ) {
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so Query::single() is OK
-    let (camera, camera_transform) = q_camera.single();
+    let (camera, camera_transform) = q_camera.single().expect("Err");
 
     // There is only one primary window, so we can similarly get it from the query:
-    let window = q_window.single();
+    let window = q_window.single().expect("Err no window!");
 
     // check if the cursor is inside the window and get its position
     // then, ask bevy to convert into world coordinates, and truncate to discard Z
@@ -203,6 +203,6 @@ mod cleanup {
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
 fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

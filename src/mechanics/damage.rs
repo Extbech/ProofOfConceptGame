@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::color::palettes::css;
-use bevy::{prelude::*, platform::collections::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
@@ -63,7 +63,8 @@ impl Plugin for DamagePlugin {
                 handle_damage_to_player,
                 display_player_damage,
                 damage_multiplier,
-            ).run_if(in_state(GameState::Running)),
+            )
+                .run_if(in_state(GameState::Running)),
         );
     }
 }
@@ -306,7 +307,7 @@ fn handle_damage_to_player(
     mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
-        player_query.single_mut();
+        player_query.single_mut().expect("Err");
     let player_pos = player_trans.translation().xy();
     let invuln_timer = Duration::from_secs_f32(2.);
     if vulnerability.is_ready(invuln_timer) {

@@ -41,7 +41,7 @@ impl Plugin for GamePlugin {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        resolution: WindowResolution::new(1000., 800.)
+                        resolution: WindowResolution::new(1000, 800)
                             .with_scale_factor_override(1.0),
                         ..default()
                     }),
