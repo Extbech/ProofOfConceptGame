@@ -1,6 +1,5 @@
 use bevy::{
     app::{Plugin, Update},
-    ecs::schedule::IntoSystemConfigs,
     state::condition::in_state,
 };
 
