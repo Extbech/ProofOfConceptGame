@@ -187,12 +187,12 @@ fn handle_button_continue_click(
         (Changed<Interaction>, With<Button>),
     >,
     mut app_state: ResMut<NextState<AppState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, mut background_color, button_action) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
                     UiSound::ClickButtonSound,
                 )));
                 match button_action {
@@ -200,7 +200,7 @@ fn handle_button_continue_click(
                 }
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();
@@ -268,12 +268,12 @@ fn upgrade_options_bundle(
 fn handle_button_upgrade(
     interaction_query: Query<(&Interaction, &UpgradeOptions), (Changed<Interaction>, With<Button>)>,
     mut stats: ResMut<Stats>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, upgradeoption) in interaction_query.iter() {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
                     UiSound::ClickButtonSound,
                 )));
                 stats.upgrade(*upgradeoption);

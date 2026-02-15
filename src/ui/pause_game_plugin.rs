@@ -43,7 +43,7 @@ pub fn render_pause_options_node(
     query: Query<Entity, With<ExitPauseScreen>>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     commands
         .spawn((
@@ -114,7 +114,7 @@ fn handle_options_interaction(
     >,
     mut game_state: ResMut<NextState<GameState>>,
     mut app_state: ResMut<NextState<AppState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, action_type, mut background_color) in &mut interaction_query {
         match interaction {

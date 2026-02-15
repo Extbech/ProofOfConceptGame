@@ -1,7 +1,5 @@
-use bevy::{color::palettes::css, prelude::*};
-
-use crate::sound::sound_volume::SoundVolume;
 use crate::{cleanup, AppState};
+use bevy::{color::palettes::css, prelude::*};
 
 use super::components::button::{custom_button, ButtonSize};
 pub struct SettingsPlugin;

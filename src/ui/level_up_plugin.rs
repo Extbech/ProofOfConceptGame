@@ -44,7 +44,7 @@ pub fn spawn_upgrade_selection_ui(
     mut rng: ResMut<GameRng>,
 ) {
     for entity in &ui_query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     let mut generated_indexes: Vec<usize> = Vec::new();
     for _ in 0..3 {
@@ -157,7 +157,7 @@ pub fn handle_selection_cursor(
         mut health,
         mut max_health,
         player_entity,
-    ) = player_query.single_mut();
+    ) = player_query.single_mut().expect("Err");
     for (interaction, item_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {

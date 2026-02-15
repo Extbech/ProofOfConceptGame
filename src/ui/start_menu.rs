@@ -121,8 +121,8 @@ fn handle_button_click(
         (Changed<Interaction>, With<Button>),
     >,
     mut app_state: ResMut<NextState<AppState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
-    mut exit: EventWriter<AppExit>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
+    mut exit: MessageWriter<AppExit>,
 ) {
     for (interaction, menu_button_action, mut background_color) in &mut interaction_query {
         match *interaction {

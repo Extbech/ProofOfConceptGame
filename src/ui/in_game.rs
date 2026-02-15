@@ -20,9 +20,9 @@ pub fn update_xp_bar_and_level(
     query_bar: Query<Entity, With<XPBar>>,
 ) {
     for entity in &query_bar {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
-    let (req_xp, curr_xp, level) = query.single();
+    let (req_xp, curr_xp, level) = query.single().expect("Err");
     let xp_percent = if **curr_xp == 0.0 {
         0.0
     } else {
@@ -107,7 +107,7 @@ pub fn update_health_ui(
     mut q_health: Query<(&mut Transform, Entity), (With<HealthUiSprite>, Without<Player>)>,
     q_player_health: Query<(&Health, &MaxHealth), (With<Player>, Without<HealthUiSprite>)>,
 ) {
-    let (player_health, player_max_health) = q_player_health.single();
+    let (player_health, player_max_health) = q_player_health.single().expect("Err");
     for (mut _transform, entity) in q_health.iter_mut() {
         commands.entity(entity).despawn();
     }
@@ -172,7 +172,7 @@ pub fn render_stop_watch(
     query: Query<Entity, With<StopWatchDisplay>>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     commands
         .spawn((
