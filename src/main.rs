@@ -11,6 +11,7 @@ mod start_game;
 mod tools;
 mod ui;
 
+use bevy::camera::{Camera2d, OrthographicProjection, Projection};
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
 use mechanics::cooldown::InGameTime;
@@ -99,20 +100,25 @@ impl Default for Heading {
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
+fn camera_bundle() -> impl Bundle {
+    let projection = Projection::Orthographic(OrthographicProjection {
+        near: -1000.,
+        far: 1000.,
+        scale: SCALE,
+        ..OrthographicProjection::default_2d()
+    });
+    (
+        Camera2d::default(),
+        Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+        projection,
+        MyGameCamera,
+    )
+}
+
 const SCALE: f32 = 1. / 3.;
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
-    commands.spawn((
-        Camera2d,
-        Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
-        OrthographicProjection {
-            far: 1000.,
-            near: -1000.,
-            scale: SCALE,
-            ..OrthographicProjection::default_2d()
-        },
-        MyGameCamera,
-    ));
+    commands.spawn(camera_bundle());
     commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
     commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
