@@ -108,7 +108,7 @@ fn camera_bundle() -> impl Bundle {
         ..OrthographicProjection::default_2d()
     });
     (
-        Camera2d::default(),
+        Camera2d,
         Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
         projection,
         MyGameCamera,

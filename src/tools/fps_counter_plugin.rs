@@ -115,7 +115,7 @@ fn fps_color_update_system(
             } else if value >= 60.0 {
                 // Between 60-120 FPS, gradually transition from yellow to green
                 Color::Srgba(Srgba {
-                    red: 1. - (value - 60. / (120. - 60.)) as f32,
+                    red: 1. - (value / 120.0) as f32,
                     green: 1.,
                     blue: 0.,
                     alpha: 1.,

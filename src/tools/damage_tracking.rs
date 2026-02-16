@@ -65,7 +65,7 @@ impl DamageTracker {
 
         damage_tracking_sorted.sort_by_key(|k| Reverse(k.amount));
 
-        return damage_tracking_sorted;
+        damage_tracking_sorted
     }
 
     pub fn reset(&mut self) {

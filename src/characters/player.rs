@@ -183,7 +183,7 @@ fn player_shoot(
         HitList::default(),
         DamageTrackerKind::PrimaryAttack,
     ));
-    sound_event.write(PlaySoundEffectEvent(SoundEffectKind::SkillSound(
+    sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Skill(
         SkillSound::PrimaryAttack,
     )));
 }
@@ -208,7 +208,7 @@ pub fn handle_player_xp(
         **current_xp -= **required_xp;
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
-        sound_event.write(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+        sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Player(
             PlayerSound::Levelup,
         )));
     }

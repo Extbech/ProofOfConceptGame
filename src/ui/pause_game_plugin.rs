@@ -119,7 +119,7 @@ fn handle_options_interaction(
     for (interaction, action_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 match action_type {
@@ -129,7 +129,7 @@ fn handle_options_interaction(
                 }
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();

@@ -83,7 +83,7 @@ pub fn spawn_loss_ui(
                             ..Default::default()
                         },
                         TextColor(css::DARK_RED.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                     grandchild
                         .spawn(Node {
@@ -110,7 +110,7 @@ pub fn spawn_loss_ui(
                                     ..Default::default()
                                 },
                                 TextColor(css::GREEN.into()),
-                                TextLayout::new_with_justify(JustifyText::Center),
+                                TextLayout::new_with_justify(Justify::Center),
                             ));
                             damage_tracker.get_sorted_by_damage().iter().for_each(|dt| {
                                 text_info_child.spawn((
@@ -121,7 +121,7 @@ pub fn spawn_loss_ui(
                                         ..Default::default()
                                     },
                                     TextColor(css::GREEN.into()),
-                                    TextLayout::new_with_justify(JustifyText::Center),
+                                    TextLayout::new_with_justify(Justify::Center),
                                 ));
                             });
                         });
@@ -162,7 +162,7 @@ pub fn spawn_loss_ui(
                                             ..default()
                                         },
                                         TextColor(css::WHITE.into()),
-                                        TextLayout::new_with_justify(JustifyText::Center),
+                                        TextLayout::new_with_justify(Justify::Center),
                                     ));
                                 });
                         });
@@ -182,14 +182,14 @@ pub fn handle_button_continue_click(
     for (interaction, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 game_state.set(GameState::NotStarted);
                 app_state.set(AppState::MainMenu);
             }
             Interaction::Hovered => {
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();

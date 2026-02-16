@@ -317,7 +317,7 @@ fn handle_damage_to_player(
             if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Player(
                     PlayerSound::PlayerTakeDamage,
                 )));
                 return;

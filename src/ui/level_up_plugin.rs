@@ -148,7 +148,7 @@ pub fn handle_selection_cursor(
     >,
     mut orb_query: Query<Entity, With<OrbitalRadius>>,
     mut game_state: ResMut<NextState<GameState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     let (
         mut pick_up_radius,
@@ -161,7 +161,7 @@ pub fn handle_selection_cursor(
     for (interaction, item_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 match **item_type {
@@ -193,7 +193,7 @@ pub fn handle_selection_cursor(
                 game_state.set(GameState::Running);
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::GRAY.into();

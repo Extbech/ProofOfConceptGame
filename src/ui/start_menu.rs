@@ -127,7 +127,7 @@ fn handle_button_click(
     for (interaction, menu_button_action, mut background_color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 match menu_button_action {
@@ -135,12 +135,12 @@ fn handle_button_click(
                     MenuButtonAction::Upgrade => app_state.set(AppState::Upgrade),
                     MenuButtonAction::Settings => app_state.set(AppState::Settings),
                     MenuButtonAction::ExitGame => {
-                        exit.send(AppExit::Success);
+                        exit.write(AppExit::Success);
                     }
                 }
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();

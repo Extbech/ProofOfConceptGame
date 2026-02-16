@@ -95,7 +95,7 @@ pub fn update_xp_bar_and_level(
                             ..default()
                         },
                         TextColor(Color::WHITE),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                 });
         });
@@ -201,7 +201,7 @@ pub fn render_stop_watch(
                 },
                 TextColor(Color::WHITE),
                 TextLayout {
-                    justify: JustifyText::Center,
+                    justify: Justify::Center,
                     ..Default::default()
                 },
             ));

@@ -191,8 +191,8 @@ impl Stats {
     }
 
     pub fn get_save() -> Option<Stats> {
-        if let Some(json_str) = fs::read_to_string(STATS_SAVE_FILE).ok() {
-            if let Some(json) = serde_json::from_str(&json_str).ok() {
+        if let Ok(json_str) = fs::read_to_string(STATS_SAVE_FILE) {
+            if let Ok(json) = serde_json::from_str(&json_str) {
                 return json;
             }
         }

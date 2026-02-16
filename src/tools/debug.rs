@@ -31,16 +31,15 @@ fn show_weakness(
         alpha: 0.3,
     }));
     for (TakeDamageHitbox(damage::Circle { radius }), ent) in &q {
-        if let Some(mut inent) = commands.get_entity(ent) {
-            inent.insert(ShowWeaknessHitbox);
-            inent.with_children(|parent| {
-                parent.spawn((
-                    Mesh2d(meshes.add(Circle::new(*radius))),
-                    MeshMaterial2d(color.clone()),
-                    Transform::from_xyz(0., 0., 100.),
-                ));
-            });
-        }
+        let mut inent = commands.get_entity(ent).expect("Err");
+        inent.insert(ShowWeaknessHitbox);
+        inent.with_children(|parent| {
+            parent.spawn((
+                Mesh2d(meshes.add(Circle::new(*radius))),
+                MeshMaterial2d(color.clone()),
+                Transform::from_xyz(0., 0., 100.),
+            ));
+        });
     }
 }
 
@@ -49,7 +48,7 @@ fn show_damaging(
     q: Query<(&DealDamageHitbox, Entity), (With<Transform>, Without<ShowDamagingHitbox>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-) -> Result<(), bevy::ecs::entity::InvalidEntityError> {
+) {
     let color = materials.add(Color::Srgba(Srgba {
         red: 1.,
         green: 0.,
@@ -57,7 +56,7 @@ fn show_damaging(
         alpha: 0.3,
     }));
     for (hitbox, ent) in &q {
-        let mut inent = commands.get_entity(ent)?;
+        let mut inent = commands.get_entity(ent).expect("Err");
         inent.insert(ShowDamagingHitbox);
         match hitbox {
             DealDamageHitbox::Circle(damage::Circle { radius }) => {
@@ -88,5 +87,4 @@ fn show_damaging(
             DealDamageHitbox::Global => {}
         };
     }
-    Ok(())
 }

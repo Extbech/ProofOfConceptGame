@@ -73,7 +73,7 @@ fn spawn_upgrade_ui(
                             ..Default::default()
                         },
                         TextColor(css::ORANGE.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                     text_info_child.spawn((
                         Text::new(format!("Coins: {}", stats.coins)),
@@ -83,7 +83,7 @@ fn spawn_upgrade_ui(
                             ..Default::default()
                         },
                         TextColor(css::WHITE.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                 });
             child
@@ -174,7 +174,7 @@ fn spawn_upgrade_ui(
                                     ..default()
                                 },
                                 TextColor(css::WHITE.into()),
-                                TextLayout::new_with_justify(JustifyText::Center),
+                                TextLayout::new_with_justify(Justify::Center),
                             ));
                         });
                 });
@@ -192,7 +192,7 @@ fn handle_button_continue_click(
     for (interaction, mut background_color, button_action) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 match button_action {
@@ -200,7 +200,7 @@ fn handle_button_continue_click(
                 }
             }
             Interaction::Hovered => {
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();
@@ -211,7 +211,7 @@ fn handle_button_continue_click(
 }
 
 fn upgrade_options_bundle(
-    builder: &mut ChildBuilder,
+    builder: &mut ChildSpawnerCommands,
     asset_server: &Res<'_, AssetServer>,
     stats: &mut Stats,
     upgrade_options: UpgradeOptions,
@@ -251,7 +251,7 @@ fn upgrade_options_bundle(
                     ..Default::default()
                 },
                 TextColor(css::WHITE.into()),
-                TextLayout::new_with_justify(JustifyText::Center),
+                TextLayout::new_with_justify(Justify::Center),
             ));
             custom_button(
                 child,
@@ -273,7 +273,7 @@ fn handle_button_upgrade(
     for (interaction, upgradeoption) in interaction_query.iter() {
         match interaction {
             Interaction::Pressed => {
-                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 stats.upgrade(*upgradeoption);
