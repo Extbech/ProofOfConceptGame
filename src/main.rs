@@ -12,6 +12,7 @@ mod tools;
 mod ui;
 
 use bevy::camera::{Camera2d, OrthographicProjection, Projection};
+use bevy::winit::WINIT_WINDOWS;
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
 use mechanics::cooldown::InGameTime;
@@ -137,7 +138,7 @@ fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
 }
 
 /// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html
-fn set_window_icon(windows: NonSend<WinitWindows>) {
+fn set_window_icon() {
     let (icon_rgba, icon_width, icon_height) = {
         let image = image::open("assets/window/game.png")
             .expect("Failed to open icon path")
@@ -148,9 +149,12 @@ fn set_window_icon(windows: NonSend<WinitWindows>) {
     };
     let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
 
-    for window in windows.windows.values() {
-        window.set_window_icon(Some(icon.clone()));
-    }
+    // migration meme from 0.16-0.17 https://bevy.org/learn/migration-guides/0-16-to-0-17/
+    WINIT_WINDOWS.with_borrow_mut(|window| {
+        for w in window.windows.values() {
+            w.set_window_icon(Some(icon.clone()));
+        };
+    });
 }
 
 #[derive(Resource, Default, Deref, DerefMut)]

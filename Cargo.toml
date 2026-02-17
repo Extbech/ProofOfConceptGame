@@ -9,7 +9,6 @@ edition = "2021"
 bevy = { version = "0.18", features = [
     "wav",
     "bevy_state",
-    "dynamic_linking",
     "mp3",
 ] }
 rand = { version = "0.8.5", features = ["small_rng"] }
