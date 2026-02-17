@@ -33,7 +33,7 @@ fn fire_volley_bundle(pos: Vec2, angle: f32) -> impl Bundle {
 pub(super) fn spawn_fire_volley_spell(builder: &mut ChildSpawnerCommands) {
     builder.spawn((
         AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(2.0)),
+        MaxAttackCooldown(Duration::from_secs_f32(10.0)),
         FireVolleyCount(4),
         Transform::default(),
     ));

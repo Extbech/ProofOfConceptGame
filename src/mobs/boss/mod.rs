@@ -1,4 +1,5 @@
 mod fire_volley;
+mod ice_spikes;
 
 use std::{
     f32::consts::{PI, TAU},
@@ -7,6 +8,7 @@ use std::{
 
 use bevy::prelude::*;
 use fire_volley::{spawn_fire_volley, spawn_fire_volley_spell};
+use ice_spikes::{spawn_ice_spikes, spawn_ice_spikes_spell};
 use rand::prelude::*;
 use test_game::ENEMY_Z;
 
@@ -74,6 +76,7 @@ pub fn spawn_boss(
             .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
             .with_children(|spells| {
                 spawn_fire_volley_spell(spells);
+                spawn_ice_spikes_spell(spells);
             });
     }
 }
@@ -99,7 +102,7 @@ impl Plugin for BossPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_boss, spawn_fire_volley, check_for_victory).run_if(in_state(GameState::Running)),
+            (spawn_boss, spawn_fire_volley, spawn_ice_spikes, check_for_victory).run_if(in_state(GameState::Running)),
         );
     }
 }
