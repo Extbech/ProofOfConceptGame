@@ -15,10 +15,10 @@ use std::time::Duration;
 
 use bevy::camera::{Camera2d, OrthographicProjection, Projection};
 use bevy::winit::WINIT_WINDOWS;
-use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
+use bevy::{prelude::*, window::PrimaryWindow};
 use characters::player::Player;
-use mechanics::cooldown::{Cooldown, InGameTime};
-use mobs::{boss::BossSpawned, enemy::SpawnCooldown};
+use mechanics::cooldown::{InGameTime};
+use mobs::{boss::BossSpawned, enemy::SpawnCooldown, enemy::SpawnRate};
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
 use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
@@ -123,7 +123,8 @@ const SCALE: f32 = 1. / 3.;
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn(camera_bundle());
-    commands.insert_resource(SpawnCooldown(Cooldown::new(1.)));
+    commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
+    commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
     commands.insert_resource(SkillTooltips::default());

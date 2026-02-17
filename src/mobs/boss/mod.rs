@@ -21,7 +21,7 @@ use crate::{
     GameRng, GameState, Heading, MovementSpeed,
 };
 
-use super::enemy::{Enemy, PlayerHoming};
+use super::enemy::Enemy;
 
 #[derive(Component)]
 pub struct EndGameIfDead;
@@ -43,7 +43,6 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Wizard),
         EndGameIfDead,
-        PlayerHoming,
     )
 }
 

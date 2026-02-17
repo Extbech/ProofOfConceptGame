@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use test_game::{PLAYER_Z, PROJECTILES_Z};
 
+use std::time::Duration;
+
 use crate::mechanics::cooldown::Cooldown;
 use crate::mechanics::damage::{self, TakeDamageHitbox};
 use crate::mechanics::damage::{damaging, BaseDamage};
@@ -19,6 +21,9 @@ pub struct Player;
 
 #[derive(Component, Deref, Clone, Copy)]
 pub struct ProjectileSpeed(f32);
+
+#[derive(Component, Deref, DerefMut, Clone, Copy)]
+pub struct MaxAttackCooldown(pub Duration);
 
 #[derive(Component, Deref, DerefMut, Clone)]
 pub struct AttackCooldown(pub Cooldown);
@@ -41,7 +46,7 @@ pub struct MaxLevel(usize);
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct XpPickUpRadius(f32);
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Default)]
 pub struct Vulnerability(Cooldown);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -69,11 +74,12 @@ fn player_bundle() -> impl Bundle {
         (
             cleanup::ExitGame,
             Player,
-            Vulnerability(Cooldown::new(1.)),
+            Vulnerability(default()),
             Heading::default(),
             AttackDirection(Heading::new(Vec2::new(0., 1.))),
             MovementSpeed(300.),
-            AttackCooldown(Cooldown::new(0.5)),
+            AttackCooldown(default()),
+            MaxAttackCooldown(Duration::from_secs_f32(0.5)),
             projectile_stats(PlayerDamage(10), ProjectileSpeed(450.), Range(500.)),
             CurrentXP(0.0),
             RequiredXP(10.0),
@@ -113,6 +119,7 @@ pub fn player_shooting(
             &Transform,
             &ProjectileSpeed,
             &mut AttackCooldown,
+            &MaxAttackCooldown,
             &PlayerDamage,
             &Range,
             &AttackDirection,
@@ -125,13 +132,14 @@ pub fn player_shooting(
         &player_trans,
         &projectile_speed,
         mut attack_cooldown,
+        &max_attack_cooldown,
         &damage,
         &range,
         attack_direction,
     ) = player.single_mut().expect("Err");
     let player_position = &mut player_trans.translation.xy();
     if keys.pressed(MouseButton::Left) {
-        for _ in 0..(attack_cooldown.reset()) {
+        for _ in 0..(attack_cooldown.reset(*max_attack_cooldown)) {
             player_shoot(
                 &mut commands,
                 *player_position,

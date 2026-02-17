@@ -5,18 +5,17 @@ use crate::tools::rng::GameRng;
 use crate::{cleanup, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
+use std::time::Duration;
 use test_game::ENEMY_Z;
+
+#[derive(Resource, Deref, DerefMut)]
+pub struct SpawnRate(pub Duration);
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnCooldown(pub Cooldown);
 
 #[derive(Component)]
-/// Entities that can damage player.
 pub struct Enemy;
-
-/// Entities that move towards the player.
-#[derive(Component)]
-pub struct PlayerHoming;
 
 fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
@@ -30,16 +29,12 @@ fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
         TakeDamageHitbox(Circle { radius }),
         Transform::from_xyz(x, y, ENEMY_Z),
         SpriteKind::Character(Character::Jotun),
-        PlayerHoming,
     )
 }
 
-pub(super) fn update_player_homing(
+pub(super) fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<
-        (&Transform, &mut Heading, &mut Sprite),
-        (With<PlayerHoming>, Without<Player>),
-    >,
+    mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
 ) {
     let player_position = q_pl.single().expect("Expected a single entity!").translation.xy();
     for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
@@ -70,10 +65,11 @@ pub(super) fn spawn_enemies(
     query: Query<&Transform, With<Player>>,
     _time: Res<Time>,
     mut spawncooldown: ResMut<SpawnCooldown>,
+    spawnrate: Res<SpawnRate>,
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
-    for _ in 0..spawncooldown.reset() {
+    for _ in 0..spawncooldown.reset(**spawnrate) {
         let player = query.single().expect("Expected a single entity!").translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(jotun_bundle(

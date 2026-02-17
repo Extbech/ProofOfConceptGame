@@ -1,14 +1,17 @@
+use std::time::Duration;
+
 use bevy::{
     ecs::{bundle::Bundle, component::Component},
     math::Vec3,
     transform::components::Transform,
+    utils::default,
 };
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    characters::player::AttackCooldown,
+    characters::player::{AttackCooldown, MaxAttackCooldown},
     mechanics::{
-        cooldown::{Cooldown, LifeTime},
+        cooldown::LifeTime,
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
     },
     sprites::{Skill, SpriteKind},
@@ -17,7 +20,8 @@ use crate::{
 
 pub fn thors_lightning_bundle() -> impl Bundle {
     (
-        AttackCooldown(Cooldown::new(2.)),
+        AttackCooldown(default()),
+        MaxAttackCooldown(Duration::from_secs_f32(5.0)),
         damaging(
             BaseDamage(10),
             DealDamageHitbox::Circle(Circle { radius: 100.0 }),
