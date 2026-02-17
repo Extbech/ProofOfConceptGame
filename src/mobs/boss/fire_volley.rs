@@ -6,10 +6,10 @@ use test_game::ENEMY_Z;
 
 use crate::{
     Heading, MovementSpeed, characters::player::{AttackCooldown, MaxAttackCooldown}, mechanics::{
-        cooldown::{Cooldown, LifeTime},
+        cooldown::LifeTime,
         damage::{BaseDamage, Circle, DealDamageHitbox, damaging},
         movement::orbiting::AngularVelocity,
-    }, mobs::enemy::Enemy, sprites::{Skill, SpriteKind}
+    }, sprites::{Skill, SpriteKind}
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -27,9 +27,6 @@ fn fire_volley_bundle(pos: Vec2, angle: f32) -> impl Bundle {
         ),
         SpriteKind::Skill(Skill::FireBall),
         Transform::from_translation(Vec3::new(pos.x, pos.y, ENEMY_Z)),
-        // Enemy,
-        // AttackCooldown(default()),
-        // MaxAttackCooldown(Duration::from_secs_f32(2.0)),
     )
 }
 
