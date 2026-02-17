@@ -1,6 +1,12 @@
-use std::{f32::consts::PI, time::Duration};
+mod fire_volley;
+
+use std::{
+    f32::consts::{PI, TAU},
+    time::Duration,
+};
 
 use bevy::prelude::*;
+use fire_volley::{spawn_fire_volley, spawn_fire_volley_spell};
 use rand::prelude::*;
 use test_game::ENEMY_Z;
 
@@ -25,7 +31,7 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
         cleanup::ExitGame,
         Enemy,
         Health(200),
-        MovementSpeed(0.),
+        MovementSpeed(25.),
         Heading::default(),
         TakeDamageHitbox(Circle {
             radius: Vec2::new(WIZARD_HEIGHT as f32, WIZARD_WIDTH as f32).length() / 2.,
@@ -40,8 +46,9 @@ pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
     )
 }
 
+/// TODO: This should be a system that spawns the boss at a random position around the player.
 fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
-    let angle: f32 = rng.gen_range(0.0..(2. * std::f32::consts::PI));
+    let angle: f32 = rng.gen_range(0.0..TAU);
     let r: f32 = rng.gen_range(50.0..100.0);
     let x = r * angle.sin();
     let y = r * angle.cos();
@@ -63,7 +70,11 @@ pub fn spawn_boss(
         boss_spawned.0 = true;
         let player = query.single().expect("Expected a single player!").translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands.spawn(wizard_bundle(enemy_position.x, enemy_position.y));
+        commands
+            .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
+            .with_children(|spells| {
+                spawn_fire_volley_spell(spells);
+            });
     }
 }
 
@@ -80,4 +91,15 @@ pub fn check_for_victory(
 
 pub fn reset_boss_spawn(mut res: ResMut<BossSpawned>) {
     res.0 = false;
+}
+
+pub(super) struct BossPlugin;
+
+impl Plugin for BossPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (spawn_boss, spawn_fire_volley, check_for_victory).run_if(in_state(GameState::Running)),
+        );
+    }
 }

@@ -11,21 +11,19 @@ mod start_game;
 mod tools;
 mod ui;
 
+use std::time::Duration;
+
 use bevy::camera::{Camera2d, OrthographicProjection, Projection};
 use bevy::winit::WINIT_WINDOWS;
-use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
+use bevy::{prelude::*, window::PrimaryWindow};
 use characters::player::Player;
-use mechanics::cooldown::InGameTime;
-use mobs::{
-    boss::BossSpawned,
-    enemy::{SpawnCooldown, SpawnRate},
-};
+use mechanics::cooldown::{InGameTime};
+use mobs::{boss::BossSpawned, enemy::SpawnCooldown, enemy::SpawnRate};
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
 use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
 use sprites::add_sprite;
 use start_game::GamePlugin;
-use std::time::Duration;
 use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
 use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCounterPlugin};
@@ -86,6 +84,11 @@ impl Heading {
     fn new(v: Vec2) -> Self {
         Heading {
             v: v.normalize_or_zero(),
+        }
+    }
+    fn from_angle(angle: f32) -> Self {
+        Heading {
+            v: Vec2::from_angle(angle),
         }
     }
 }

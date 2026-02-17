@@ -198,6 +198,8 @@ fn tick_entity_hit_cooldown(mut ent_hit: Query<&mut EntityHitCooldown>, time: Re
     }
 }
 
+/// Used for effects that only hit *some* of the enemies in their radius
+/// Cannot hit more than once per tick
 fn handle_damager_with_per_entity_cooldown(
     mut damage_tracker: ResMut<DamageTracker>,
     mut damager_query: Query<(
