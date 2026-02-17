@@ -1,6 +1,6 @@
 use std::{ops::DerefMut, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{ecs::component::Mutable, prelude::*};
 
 use crate::{
     characters::player::{AttackCooldown, Range, Vulnerability},
@@ -83,7 +83,7 @@ impl Cooldown {
     }
 }
 
-pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component>(
+pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component<Mutability = Mutable>>(
     time: Res<Time>,
     mut q: Query<&mut CD>,
 ) {
@@ -154,7 +154,7 @@ pub fn handle_lifetime(
 ) {
     for (mut lt, ent) in &mut q {
         if !lt.try_decrease(time.delta()) {
-            commands.entity(ent).despawn_recursive();
+            commands.entity(ent).despawn();
         }
     }
 }

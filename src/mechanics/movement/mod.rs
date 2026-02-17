@@ -33,8 +33,8 @@ fn sync_player_and_camera_pos(
     player: Query<&Transform, With<Player>>,
     mut cam: Query<&mut Transform, (With<MyGameCamera>, Without<Player>)>,
 ) {
-    let player = player.single();
-    let mut cam = cam.single_mut();
+    let player = player.single().expect("No player found!");
+    let mut cam = cam.single_mut().expect("Err camera!");
     cam.translation.x = player.translation.x;
     cam.translation.y = player.translation.y;
 }
@@ -43,7 +43,7 @@ fn player_movement(
     keys: Res<ButtonInput<KeyCode>>,
     mut player: Query<(&mut Transform, &mut Heading, &mut Sprite), With<Player>>,
 ) {
-    let (mut player_trans, mut player_dir, mut player_sprite) = player.single_mut();
+    let (mut player_trans, mut player_dir, mut player_sprite) = player.single_mut().expect("Err");
     let player_position = &mut player_trans.translation;
     let keyboard_dir_x = if keys.pressed(KeyCode::KeyD) { 1. } else { 0. }
         - if keys.pressed(KeyCode::KeyA) { 1. } else { 0. };

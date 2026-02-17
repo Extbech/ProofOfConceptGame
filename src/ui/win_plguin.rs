@@ -32,7 +32,7 @@ pub fn spawn_win_ui(
     damage_tracker: Res<DamageTracker>,
 ) {
     for entity in &ui_query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 
     commands
@@ -80,7 +80,7 @@ pub fn spawn_win_ui(
                             ..Default::default()
                         },
                         TextColor(css::GREEN.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                     grandchild
                         .spawn(Node {
@@ -107,7 +107,7 @@ pub fn spawn_win_ui(
                                     ..Default::default()
                                 },
                                 TextColor(css::GREEN.into()),
-                                TextLayout::new_with_justify(JustifyText::Center),
+                                TextLayout::new_with_justify(Justify::Center),
                             ));
                             damage_tracker.get_sorted_by_damage().iter().for_each(|dt| {
                                 text_info_child.spawn((
@@ -118,7 +118,7 @@ pub fn spawn_win_ui(
                                         ..Default::default()
                                     },
                                     TextColor(css::GREEN.into()),
-                                    TextLayout::new_with_justify(JustifyText::Center),
+                                    TextLayout::new_with_justify(Justify::Center),
                                 ));
                             });
                         });
@@ -159,7 +159,7 @@ pub fn spawn_win_ui(
                                             ..default()
                                         },
                                         TextColor(css::WHITE.into()),
-                                        TextLayout::new_with_justify(JustifyText::Center),
+                                        TextLayout::new_with_justify(Justify::Center),
                                     ));
                                 });
                         });
@@ -174,19 +174,19 @@ pub fn handle_button_continue_click(
     >,
     mut app_state: ResMut<NextState<AppState>>,
     mut game_state: ResMut<NextState<GameState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 game_state.set(GameState::NotStarted);
                 app_state.set(AppState::MainMenu);
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();

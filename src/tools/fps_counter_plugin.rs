@@ -7,11 +7,11 @@ use test_game::FPS_COUNTER_Z;
 
 /// Plugin for enabling a fps counter in the game.
 /// This fps counter can be toggled on/off by pressing the `f12` key.
-pub struct FPSCouterPlugin;
+pub struct FPSCounterPlugin;
 
-impl Plugin for FPSCouterPlugin {
+impl Plugin for FPSCounterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(FrameTimeDiagnosticsPlugin)
+        app.add_plugins(FrameTimeDiagnosticsPlugin::default())
             .add_systems(Startup, setup_fps_counter)
             .add_systems(
                 Update,
@@ -115,7 +115,7 @@ fn fps_color_update_system(
             } else if value >= 60.0 {
                 // Between 60-120 FPS, gradually transition from yellow to green
                 Color::Srgba(Srgba {
-                    red: 1. - (value - 60. / (120. - 60.)) as f32,
+                    red: 1. - (value / 120.0) as f32,
                     green: 1.,
                     blue: 0.,
                     alpha: 1.,

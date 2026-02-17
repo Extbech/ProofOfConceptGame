@@ -14,8 +14,8 @@ pub struct SoundPlugin;
 
 impl Plugin for SoundPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_event::<PlaySoundEffectEvent>()
-            .add_event::<SetSoundVolume>()
+        app.add_message::<PlaySoundEffectEvent>()
+            .add_message::<SetSoundVolume>()
             .add_systems(OnEnter(GameState::Running), play_game_music)
             .add_systems(
                 Update,

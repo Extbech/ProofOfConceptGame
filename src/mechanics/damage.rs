@@ -1,7 +1,5 @@
-use std::time::Duration;
-
 use bevy::color::palettes::css;
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use test_game::PROJECTILES_Z;
 
 use crate::characters::player::AttackCooldown;
@@ -53,7 +51,7 @@ pub struct DamagePlugin;
 
 impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerDamageEvent>().add_systems(
+        app.add_message::<PlayerDamageEvent>().add_systems(
             Update,
             (
                 handle_damager_with_hitlist,
@@ -69,7 +67,7 @@ impl Plugin for DamagePlugin {
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 struct PlayerDamageEvent {
     pos: Vec2,
     damage: Damage,
@@ -77,7 +75,7 @@ struct PlayerDamageEvent {
 
 fn display_player_damage(
     mut commands: Commands,
-    mut dmg_event: EventReader<PlayerDamageEvent>,
+    mut dmg_event: MessageReader<PlayerDamageEvent>,
     asset_server: Res<AssetServer>,
     mut rng: ResMut<GameRng>,
 ) {
@@ -153,7 +151,7 @@ fn handle_damager_with_hitlist(
         &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
-    mut damage_events: EventWriter<PlayerDamageEvent>,
+    mut damage_events: MessageWriter<PlayerDamageEvent>,
 ) {
     for (projectile_transform, &damage, damage_tracker_kind, mut hitlist, hitbox) in
         damager_query.iter_mut()
@@ -172,7 +170,7 @@ fn handle_damager_with_hitlist(
                     if let Some(damage_tracker_kind) = damage_tracker_kind {
                         damage_tracker.update(*damage_tracker_kind, health.0 - new_health);
                     }
-                    damage_events.send(PlayerDamageEvent {
+                    damage_events.write(PlayerDamageEvent {
                         pos: enemy_transform.translation().xy(),
                         damage,
                     });
@@ -208,7 +206,7 @@ fn handle_damager_with_per_entity_cooldown(
         &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox, Entity), With<Enemy>>,
-    mut damage_events: EventWriter<PlayerDamageEvent>,
+    mut damage_events: MessageWriter<PlayerDamageEvent>,
 ) {
     for (projectile_transform, &damage, damage_tracker_kind, mut cd, hitbox) in
         damager_query.iter_mut()
@@ -230,7 +228,7 @@ fn handle_damager_with_per_entity_cooldown(
                         if let Some(damage_tracker_kind) = damage_tracker_kind {
                             damage_tracker.update(*damage_tracker_kind, health.0 - new_health);
                         }
-                        damage_events.send(PlayerDamageEvent {
+                        damage_events.write(PlayerDamageEvent {
                             pos: enemy_transform.translation().xy(),
                             damage,
                         });
@@ -257,7 +255,7 @@ fn handle_damager_with_global_hit_cooldown(
         &DealDamageHitbox,
     )>,
     mut enemy_query: Query<(&GlobalTransform, &mut Health, &TakeDamageHitbox), With<Enemy>>,
-    mut damage_events: EventWriter<PlayerDamageEvent>,
+    mut damage_events: MessageWriter<PlayerDamageEvent>,
 ) {
     for (projectile_transform, &damage, damage_tracker_kind, mut attack_cd, hitbox) in
         damager_query.iter_mut()
@@ -277,7 +275,7 @@ fn handle_damager_with_global_hit_cooldown(
                 }
                 attack_cd.reset();
                 **health = health.saturating_sub(*damage);
-                damage_events.send(PlayerDamageEvent {
+                damage_events.write(PlayerDamageEvent {
                     pos: enemy_transform.translation().xy(),
                     damage,
                 });
@@ -303,10 +301,10 @@ fn handle_damage_to_player(
         ),
         With<Player>,
     >,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
-        player_query.single_mut();
+        player_query.single_mut().expect("Err");
     let player_pos = player_trans.translation().xy();
     if vulnerability.is_ready() {
         sprite.color = sprite.color.with_alpha(1.0);
@@ -315,7 +313,7 @@ fn handle_damage_to_player(
             if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset();
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Player(
                     PlayerSound::PlayerTakeDamage,
                 )));
                 return;

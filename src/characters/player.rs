@@ -99,7 +99,7 @@ pub fn player_attack_facing_from_mouse(
     mut player: Query<(&Transform, &mut AttackDirection), With<Player>>,
     cursor_pos: Res<CursorTranslation>,
 ) {
-    let (&player_trans, mut attack_direction) = player.single_mut();
+    let (&player_trans, mut attack_direction) = player.single_mut().expect("no player!");
     let player_position = &mut player_trans.translation.xy();
     *attack_direction = AttackDirection(Heading::new(**cursor_pos - *player_position));
 }
@@ -119,10 +119,16 @@ pub fn player_shooting(
         ),
         With<Player>,
     >,
-    mut event: EventWriter<PlaySoundEffectEvent>,
+    mut event: MessageWriter<PlaySoundEffectEvent>,
 ) {
-    let (&player_trans, &projectile_speed, mut attack_cooldown, &damage, &range, attack_direction) =
-        player.single_mut();
+    let (
+        &player_trans,
+        &projectile_speed,
+        mut attack_cooldown,
+        &damage,
+        &range,
+        attack_direction,
+    ) = player.single_mut().expect("Err");
     let player_position = &mut player_trans.translation.xy();
     if keys.pressed(MouseButton::Left) {
         for _ in 0..(attack_cooldown.reset()) {
@@ -148,7 +154,7 @@ fn player_shoot(
     projectile_speed: ProjectileSpeed,
     base_damage: PlayerDamage,
     range: Range,
-    sound_event: &mut EventWriter<PlaySoundEffectEvent>,
+    sound_event: &mut MessageWriter<PlaySoundEffectEvent>,
 ) {
     let diff = player_position - **dir;
     commands.spawn((
@@ -169,7 +175,7 @@ fn player_shoot(
         HitList::default(),
         DamageTrackerKind::PrimaryAttack,
     ));
-    sound_event.send(PlaySoundEffectEvent(SoundEffectKind::SkillSound(
+    sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Skill(
         SkillSound::PrimaryAttack,
     )));
 }
@@ -185,15 +191,16 @@ pub fn handle_player_xp(
         With<Player>,
     >,
     mut game_state: ResMut<NextState<GameState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
-    let (mut current_xp, mut required_xp, mut current_level, max_level) = query.single_mut();
+    let (mut current_xp, mut required_xp, mut current_level, max_level) =
+        query.single_mut().expect("err");
     if **required_xp <= **current_xp && **current_level < **max_level {
         **current_level += 1;
         **current_xp -= **required_xp;
         **required_xp += XP_SCALING_FACTOR;
         game_state.set(GameState::LevelUp);
-        sound_event.send(PlaySoundEffectEvent(SoundEffectKind::PlayerSound(
+        sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Player(
             PlayerSound::Levelup,
         )));
     }
@@ -203,7 +210,7 @@ pub fn handle_player_death(
     player_query: Query<&Health, With<Player>>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    let player_health = player_query.single();
+    let player_health = player_query.single().expect("Err");
     if **player_health == 0 {
         game_state.set(GameState::Loss);
     }

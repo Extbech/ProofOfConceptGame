@@ -26,22 +26,22 @@ impl SoundVolume {
     }
 
     pub fn get_save() -> Option<SoundVolume> {
-        if let Some(json_str) = fs::read_to_string(SETTINGS_SAVE_FILE).ok() {
-            if let Some(json) = serde_json::from_str(&json_str).ok() {
-                return json;
+        if let Ok(json_str) = fs::read_to_string(SETTINGS_SAVE_FILE) {
+            if let Ok(json) = serde_json::from_str(&json_str) {
+                return Some(json);
             }
         }
         None
     }
 
     pub fn update_music_volume(&mut self, volume: f32) {
-        if volume >= 0.0 && volume >= 1.0 {
+        if volume >= 0.0 && volume <= 100.0 {
             self.music = volume;
         }
     }
 
     pub fn update_sfx_volume(&mut self, volume: f32) {
-        if volume >= 0.0 && volume >= 1.0 {
+        if volume >= 0.0 && volume <= 100.0 {
             self.sfx = volume;
         }
     }

@@ -43,7 +43,7 @@ pub fn render_pause_options_node(
     query: Query<Entity, With<ExitPauseScreen>>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     commands
         .spawn((
@@ -114,12 +114,12 @@ fn handle_options_interaction(
     >,
     mut game_state: ResMut<NextState<GameState>>,
     mut app_state: ResMut<NextState<AppState>>,
-    mut sound_event: EventWriter<PlaySoundEffectEvent>,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
 ) {
     for (interaction, action_type, mut background_color) in &mut interaction_query {
         match interaction {
             Interaction::Pressed => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::ClickButtonSound,
                 )));
                 match action_type {
@@ -129,7 +129,7 @@ fn handle_options_interaction(
                 }
             }
             Interaction::Hovered => {
-                sound_event.send(PlaySoundEffectEvent(SoundEffectKind::UiSound(
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Ui(
                     UiSound::HoverButtonSound,
                 )));
                 *background_color = css::ORANGE.into();

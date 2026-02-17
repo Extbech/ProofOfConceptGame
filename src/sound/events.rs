@@ -48,32 +48,32 @@ impl PlayerSound {
     fn get_sound_info(&self) -> (&'static str, f32) {
         match self {
             PlayerSound::Levelup => ("sounds/effects/player-sound/level-up.mp3", 1.),
-            &PlayerSound::PlayerTakeDamage => ("sounds/effects/player-sound/take-damage.mp3", 1.),
+            PlayerSound::PlayerTakeDamage => ("sounds/effects/player-sound/take-damage.mp3", 1.),
         }
     }
 }
 
 pub enum SoundEffectKind {
-    UiSound(UiSound),
-    SkillSound(SkillSound),
-    PlayerSound(PlayerSound),
+    Ui(UiSound),
+    Skill(SkillSound),
+    Player(PlayerSound),
 }
 
 impl SoundEffectKind {
     fn get_sound_info(&self) -> (&'static str, f32) {
         match self {
-            SoundEffectKind::UiSound(ui) => ui.get_sound_info(),
-            SoundEffectKind::SkillSound(skill) => skill.get_sound_info(),
-            SoundEffectKind::PlayerSound(player_sound) => player_sound.get_sound_info(),
+            SoundEffectKind::Ui(ui) => ui.get_sound_info(),
+            SoundEffectKind::Skill(skill) => skill.get_sound_info(),
+            SoundEffectKind::Player(player_sound) => player_sound.get_sound_info(),
         }
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct PlaySoundEffectEvent(pub SoundEffectKind);
 
 pub fn play_sound_effect_event(
-    mut event: EventReader<PlaySoundEffectEvent>,
+    mut event: MessageReader<PlaySoundEffectEvent>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     sound_volume: Res<SoundVolume>,
@@ -84,7 +84,7 @@ pub fn play_sound_effect_event(
             AudioPlayer::<AudioSource>(asset_server.load(path)),
             PlaybackSettings {
                 mode: PlaybackMode::Once,
-                volume: Volume::new(sound_volume.sfx),
+                volume: Volume::Linear(sound_volume.sfx),
                 ..Default::default()
             },
             LifeTime(Duration::from_secs_f32(life_time)),
@@ -92,14 +92,14 @@ pub fn play_sound_effect_event(
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub enum SetSoundVolume {
     Sfx(f32),
     InGameMusic(f32),
 }
 
 pub fn update_volume(
-    mut event: EventReader<SetSoundVolume>,
+    mut event: MessageReader<SetSoundVolume>,
     mut sound_resource: ResMut<SoundVolume>,
 ) {
     for ev in event.read() {

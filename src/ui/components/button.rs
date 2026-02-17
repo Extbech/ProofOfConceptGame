@@ -34,7 +34,7 @@ impl ButtonSize {
     }
 }
 pub fn custom_button(
-    builder: &mut ChildBuilder,
+    builder: &mut ChildSpawnerCommands,
     asset_server: &Res<AssetServer>,
     marker: impl Component,
     background_color: impl Into<Color>,
@@ -50,13 +50,13 @@ pub fn custom_button(
                 border: UiRect::all(Val::Px(5.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                border_radius: BorderRadius {
+                    top_left: Val::Percent(30.),
+                    top_right: Val::Percent(30.),
+                    bottom_left: Val::Percent(30.),
+                    bottom_right: Val::Percent(30.),
+                },
                 ..default()
-            },
-            BorderRadius {
-                top_left: Val::Percent(30.),
-                top_right: Val::Percent(30.),
-                bottom_left: Val::Percent(30.),
-                bottom_right: Val::Percent(30.),
             },
             BackgroundColor(background_color.into()),
             Button,
@@ -71,7 +71,7 @@ pub fn custom_button(
                     ..default()
                 },
                 TextColor(text_color.into()),
-                TextLayout::new_with_justify(JustifyText::Center),
+                TextLayout::new_with_justify(Justify::Center),
             ));
         });
 }

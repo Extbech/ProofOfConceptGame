@@ -11,6 +11,10 @@ mod start_game;
 mod tools;
 mod ui;
 
+use std::time::Duration;
+
+use bevy::camera::{Camera2d, OrthographicProjection, Projection};
+use bevy::winit::WINIT_WINDOWS;
 use bevy::{prelude::*, window::PrimaryWindow, winit::WinitWindows};
 use characters::player::Player;
 use mechanics::cooldown::{Cooldown, InGameTime};
@@ -22,7 +26,7 @@ use sprites::add_sprite;
 use start_game::GamePlugin;
 use test_game::GAME_TITLE;
 use tools::rng::{GameRng, RngPlugin};
-use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCouterPlugin};
+use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCounterPlugin};
 use ui::{
     settings_plugin::SettingsPlugin, start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin,
 };
@@ -30,7 +34,7 @@ use winit::window::Icon;
 
 fn main() {
     App::new()
-        .add_plugins(FPSCouterPlugin)
+        .add_plugins(FPSCounterPlugin)
         .add_plugins(GamePlugin)
         .add_plugins(SoundPlugin)
         .insert_state(AppState::MainMenu)
@@ -100,20 +104,25 @@ impl Default for Heading {
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 struct MovementSpeed(f32);
 
+fn camera_bundle() -> impl Bundle {
+    let projection = Projection::Orthographic(OrthographicProjection {
+        near: -1000.,
+        far: 1000.,
+        scale: SCALE,
+        ..OrthographicProjection::default_2d()
+    });
+    (
+        Camera2d,
+        Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
+        projection,
+        MyGameCamera,
+    )
+}
+
 const SCALE: f32 = 1. / 3.;
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
-    commands.spawn((
-        Camera2d,
-        Transform::from_scale(Vec3::new(1.0, 1.0, 1.0)),
-        OrthographicProjection {
-            far: 1000.,
-            near: -1000.,
-            scale: SCALE,
-            ..OrthographicProjection::default_2d()
-        },
-        MyGameCamera,
-    ));
+    commands.spawn(camera_bundle());
     commands.insert_resource(SpawnCooldown(Cooldown::new(1.)));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());
@@ -126,12 +135,12 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
 }
 
 fn app_window_config(mut window: Query<&mut Window, With<PrimaryWindow>>) {
-    let mut curr_window = window.single_mut();
+    let mut curr_window = window.single_mut().expect("Err");
     curr_window.title = GAME_TITLE.to_string();
 }
 
 /// ~ref bevy docs: https://bevy-cheatbook.github.io/window/icon.html
-fn set_window_icon(windows: NonSend<WinitWindows>) {
+fn set_window_icon() {
     let (icon_rgba, icon_width, icon_height) = {
         let image = image::open("assets/window/game.png")
             .expect("Failed to open icon path")
@@ -142,9 +151,12 @@ fn set_window_icon(windows: NonSend<WinitWindows>) {
     };
     let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
 
-    for window in windows.windows.values() {
-        window.set_window_icon(Some(icon.clone()));
-    }
+    // migration meme from 0.16-0.17 https://bevy.org/learn/migration-guides/0-16-to-0-17/
+    WINIT_WINDOWS.with_borrow_mut(|window| {
+        for w in window.windows.values() {
+            w.set_window_icon(Some(icon.clone()));
+        };
+    });
 }
 
 #[derive(Resource, Default, Deref, DerefMut)]
@@ -159,10 +171,10 @@ fn update_cursor(
 ) {
     // get the camera info and transform
     // assuming there is exactly one main camera entity, so Query::single() is OK
-    let (camera, camera_transform) = q_camera.single();
+    let (camera, camera_transform) = q_camera.single().expect("Err");
 
     // There is only one primary window, so we can similarly get it from the query:
-    let window = q_window.single();
+    let window = q_window.single().expect("Err no window!");
 
     // check if the cursor is inside the window and get its position
     // then, ask bevy to convert into world coordinates, and truncate to discard Z
@@ -203,6 +215,6 @@ mod cleanup {
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
 fn cleanup<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

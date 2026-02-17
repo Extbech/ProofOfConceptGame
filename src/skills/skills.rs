@@ -19,7 +19,7 @@ pub fn spawn_new_orb(
     let mut orb_counter = 1;
     for entity in query_orb {
         orb_counter += 1;
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     commands.entity(player_entity).with_children(|parent| {
         for i in 0..orb_counter {

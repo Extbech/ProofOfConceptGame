@@ -41,7 +41,7 @@ pub(super) fn update_player_homing(
         (With<PlayerHoming>, Without<Player>),
     >,
 ) {
-    let player_position = q_pl.single().translation.xy();
+    let player_position = q_pl.single().expect("Expected a single entity!").translation.xy();
     for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
         let enemy_pos = enmy_trans.translation.xy();
         *heading = Heading::new(-(enemy_pos - player_position));
@@ -74,7 +74,7 @@ pub(super) fn spawn_enemies(
     in_game_time: Res<InGameTime>,
 ) {
     for _ in 0..spawncooldown.reset() {
-        let player = query.single().translation;
+        let player = query.single().expect("Expected a single entity!").translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(jotun_bundle(
             get_enemy_health(&in_game_time),

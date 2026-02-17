@@ -6,7 +6,6 @@ use bevy::{
         query::{With, Without},
         system::{Commands, Query, Res},
     },
-    hierarchy::DespawnRecursiveExt,
     math::Vec3Swizzles,
     prelude::{Deref, DerefMut},
     sprite::Sprite,
@@ -75,7 +74,7 @@ pub fn xp_orbs_collision(
     mut player_query: Query<(&Transform, &mut CurrentXP), With<Player>>,
     mut xp_query: Query<(&Transform, &XP, Entity), With<XP>>,
 ) {
-    let (player_transform, mut current_xp) = player_query.single_mut();
+    let (player_transform, mut current_xp) = player_query.single_mut().expect("err");
     for (xp_transform, xp, entity) in xp_query.iter_mut() {
         if is_collision(
             player_transform.translation.xy(),
@@ -84,7 +83,7 @@ pub fn xp_orbs_collision(
             0.0,
         ) {
             **current_xp += **xp;
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
             // TODO: play sound effect for xp pickup may add good game feel or it might be annoying (?)
         }
     }
@@ -96,7 +95,7 @@ pub fn activate_xp_orb_movement(
     mut player_query: Query<(&Transform, &XpPickUpRadius), With<Player>>,
     mut xp_query: Query<(&Transform, &mut MagnetActive), (With<XP>, Without<Player>)>,
 ) {
-    let (player_trasnform, pick_up_radius) = player_query.single_mut();
+    let (player_trasnform, pick_up_radius) = player_query.single_mut().expect("err");
     for (xp_transform, mut active) in xp_query.iter_mut() {
         if is_collision(
             player_trasnform.translation.xy(),
@@ -114,7 +113,7 @@ pub fn handle_xp_orb_movement(
     mut xp_query: Query<(&mut Transform, &MovementSpeed, &MagnetActive), Without<Player>>,
     time: Res<Time>,
 ) {
-    let player_trasnform = player_query.single_mut();
+    let player_trasnform = player_query.single_mut().expect("err");
     for (mut xp_transform, speed, active) in xp_query.iter_mut() {
         if **active {
             let xp_pos = xp_transform.translation.xy();

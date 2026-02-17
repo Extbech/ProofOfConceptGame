@@ -1,7 +1,5 @@
-use bevy::{color::palettes::css, prelude::*};
-
-use crate::sound::sound_volume::SoundVolume;
 use crate::{cleanup, AppState};
+use bevy::{color::palettes::css, prelude::*};
 
 use super::components::button::{custom_button, ButtonSize};
 pub struct SettingsPlugin;
@@ -67,7 +65,7 @@ fn setup_settings_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                             ..default()
                         },
                         TextColor(css::ORANGE.into()),
-                        TextLayout::new_with_justify(JustifyText::Center),
+                        TextLayout::new_with_justify(Justify::Center),
                     ));
                     custom_button(
                         grandchild,

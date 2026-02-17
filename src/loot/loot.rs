@@ -63,7 +63,7 @@ pub fn check_for_dead_enemies(
 ) {
     for (transform, entity, health) in query.iter() {
         if **health == 0 {
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
             // 1/5 -> 20%
             commands.spawn(spawn_xp(
                 10.,
@@ -90,7 +90,7 @@ pub fn pickup_loot(
     mut query_xp: Query<&mut MagnetActive>,
     mut stats: ResMut<Stats>,
 ) {
-    let (player_trans, mut health, max_health) = query_player.single_mut();
+    let (player_trans, mut health, max_health) = query_player.single_mut().expect("err");
     let player_pos = player_trans.translation.xy();
     for (loot_trans, loot, ent) in &query_loot {
         let loot_position = loot_trans.translation.xy();
@@ -115,7 +115,7 @@ pub fn pickup_loot(
                 }
                 _ => unreachable!("Invalid loot id"),
             }
-            commands.entity(ent).despawn_recursive();
+            commands.entity(ent).despawn();
         }
     }
 }

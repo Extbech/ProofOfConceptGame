@@ -20,7 +20,7 @@ pub fn play_game_music(
         AudioPlayer::<AudioSource>(asset_server.load("sounds/music/in-game.wav")),
         PlaybackSettings {
             mode: PlaybackMode::Loop,
-            volume: Volume::new(sound_volume.music),
+            volume: Volume::Linear(sound_volume.music),
             ..Default::default()
         },
         GameMusic,
@@ -32,6 +32,6 @@ pub fn update_in_game_music_volume(
     mut query: Query<&mut PlaybackSettings, With<GameMusic>>,
 ) {
     for mut setting in &mut query {
-        setting.volume = Volume::new(sound_volume.music);
+        setting.volume = Volume::Linear(sound_volume.music);
     }
 }

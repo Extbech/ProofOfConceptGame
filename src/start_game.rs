@@ -29,7 +29,7 @@ use crate::{
 };
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 
 pub struct GamePlugin;
 
@@ -41,7 +41,7 @@ impl Plugin for GamePlugin {
                 .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        resolution: WindowResolution::new(1000., 800.)
+                        resolution: WindowResolution::new(1000, 800)
                             .with_scale_factor_override(1.0),
                         ..default()
                     }),
@@ -51,6 +51,7 @@ impl Plugin for GamePlugin {
         .insert_state(GameState::NotStarted)
         .add_plugins((
             TilemapPlugin,
+            EguiPlugin::default(),
             WorldInspectorPlugin::new(),
             RunningPlugin,
             LootPlugin,
