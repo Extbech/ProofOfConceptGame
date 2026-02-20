@@ -5,10 +5,14 @@ use rand::Rng;
 use test_game::ENEMY_Z;
 
 use crate::{
-    Heading, MovementSpeed, characters::player::{AttackCooldown, MaxAttackCooldown}, mechanics::{
+    characters::player::{AttackCooldown, MaxAttackCooldown},
+    mechanics::{
         cooldown::LifeTime,
-        damage::{BaseDamage, Circle, DealDamageHitbox, damaging},
-    }, sprites::{Skill, SpriteKind}
+        damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
+    },
+    skills::skills::EnemySkills,
+    sprites::{Skill, SpriteKind},
+    Heading, MovementSpeed,
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -25,6 +29,7 @@ fn ice_spikes_bundle(pos: Vec2, angle: f32) -> impl Bundle {
         ),
         SpriteKind::Skill(Skill::OrbJutsu),
         Transform::from_translation(Vec3::new(pos.x, pos.y, ENEMY_Z)),
+        EnemySkills,
     )
 }
 
@@ -39,7 +44,12 @@ pub(super) fn spawn_ice_spikes_spell(builder: &mut ChildSpawnerCommands) {
 
 pub(super) fn spawn_ice_spikes(
     mut commands: Commands,
-    mut query: Query<(&GlobalTransform, &IceSpikesCount, &mut AttackCooldown, &MaxAttackCooldown)>,
+    mut query: Query<(
+        &GlobalTransform,
+        &IceSpikesCount,
+        &mut AttackCooldown,
+        &MaxAttackCooldown,
+    )>,
 ) {
     for (transform, ice_count, mut ice_cooldown, &max_ice_cooldown) in &mut query {
         for _ in 0..(ice_cooldown.reset(*max_ice_cooldown)) {

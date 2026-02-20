@@ -5,11 +5,15 @@ use rand::Rng;
 use test_game::ENEMY_Z;
 
 use crate::{
-    Heading, MovementSpeed, characters::player::{AttackCooldown, MaxAttackCooldown}, mechanics::{
+    characters::player::{AttackCooldown, MaxAttackCooldown},
+    mechanics::{
         cooldown::LifeTime,
-        damage::{BaseDamage, Circle, DealDamageHitbox, damaging},
+        damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
         movement::orbiting::AngularVelocity,
-    }, sprites::{Skill, SpriteKind}
+    },
+    skills::skills::EnemySkills,
+    sprites::{Skill, SpriteKind},
+    Heading, MovementSpeed,
 };
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
@@ -27,6 +31,7 @@ fn fire_volley_bundle(pos: Vec2, angle: f32) -> impl Bundle {
         ),
         SpriteKind::Skill(Skill::FireBall),
         Transform::from_translation(Vec3::new(pos.x, pos.y, ENEMY_Z)),
+        EnemySkills,
     )
 }
 
@@ -41,7 +46,12 @@ pub(super) fn spawn_fire_volley_spell(builder: &mut ChildSpawnerCommands) {
 
 pub(super) fn spawn_fire_volley(
     mut commands: Commands,
-    mut query: Query<(&GlobalTransform, &FireVolleyCount, &mut AttackCooldown, &MaxAttackCooldown)>,
+    mut query: Query<(
+        &GlobalTransform,
+        &FireVolleyCount,
+        &mut AttackCooldown,
+        &MaxAttackCooldown,
+    )>,
 ) {
     for (transform, fv_count, mut fv_cooldown, &max_fv_cooldown) in &mut query {
         for _ in 0..(fv_cooldown.reset(*max_fv_cooldown)) {
