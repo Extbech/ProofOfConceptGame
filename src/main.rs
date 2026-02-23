@@ -24,7 +24,7 @@ use skills::skills_tooltips::SkillTooltips;
 use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
 use sprites::add_sprite;
 use start_game::GamePlugin;
-use test_game::GAME_TITLE;
+use test_game::{GAME_TITLE, INITIAL_SPAWN_RATE};
 use tools::rng::{GameRng, RngPlugin};
 use tools::{damage_tracking::DamageTracker, fps_counter_plugin::FPSCounterPlugin};
 use ui::{
@@ -123,7 +123,7 @@ const SCALE: f32 = 1. / 3.;
 
 fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>) {
     commands.spawn(camera_bundle());
-    commands.insert_resource(SpawnRate(Duration::from_secs_f32(1.)));
+    commands.insert_resource(SpawnRate(Duration::from_secs_f32(INITIAL_SPAWN_RATE)));
     commands.insert_resource(SpawnCooldown(default()));
     commands.insert_resource(CursorTranslation(Vec2::new(0., 0.)));
     commands.insert_resource(InGameTime::default());

@@ -30,3 +30,12 @@ pub const STATS_SAVE_FILE: &str = "save/stats.json";
 
 /// Location of save file.
 pub const SETTINGS_SAVE_FILE: &str = "save/settings.json";
+
+/// Initial spawn rate for enemies (enemies per second).
+pub const INITIAL_SPAWN_RATE: f32 = 1.0;
+
+/// Amount by which the spawn rate increases every minute.
+pub const SPAWN_RATE_INCREASE: f32 = 0.2;
+
+/// Time in seconds for the wizard boss to spawn.
+pub const WIZARD_SPAWN_TIME: f32 = 60.0;
