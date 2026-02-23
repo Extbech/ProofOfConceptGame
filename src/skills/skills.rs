@@ -9,6 +9,9 @@ use crate::{
     },
 };
 
+#[derive(Component)]
+pub struct EnemySkills;
+
 /// This func handles correct angle distance between orb projectiles.
 pub fn spawn_new_orb(
     commands: &mut Commands,

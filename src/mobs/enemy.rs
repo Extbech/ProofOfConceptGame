@@ -6,7 +6,7 @@ use crate::{cleanup, MovementSpeed};
 use crate::{Heading, Player};
 use bevy::prelude::*;
 use std::time::Duration;
-use test_game::ENEMY_Z;
+use test_game::{ENEMY_Z, INITIAL_SPAWN_RATE, SPAWN_RATE_INCREASE};
 
 #[derive(Resource, Deref, DerefMut)]
 pub struct SpawnRate(pub Duration);
@@ -82,4 +82,12 @@ pub(super) fn spawn_enemies(
 
 fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
     100 + (in_game_time.time().as_secs_f32() / 3.0).floor() as u32
+}
+
+pub(super) fn update_enemy_spawn_rate(mut spawnrate: ResMut<SpawnRate>, in_game_time: Res<InGameTime>) {
+    if in_game_time.time().as_secs_f32() >= 60.0 {
+        spawnrate.0 = Duration::from_secs_f32(
+            INITIAL_SPAWN_RATE / (INITIAL_SPAWN_RATE + SPAWN_RATE_INCREASE * (in_game_time.time().as_secs_f32() / 60.0).floor()),
+        );
+    }
 }

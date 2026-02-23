@@ -6,6 +6,7 @@ use test_game::PROJECTILES_Z;
 
 use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
 use crate::prestige::stats::Stats;
+use crate::skills::skills::EnemySkills;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SoundEffectKind};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
@@ -60,7 +61,8 @@ impl Plugin for DamagePlugin {
                 handle_damager_with_per_entity_cooldown,
                 handle_damager_with_global_hit_cooldown,
                 tick_entity_hit_cooldown,
-                handle_damage_to_player,
+                handle_damage_to_player_from_enemy,
+                handle_damage_to_player_from_enemy_skills,
                 display_player_damage,
                 damage_multiplier,
             )
@@ -294,7 +296,7 @@ fn handle_damager_with_global_hit_cooldown(
 }
 
 /// Enemies can hit a player every tick, but only if the player has not been recently hit
-fn handle_damage_to_player(
+fn handle_damage_to_player_from_enemy(
     enemy_query: Query<(&GlobalTransform, &DealDamageHitbox), With<Enemy>>,
     mut player_query: Query<
         (
@@ -316,6 +318,43 @@ fn handle_damage_to_player(
         sprite.color = sprite.color.with_alpha(1.0);
         for (enemy_trans, enemy_hitbox) in &enemy_query {
             let enemy_pos = enemy_trans.translation().xy();
+            if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
+                **player_health = player_health.saturating_sub(1);
+                vulnerability.reset(invuln_timer);
+                sound_event.write(PlaySoundEffectEvent(SoundEffectKind::Player(
+                    PlayerSound::PlayerTakeDamage,
+                )));
+                return;
+            }
+        }
+    } else {
+        sprite.color = sprite.color.with_alpha(0.6);
+    }
+}
+
+/// Enemies can hit a player every tick, but only if the player has not been recently hit
+fn handle_damage_to_player_from_enemy_skills(
+    enemy_skills_query: Query<(&GlobalTransform, &DealDamageHitbox), With<EnemySkills>>,
+    mut player_query: Query<
+        (
+            &GlobalTransform,
+            &mut Health,
+            &mut Vulnerability,
+            &TakeDamageHitbox,
+            &mut Sprite,
+        ),
+        With<Player>,
+    >,
+    mut sound_event: MessageWriter<PlaySoundEffectEvent>,
+) {
+    let (player_trans, mut player_health, mut vulnerability, player_hitbox, mut sprite) =
+        player_query.single_mut().expect("Err");
+    let player_pos = player_trans.translation().xy();
+    let invuln_timer = Duration::from_secs_f32(2.);
+    if vulnerability.is_ready(invuln_timer) {
+        sprite.color = sprite.color.with_alpha(1.0);
+        for (enemy_skill_trans, enemy_hitbox) in &enemy_skills_query {
+            let enemy_pos = enemy_skill_trans.translation().xy();
             if overlapping(*enemy_hitbox, enemy_pos, *player_hitbox, player_pos) {
                 **player_health = player_health.saturating_sub(1);
                 vulnerability.reset(invuln_timer);
