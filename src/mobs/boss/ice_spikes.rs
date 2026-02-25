@@ -27,7 +27,7 @@ fn ice_spikes_bundle(pos: Vec2, angle: f32) -> impl Bundle {
             BaseDamage(12),
             DealDamageHitbox::Circle(Circle { radius: 15. }),
         ),
-        SpriteKind::Skill(Skill::OrbJutsu),
+        SpriteKind::Skill(Skill::IceSpike),
         Transform::from_translation(Vec3::new(pos.x, pos.y, ENEMY_Z)),
         EnemySkills,
     )
