@@ -76,9 +76,7 @@ fn show_damaging(
                 tf.rotate_z(2. * PI - mid_angle.to_angle().rem_euclid(2. * PI));
                 inent.with_children(|parent| {
                     parent.spawn((
-                        Mesh2d(
-                            meshes.add(CircularSector::new(mid_angle.length(), *angular_width)),
-                        ),
+                        Mesh2d(meshes.add(CircularSector::new(mid_angle.length(), *angular_width))),
                         MeshMaterial2d(color.clone()),
                         tf,
                     ));

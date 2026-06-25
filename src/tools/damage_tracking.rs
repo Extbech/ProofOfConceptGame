@@ -1,10 +1,6 @@
 use std::{cmp::Reverse, vec};
 
-use bevy::ecs::{
-    component::Component,
-    system::ResMut,
-    resource::Resource
-};
+use bevy::ecs::{component::Component, resource::Resource, system::ResMut};
 
 #[derive(Component, Clone, Copy)]
 pub enum DamageTrackerKind {

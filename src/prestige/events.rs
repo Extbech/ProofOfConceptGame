@@ -1,6 +1,6 @@
 use bevy::ecs::{
     message::{Message, MessageReader, MessageWriter},
-    system::ResMut
+    system::ResMut,
 };
 
 use super::stats::Stats;

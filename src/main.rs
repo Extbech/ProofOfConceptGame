@@ -17,7 +17,7 @@ use bevy::camera::{Camera2d, OrthographicProjection, Projection};
 use bevy::winit::WINIT_WINDOWS;
 use bevy::{prelude::*, window::PrimaryWindow};
 use characters::player::Player;
-use mechanics::cooldown::{InGameTime};
+use mechanics::cooldown::InGameTime;
 use mobs::{boss::BossSpawned, enemy::SpawnCooldown, enemy::SpawnRate};
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
@@ -156,7 +156,7 @@ fn set_window_icon() {
     WINIT_WINDOWS.with_borrow_mut(|window| {
         for w in window.windows.values() {
             w.set_window_icon(Some(icon.clone()));
-        };
+        }
     });
 }
 
