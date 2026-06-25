@@ -1,4 +1,4 @@
-use crate::mechanics::cooldown::{Cooldown, InGameTime};
+use crate::mechanics::cooldown::{CooldownResource, InGameTime};
 use crate::mechanics::damage::{Circle, DealDamageHitbox, Health, TakeDamageHitbox};
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::tools::rng::GameRng;
@@ -12,7 +12,7 @@ use test_game::{ENEMY_Z, INITIAL_SPAWN_RATE, SPAWN_RATE_INCREASE};
 pub struct SpawnRate(pub Duration);
 
 #[derive(Resource, Deref, DerefMut)]
-pub struct SpawnCooldown(pub Cooldown);
+pub struct SpawnCooldown(pub CooldownResource);
 
 #[derive(Component)]
 pub struct Enemy;
@@ -36,7 +36,11 @@ pub(super) fn update_enemies(
     q_pl: Query<&Transform, With<Player>>,
     mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
 ) {
-    let player_position = q_pl.single().expect("Expected a single entity!").translation.xy();
+    let player_position = q_pl
+        .single()
+        .expect("Expected a single entity!")
+        .translation
+        .xy();
     for (enmy_trans, mut heading, mut sprite) in &mut q_enmy {
         let enemy_pos = enmy_trans.translation.xy();
         *heading = Heading::new(-(enemy_pos - player_position));
@@ -70,7 +74,10 @@ pub(super) fn spawn_enemies(
     in_game_time: Res<InGameTime>,
 ) {
     for _ in 0..spawncooldown.reset(**spawnrate) {
-        let player = query.single().expect("Expected a single entity!").translation;
+        let player = query
+            .single()
+            .expect("Expected a single entity!")
+            .translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands.spawn(jotun_bundle(
             get_enemy_health(&in_game_time),
@@ -84,10 +91,15 @@ fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
     100 + (in_game_time.time().as_secs_f32() / 3.0).floor() as u32
 }
 
-pub(super) fn update_enemy_spawn_rate(mut spawnrate: ResMut<SpawnRate>, in_game_time: Res<InGameTime>) {
+pub(super) fn update_enemy_spawn_rate(
+    mut spawnrate: ResMut<SpawnRate>,
+    in_game_time: Res<InGameTime>,
+) {
     if in_game_time.time().as_secs_f32() >= 60.0 {
         spawnrate.0 = Duration::from_secs_f32(
-            INITIAL_SPAWN_RATE / (INITIAL_SPAWN_RATE + SPAWN_RATE_INCREASE * (in_game_time.time().as_secs_f32() / 60.0).floor()),
+            INITIAL_SPAWN_RATE
+                / (INITIAL_SPAWN_RATE
+                    + SPAWN_RATE_INCREASE * (in_game_time.time().as_secs_f32() / 60.0).floor()),
         );
     }
 }

@@ -3,7 +3,7 @@ use test_game::{PLAYER_Z, PROJECTILES_Z};
 
 use std::time::Duration;
 
-use crate::mechanics::cooldown::Cooldown;
+use crate::mechanics::cooldown::CooldownComponent;
 use crate::mechanics::damage::{self, TakeDamageHitbox};
 use crate::mechanics::damage::{damaging, BaseDamage};
 use crate::mechanics::damage::{Health, HitList};
@@ -26,7 +26,7 @@ pub struct ProjectileSpeed(f32);
 pub struct MaxAttackCooldown(pub Duration);
 
 #[derive(Component, Deref, DerefMut, Clone)]
-pub struct AttackCooldown(pub Cooldown);
+pub struct AttackCooldown(pub CooldownComponent);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct Range(pub f32);
@@ -47,7 +47,7 @@ pub struct MaxLevel(usize);
 pub struct XpPickUpRadius(f32);
 
 #[derive(Component, Deref, DerefMut, Default)]
-pub struct Vulnerability(Cooldown);
+pub struct Vulnerability(CooldownComponent);
 
 #[derive(Component, Deref, DerefMut, Clone, Copy)]
 pub struct MaxSpeed(f32);

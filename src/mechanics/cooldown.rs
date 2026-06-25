@@ -12,7 +12,7 @@ use crate::{
 /// The cooldown timer can be paused and scales to any length of cooldown, even short ones.
 /// For short cooldowns the output of [Cooldown::reset] should be used to trigger multiple occurences.
 /// It also supports a waiting state for when additional conditions to be met to trigger the event.
-#[derive(Resource, Component, Clone)]
+#[derive(Clone)]
 pub struct Cooldown {
     timer: Duration,
     waiting: bool,
@@ -84,7 +84,13 @@ impl Cooldown {
     }
 }
 
-pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component<Mutability = Mutable>>(
+#[derive(Resource, Deref, DerefMut, Default)]
+pub struct CooldownResource(pub Cooldown);
+
+#[derive(Component, Deref, DerefMut, Default, Clone)]
+pub struct CooldownComponent(pub Cooldown);
+
+pub fn tick_cooldown<CD: DerefMut<Target = CooldownComponent> + Component<Mutability = Mutable>>(
     time: Res<Time>,
     mut q: Query<&mut CD>,
 ) {
@@ -93,7 +99,9 @@ pub fn tick_cooldown<CD: DerefMut<Target = Cooldown> + Component<Mutability = Mu
     }
 }
 
-pub fn tick_cooldown_res<CD: DerefMut<Target = Cooldown> + Resource>(
+pub fn tick_cooldown_res<
+    CD: DerefMut<Target = CooldownResource> + Resource + Resource<Mutability = Mutable>,
+>(
     time: Res<Time>,
     mut cd: ResMut<CD>,
 ) {
