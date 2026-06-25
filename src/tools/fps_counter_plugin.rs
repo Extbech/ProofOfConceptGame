@@ -61,8 +61,8 @@ fn setup_fps_counter(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .spawn((
                     Text::new("FPS: "),
                     TextFont {
-                        font: asset_server.load("font/pixel-font.ttf"),
-                        font_size: 16.0,
+                        font: asset_server.load("font/pixel-font.ttf").into(),
+                        font_size: FontSize::Px(16.0),
                         ..Default::default()
                     },
                     ColorText,
@@ -70,8 +70,8 @@ fn setup_fps_counter(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .with_child((
                     TextSpan::default(),
                     TextFont {
-                        font: asset_server.load("font/pixel-font.ttf"),
-                        font_size: 16.0,
+                        font: asset_server.load("font/pixel-font.ttf").into(),
+                        font_size: FontSize::Px(16.0),
                         ..Default::default()
                     },
                     FpsText,

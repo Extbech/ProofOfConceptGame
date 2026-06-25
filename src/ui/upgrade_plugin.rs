@@ -68,22 +68,22 @@ fn spawn_upgrade_ui(
                     text_info_child.spawn((
                         Text::new("Upgrade Your Character !"),
                         TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 32.0,
+                            font: asset_server.load("font/pixel-font.ttf").into(),
+                            font_size: FontSize::Px(32.0),
                             ..Default::default()
                         },
                         TextColor(css::ORANGE.into()),
-                        TextLayout::new_with_justify(Justify::Center),
+                        TextLayout::justify(Justify::Center),
                     ));
                     text_info_child.spawn((
                         Text::new(format!("Coins: {}", stats.coins)),
                         TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 16.0,
+                            font: asset_server.load("font/pixel-font.ttf").into(),
+                            font_size: FontSize::Px(16.0),
                             ..Default::default()
                         },
                         TextColor(css::WHITE.into()),
-                        TextLayout::new_with_justify(Justify::Center),
+                        TextLayout::justify(Justify::Center),
                     ));
                 });
             child
@@ -169,12 +169,12 @@ fn spawn_upgrade_ui(
                             button_box_text.spawn((
                                 Text::new("Main Menu"),
                                 TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 30.,
+                                    font: asset_server.load("font/pixel-font.ttf").into(),
+                                    font_size: FontSize::Px(30.0),
                                     ..default()
                                 },
                                 TextColor(css::WHITE.into()),
-                                TextLayout::new_with_justify(Justify::Center),
+                                TextLayout::justify(Justify::Center),
                             ));
                         });
                 });
@@ -246,12 +246,12 @@ fn upgrade_options_bundle(
             child.spawn((
                 Text::new(stats.get_upgrade_info(upgrade_options)),
                 TextFont {
-                    font: asset_server.load("font/pixel-font.ttf"),
-                    font_size: 16.,
+                    font: asset_server.load("font/pixel-font.ttf").into(),
+                    font_size: FontSize::Px(16.0),
                     ..Default::default()
                 },
                 TextColor(css::WHITE.into()),
-                TextLayout::new_with_justify(Justify::Center),
+                TextLayout::justify(Justify::Center),
             ));
             custom_button(
                 child,

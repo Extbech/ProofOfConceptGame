@@ -109,8 +109,8 @@ pub fn spawn_upgrade_selection_ui(
                             text_child.spawn((
                                 Text::new(*title),
                                 TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 28.0,
+                                    font: asset_server.load("font/pixel-font.ttf").into(),
+                                    font_size: FontSize::Px(28.0),
                                     ..Default::default()
                                 },
                                 TextColor(Color::WHITE),
@@ -118,8 +118,8 @@ pub fn spawn_upgrade_selection_ui(
                             text_child.spawn((
                                 Text::new(*description),
                                 TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 18.0,
+                                    font: asset_server.load("font/pixel-font.ttf").into(),
+                                    font_size: FontSize::Px(18.0),
                                     ..Default::default()
                                 },
                                 TextColor(Color::WHITE),

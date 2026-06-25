@@ -78,12 +78,12 @@ pub fn spawn_loss_ui(
                     grandchild.spawn((
                         Text::new("You Died!"),
                         TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 40.0,
+                            font: asset_server.load("font/pixel-font.ttf").into(),
+                            font_size: FontSize::Px(40.0),
                             ..Default::default()
                         },
                         TextColor(css::DARK_RED.into()),
-                        TextLayout::new_with_justify(Justify::Center),
+                        TextLayout::justify(Justify::Center),
                     ));
                     grandchild
                         .spawn(Node {
@@ -105,23 +105,23 @@ pub fn spawn_loss_ui(
                                     damage_tracker.get_total_damage()
                                 )),
                                 TextFont {
-                                    font: asset_server.load("font/pixel-font.ttf"),
-                                    font_size: 25.0,
+                                    font: asset_server.load("font/pixel-font.ttf").into(),
+                                    font_size: FontSize::Px(25.0),
                                     ..Default::default()
                                 },
                                 TextColor(css::GREEN.into()),
-                                TextLayout::new_with_justify(Justify::Center),
+                                TextLayout::justify(Justify::Center),
                             ));
                             damage_tracker.get_sorted_by_damage().iter().for_each(|dt| {
                                 text_info_child.spawn((
                                     Text::new(format!("{}: {}", dt.spell, dt.amount)),
                                     TextFont {
-                                        font: asset_server.load("font/pixel-font.ttf"),
-                                        font_size: 25.0,
+                                        font: asset_server.load("font/pixel-font.ttf").into(),
+                                        font_size: FontSize::Px(25.0),
                                         ..Default::default()
                                     },
                                     TextColor(css::GREEN.into()),
-                                    TextLayout::new_with_justify(Justify::Center),
+                                    TextLayout::justify(Justify::Center),
                                 ));
                             });
                         });
@@ -157,12 +157,12 @@ pub fn spawn_loss_ui(
                                     button_box_text.spawn((
                                         Text::new("Continue"),
                                         TextFont {
-                                            font: asset_server.load("font/pixel-font.ttf"),
-                                            font_size: 30.,
+                                            font: asset_server.load("font/pixel-font.ttf").into(),
+                                            font_size: FontSize::Px(30.0),
                                             ..default()
                                         },
                                         TextColor(css::WHITE.into()),
-                                        TextLayout::new_with_justify(Justify::Center),
+                                        TextLayout::justify(Justify::Center),
                                     ));
                                 });
                         });
