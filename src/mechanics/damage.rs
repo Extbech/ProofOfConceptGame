@@ -94,8 +94,8 @@ fn display_player_damage(
             .insert((
                 Text2d::new(format!("{:.1}", **damage)),
                 TextFont {
-                    font_size: 10.0,
-                    font: asset_server.load("font/pixel-font.ttf"),
+                    font_size: FontSize::Px(10.0),
+                    font: asset_server.load("font/pixel-font.ttf").into(),
                     ..default()
                 },
                 TextColor(css::WHITE.into()),

@@ -66,12 +66,12 @@ pub fn custom_button(
             button_box_text.spawn((
                 Text::new(text),
                 TextFont {
-                    font: asset_server.load("font/pixel-font.ttf"),
-                    font_size: size.font_size(),
+                    font: asset_server.load("font/pixel-font.ttf").into(),
+                    font_size: FontSize::Px(size.font_size()),
                     ..default()
                 },
                 TextColor(text_color.into()),
-                TextLayout::new_with_justify(Justify::Center),
+                TextLayout::justify(Justify::Center),
             ));
         });
 }

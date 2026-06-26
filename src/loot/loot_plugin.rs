@@ -1,5 +1,7 @@
 use bevy::{
-    app::{Plugin, Update}, ecs::schedule::IntoScheduleConfigs, state::condition::in_state
+    app::{Plugin, Update},
+    ecs::schedule::IntoScheduleConfigs,
+    state::condition::in_state,
 };
 
 use crate::GameState;
@@ -22,7 +24,8 @@ impl Plugin for LootPlugin {
                 xp_orbs_collision,
                 activate_xp_orb_movement,
                 handle_xp_orb_movement,
-            ).run_if(in_state(GameState::Running)),
+            )
+                .run_if(in_state(GameState::Running)),
         );
     }
 }

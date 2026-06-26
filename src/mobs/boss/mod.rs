@@ -70,7 +70,10 @@ pub fn spawn_boss(
 ) {
     if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs_f32(WIZARD_SPAWN_TIME) {
         boss_spawned.0 = true;
-        let player = query.single().expect("Expected a single player!").translation;
+        let player = query
+            .single()
+            .expect("Expected a single player!")
+            .translation;
         let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
         commands
             .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
@@ -102,7 +105,13 @@ impl Plugin for BossPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_boss, spawn_fire_volley, spawn_ice_spikes, check_for_victory).run_if(in_state(GameState::Running)),
+            (
+                spawn_boss,
+                spawn_fire_volley,
+                spawn_ice_spikes,
+                check_for_victory,
+            )
+                .run_if(in_state(GameState::Running)),
         );
     }
 }

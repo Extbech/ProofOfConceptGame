@@ -90,12 +90,12 @@ pub fn update_xp_bar_and_level(
                     grandchild.spawn((
                         Text::new(level_text),
                         TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 40.0,
+                            font: asset_server.load("font/pixel-font.ttf").into(),
+                            font_size: FontSize::Px(40.0),
                             ..default()
                         },
                         TextColor(Color::WHITE),
-                        TextLayout::new_with_justify(Justify::Center),
+                        TextLayout::justify(Justify::Center),
                     ));
                 });
         });
@@ -194,9 +194,9 @@ pub fn render_stop_watch(
                     igt.time().as_secs() % 60
                 )),
                 TextFont {
-                    font: asset_server.load("font/pixel-font.ttf"),
+                    font: asset_server.load("font/pixel-font.ttf").into(),
                     //color: Color::WHITE,
-                    font_size: 34.0,
+                    font_size: FontSize::Px(34.0),
                     ..default()
                 },
                 TextColor(Color::WHITE),

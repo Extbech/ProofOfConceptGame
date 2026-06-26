@@ -60,12 +60,12 @@ fn setup_settings_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     grandchild.spawn((
                         Text::new("Settings"),
                         TextFont {
-                            font: asset_server.load("font/pixel-font.ttf"),
-                            font_size: 50.0,
+                            font: asset_server.load("font/pixel-font.ttf").into(),
+                            font_size: FontSize::Px(50.0),
                             ..default()
                         },
                         TextColor(css::ORANGE.into()),
-                        TextLayout::new_with_justify(Justify::Center),
+                        TextLayout::justify(Justify::Center),
                     ));
                     custom_button(
                         grandchild,
