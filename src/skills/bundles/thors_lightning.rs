@@ -9,7 +9,7 @@ use bevy::{
 use test_game::PROJECTILES_Z;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown},
+    characters::components::{AttackCooldown, MaxAttackCooldown},
     mechanics::{
         cooldown::LifeTime,
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},

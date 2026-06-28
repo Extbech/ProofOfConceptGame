@@ -1,28 +1,20 @@
-use crate::mechanics::cooldown::{CooldownResource, InGameTime};
-use crate::mechanics::damage::{Circle, DealDamageHitbox, Health, TakeDamageHitbox};
+use crate::characters::components;
+use crate::mechanics::cooldown::InGameTime;
+use crate::mechanics::damage::{Circle, DealDamageHitbox, TakeDamageHitbox};
 use crate::sprites::{Character, SpriteKind, ENEMY_HEIGHT, ENEMY_WIDTH};
 use crate::tools::rng::GameRng;
+use crate::Heading;
 use crate::{cleanup, MovementSpeed};
-use crate::{Heading, Player};
 use bevy::prelude::*;
 use std::time::Duration;
 use test_game::{ENEMY_Z, INITIAL_SPAWN_RATE, SPAWN_RATE_INCREASE};
-
-#[derive(Resource, Deref, DerefMut)]
-pub struct SpawnRate(pub Duration);
-
-#[derive(Resource, Deref, DerefMut)]
-pub struct SpawnCooldown(pub CooldownResource);
-
-#[derive(Component)]
-pub struct Enemy;
 
 fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
     (
         cleanup::ExitGame,
-        Enemy,
-        Health(health),
+        components::Enemy,
+        components::Health(health),
         MovementSpeed(100.),
         Heading::default(),
         DealDamageHitbox::Circle(Circle { radius }),
@@ -32,9 +24,12 @@ fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     )
 }
 
-pub(super) fn update_enemies(
-    q_pl: Query<&Transform, With<Player>>,
-    mut q_enmy: Query<(&Transform, &mut Heading, &mut Sprite), (With<Enemy>, Without<Player>)>,
+pub fn update_enemies(
+    q_pl: Query<&Transform, With<components::Player>>,
+    mut q_enmy: Query<
+        (&Transform, &mut Heading, &mut Sprite),
+        (With<components::Enemy>, Without<components::Player>),
+    >,
 ) {
     let player_position = q_pl
         .single()
@@ -64,12 +59,12 @@ fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
     pos + rng.rand_vec(500., 1000.)
 }
 
-pub(super) fn spawn_enemies(
+pub fn spawn_enemies(
     mut commands: Commands,
-    query: Query<&Transform, With<Player>>,
+    query: Query<&Transform, With<components::Player>>,
     _time: Res<Time>,
-    mut spawncooldown: ResMut<SpawnCooldown>,
-    spawnrate: Res<SpawnRate>,
+    mut spawncooldown: ResMut<components::SpawnCooldown>,
+    spawnrate: Res<components::SpawnRate>,
     mut rng: ResMut<GameRng>,
     in_game_time: Res<InGameTime>,
 ) {
@@ -91,8 +86,8 @@ fn get_enemy_health(in_game_time: &Res<InGameTime>) -> u32 {
     100 + (in_game_time.time().as_secs_f32() / 3.0).floor() as u32
 }
 
-pub(super) fn update_enemy_spawn_rate(
-    mut spawnrate: ResMut<SpawnRate>,
+pub fn update_enemy_spawn_rate(
+    mut spawnrate: ResMut<components::SpawnRate>,
     in_game_time: Res<InGameTime>,
 ) {
     if in_game_time.time().as_secs_f32() >= 60.0 {

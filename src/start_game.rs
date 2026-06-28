@@ -1,8 +1,5 @@
 use crate::{
-    characters::player::{
-        handle_player_death, handle_player_xp, player_attack_facing_from_mouse, player_shooting,
-        spawn_player_hero,
-    },
+    characters::{bosses::wizard::reset_boss_spawn, MobPlugin, PlayerPlugin},
     cleanup,
     loot::loot_plugin::LootPlugin,
     map::map_plugin::MapPlugin,
@@ -14,7 +11,6 @@ use crate::{
             ProjectilePlugin,
         },
     },
-    mobs::{boss::reset_boss_spawn, MobPlugin},
     prestige::save_game_plugin::SaveGamePlugin,
     skills::SkillsPlugin,
     tools::{damage_tracking::reset_stats, debug::DebugPlugin},
@@ -62,11 +58,9 @@ impl Plugin for GamePlugin {
             WinPlugin,
             SaveGamePlugin,
             MobPlugin,
+            PlayerPlugin,
         ))
-        .add_systems(
-            OnEnter(STATE),
-            (reset_ingametime, start_game, spawn_player_hero),
-        )
+        .add_systems(OnEnter(STATE), (reset_ingametime, start_game))
         .add_systems(
             OnExit(STATE),
             (cleanup::<cleanup::ExitGame>, reset_stats, reset_boss_spawn),
@@ -90,14 +84,10 @@ impl Plugin for RunningPlugin {
                 Update,
                 ((
                     handle_ingametime,
-                    player_attack_facing_from_mouse,
-                    handle_player_death,
                     orbital_movement,
                     update_orbital_position,
                     update_xp_bar_and_level,
-                    handle_player_xp.before(update_xp_bar_and_level),
                     update_cursor,
-                    player_shooting,
                     render_stop_watch,
                     check_if_paused,
                 ),)

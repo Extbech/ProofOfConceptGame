@@ -5,7 +5,7 @@ use rand::Rng;
 use test_game::ENEMY_Z;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown},
+    characters::components,
     mechanics::{
         cooldown::LifeTime,
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
@@ -37,8 +37,8 @@ fn fire_volley_bundle(pos: Vec2, angle: f32) -> impl Bundle {
 
 pub(super) fn spawn_fire_volley_spell(builder: &mut ChildSpawnerCommands) {
     builder.spawn((
-        AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(10.0)),
+        components::AttackCooldown(default()),
+        components::MaxAttackCooldown(Duration::from_secs_f32(10.0)),
         FireVolleyCount(4),
         Transform::default(),
     ));
@@ -49,8 +49,8 @@ pub(super) fn spawn_fire_volley(
     mut query: Query<(
         &GlobalTransform,
         &FireVolleyCount,
-        &mut AttackCooldown,
-        &MaxAttackCooldown,
+        &mut components::AttackCooldown,
+        &components::MaxAttackCooldown,
     )>,
 ) {
     for (transform, fv_count, mut fv_cooldown, &max_fv_cooldown) in &mut query {

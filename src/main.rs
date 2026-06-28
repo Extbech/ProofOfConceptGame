@@ -2,7 +2,6 @@ mod characters;
 mod loot;
 mod map;
 mod mechanics;
-mod mobs;
 mod prestige;
 mod skills;
 mod sound;
@@ -16,9 +15,7 @@ use std::time::Duration;
 use bevy::camera::{Camera2d, OrthographicProjection, Projection};
 use bevy::winit::WINIT_WINDOWS;
 use bevy::{prelude::*, window::PrimaryWindow};
-use characters::player::Player;
 use mechanics::cooldown::InGameTime;
-use mobs::{boss::BossSpawned, enemy::SpawnCooldown, enemy::SpawnRate};
 use prestige::stats::Stats;
 use skills::skills_tooltips::SkillTooltips;
 use sound::{sound_plugin::SoundPlugin, sound_volume::SoundVolume};
@@ -31,6 +28,9 @@ use ui::{
     settings_plugin::SettingsPlugin, start_menu::StartMenuPlugin, upgrade_plugin::UpgradePlugin,
 };
 use winit::window::Icon;
+
+use crate::characters::bosses::wizard::BossSpawned;
+use crate::characters::components::{SpawnCooldown, SpawnRate};
 
 fn main() {
     App::new()
