@@ -97,12 +97,11 @@ fn handle_save_settings(
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     for (interaction, button_action) in &mut interaction_query {
-        match *interaction {
-            Interaction::Pressed => match button_action {
+        if *interaction == Interaction::Pressed {
+            match button_action {
                 ButtonAction::SaveSettings => app_state.set(AppState::MainMenu),
                 ButtonAction::ExitSettings => app_state.set(AppState::MainMenu),
-            },
-            _ => (),
+            }
         }
     }
 }
