@@ -3,8 +3,7 @@ use std::{ops::DerefMut, time::Duration};
 use bevy::{ecs::component::Mutable, prelude::*};
 
 use crate::{
-    characters::player::{AttackCooldown, Range, Vulnerability},
-    mobs::enemy::SpawnCooldown,
+    characters::components::{AttackCooldown, Range, SpawnCooldown, Vulnerability},
     GameState, MovementSpeed,
 };
 

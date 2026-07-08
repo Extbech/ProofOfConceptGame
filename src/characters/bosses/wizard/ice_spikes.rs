@@ -5,7 +5,7 @@ use rand::Rng;
 use test_game::ENEMY_Z;
 
 use crate::{
-    characters::player::{AttackCooldown, MaxAttackCooldown},
+    characters::components,
     mechanics::{
         cooldown::LifeTime,
         damage::{damaging, BaseDamage, Circle, DealDamageHitbox},
@@ -35,8 +35,8 @@ fn ice_spikes_bundle(pos: Vec2, angle: f32) -> impl Bundle {
 
 pub(super) fn spawn_ice_spikes_spell(builder: &mut ChildSpawnerCommands) {
     builder.spawn((
-        AttackCooldown(default()),
-        MaxAttackCooldown(Duration::from_secs_f32(3.0)),
+        components::AttackCooldown(default()),
+        components::MaxAttackCooldown(Duration::from_secs_f32(3.0)),
         IceSpikesCount(6),
         Transform::default(),
     ));
@@ -47,8 +47,8 @@ pub(super) fn spawn_ice_spikes(
     mut query: Query<(
         &GlobalTransform,
         &IceSpikesCount,
-        &mut AttackCooldown,
-        &MaxAttackCooldown,
+        &mut components::AttackCooldown,
+        &components::MaxAttackCooldown,
     )>,
 ) {
     for (transform, ice_count, mut ice_cooldown, &max_ice_cooldown) in &mut query {

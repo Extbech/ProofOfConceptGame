@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::player::{CurrentLevel, CurrentXP, MaxHealth, Player, RequiredXP},
+    characters::components::{CurrentLevel, CurrentXP, Health, MaxHealth, Player, RequiredXP},
     cleanup::{self, ExitGame},
     mechanics::cooldown::InGameTime,
-    mechanics::damage::Health,
     SCALE,
 };
 #[derive(Component)]

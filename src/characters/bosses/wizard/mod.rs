@@ -13,26 +13,24 @@ use rand::prelude::*;
 use test_game::{ENEMY_Z, WIZARD_SPAWN_TIME};
 
 use crate::{
-    characters::player::Player,
+    characters::components,
     cleanup,
     mechanics::{
         cooldown::InGameTime,
-        damage::{Circle, Cone, DealDamageHitbox, Health, TakeDamageHitbox},
+        damage::{Circle, Cone, DealDamageHitbox, TakeDamageHitbox},
     },
     sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
     GameRng, GameState, Heading, MovementSpeed,
 };
 
-use super::enemy::Enemy;
-
 #[derive(Component)]
 pub struct EndGameIfDead;
 
-pub fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
+pub(super) fn wizard_bundle(x: f32, y: f32) -> impl Bundle {
     (
         cleanup::ExitGame,
-        Enemy,
-        Health(200),
+        components::Enemy,
+        components::Health(200),
         MovementSpeed(25.),
         Heading::default(),
         TakeDamageHitbox(Circle {
@@ -60,9 +58,11 @@ fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
 #[derive(Resource, Default)]
 pub struct BossSpawned(bool);
 
+/// TODO: This should be a system only run when it has not spawned yet,
+/// and should stop running once it has spawned.
 pub fn spawn_boss(
     mut commands: Commands,
-    query: Query<&Transform, With<Player>>,
+    query: Query<&Transform, With<components::Player>>,
     _time: Res<Time>,
     mut boss_spawned: ResMut<BossSpawned>,
     mut rng: ResMut<GameRng>,
@@ -84,9 +84,9 @@ pub fn spawn_boss(
     }
 }
 
-pub fn check_for_victory(
+pub(super) fn check_for_victory(
     mut game_state: ResMut<NextState<GameState>>,
-    query: Query<&Health, With<EndGameIfDead>>,
+    query: Query<&components::Health, With<EndGameIfDead>>,
 ) {
     if let Some(health) = query.iter().next() {
         if **health == 0 {
@@ -99,9 +99,9 @@ pub fn reset_boss_spawn(mut res: ResMut<BossSpawned>) {
     res.0 = false;
 }
 
-pub(super) struct BossPlugin;
+pub(super) struct WizardBossPlugin;
 
-impl Plugin for BossPlugin {
+impl Plugin for WizardBossPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,

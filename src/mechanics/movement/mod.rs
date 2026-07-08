@@ -1,5 +1,5 @@
 use crate::{
-    characters::player::{Player, Range},
+    characters::components::{Player, Range},
     cleanup,
     mechanics::cooldown::LifeTime,
     GameState, Heading, MovementSpeed, MyGameCamera, SCALE,

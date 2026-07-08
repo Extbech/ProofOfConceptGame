@@ -2,9 +2,9 @@ use bevy::{app::Plugin, color::palettes::css, prelude::*};
 use rand::prelude::*;
 
 use crate::{
-    characters::player::{MaxHealth, Player, PlayerDamage, XpPickUpRadius},
+    characters::components::{Health, MaxHealth, Player, PlayerDamage, XpPickUpRadius},
     cleanup,
-    mechanics::{damage::Health, movement::orbiting::OrbitalRadius},
+    mechanics::movement::orbiting::OrbitalRadius,
     skills::{
         skills::{enable_thors_lightning_skill, spawn_new_orb},
         skills_tooltips::{SkillTooltips, SkillType},

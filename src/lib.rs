@@ -39,3 +39,6 @@ pub const SPAWN_RATE_INCREASE: f32 = 0.2;
 
 /// Time in seconds for the wizard boss to spawn.
 pub const WIZARD_SPAWN_TIME: f32 = 1.0;
+
+/// Scaling factor for xp required to level up.
+pub const XP_SCALING_FACTOR: f32 = 25.0;

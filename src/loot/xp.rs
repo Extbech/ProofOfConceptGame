@@ -15,7 +15,7 @@ use bevy::{
 use test_game::LOOT_DROPS_Z;
 
 use crate::{
-    characters::player::{CurrentXP, Player, XpPickUpRadius},
+    characters::components::{CurrentXP, Player, XpPickUpRadius},
     cleanup,
     sprites::{Item, SpriteKind},
     MovementSpeed,

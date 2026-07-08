@@ -4,17 +4,15 @@ use bevy::color::palettes::css;
 use bevy::{platform::collections::HashMap, prelude::*};
 use test_game::PROJECTILES_Z;
 
-use crate::characters::player::{AttackCooldown, MaxAttackCooldown};
+use crate::characters::components::{
+    AttackCooldown, Enemy, Health, MaxAttackCooldown, Player, Range, Vulnerability,
+};
 use crate::prestige::stats::Stats;
 use crate::skills::skills::EnemySkills;
 use crate::sound::events::{PlaySoundEffectEvent, PlayerSound, SoundEffectKind};
 use crate::tools::damage_tracking::{DamageTracker, DamageTrackerKind};
 use crate::{
-    characters::player::{Player, Range, Vulnerability},
-    mechanics::cooldown::Cooldown,
-    mechanics::movement::ShouldRotate,
-    mobs::enemy::Enemy,
-    Heading, MovementSpeed,
+    mechanics::cooldown::Cooldown, mechanics::movement::ShouldRotate, Heading, MovementSpeed,
 };
 use crate::{GameRng, GameState};
 
@@ -46,9 +44,6 @@ pub enum DealDamageHitbox {
 
 #[derive(Component, Clone, Copy)]
 pub struct TakeDamageHitbox(pub Circle);
-
-#[derive(Component, Deref, DerefMut)]
-pub struct Health(pub u32);
 
 pub struct DamagePlugin;
 
