@@ -1,13 +1,13 @@
 use bevy::{
     app::{Plugin, Update},
-    state::state::OnEnter,
+    state::state::{OnEnter, OnExit},
 };
 
 use crate::GameState;
 
 use super::{
     events::{play_sound_effect_event, update_volume, PlaySoundEffectEvent, SetSoundVolume},
-    game_music::{play_game_music, update_in_game_music_volume},
+    game_music::{pause_ingame_music, play_game_music, update_in_game_music_volume},
 };
 
 pub struct SoundPlugin;
@@ -24,6 +24,7 @@ impl Plugin for SoundPlugin {
                     update_volume,
                     update_in_game_music_volume,
                 ),
-            );
+            )
+            .add_systems(OnExit(GameState::Running), pause_ingame_music);
     }
 }

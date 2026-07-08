@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    characters::components::{CurrentLevel, CurrentXP, Health, Player, RequiredXP},
+    characters::components::{CurrentLevel, CurrentXP, Health, MaxHealth, Player, RequiredXP},
     cleanup::{self, ExitGame},
     mechanics::cooldown::InGameTime,
     SCALE,
@@ -104,7 +104,7 @@ pub fn update_health_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut q_health: Query<(&mut Transform, Entity), (With<HealthUiSprite>, Without<Player>)>,
-    q_player_health: Query<(&Health, &Health), (With<Player>, Without<HealthUiSprite>)>,
+    q_player_health: Query<(&Health, &MaxHealth), (With<Player>, Without<HealthUiSprite>)>,
 ) {
     let (player_health, player_max_health) = q_player_health.single().expect("Err");
     for (mut _transform, entity) in q_health.iter_mut() {

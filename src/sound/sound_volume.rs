@@ -35,13 +35,13 @@ impl SoundVolume {
     }
 
     pub fn update_music_volume(&mut self, volume: f32) {
-        if volume >= 0.0 && volume <= 100.0 {
+        if (0.0..=100.0).contains(&volume) {
             self.music = volume;
         }
     }
 
     pub fn update_sfx_volume(&mut self, volume: f32) {
-        if volume >= 0.0 && volume <= 100.0 {
+        if (0.0..=100.0).contains(&volume) {
             self.sfx = volume;
         }
     }
