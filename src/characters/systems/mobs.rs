@@ -7,7 +7,7 @@ use crate::Heading;
 use crate::{cleanup, MovementSpeed};
 use bevy::prelude::*;
 use std::time::Duration;
-use test_game::{ENEMY_Z, INITIAL_SPAWN_RATE, SPAWN_RATE_INCREASE};
+use test_game::{ENEMY_Z, INITIAL_SPAWN_RATE, SPAWN_RATE_INCREASE, WIZARD_SPAWN_TIME};
 
 fn jotun_bundle(health: u32, x: f32, y: f32) -> impl Bundle {
     let radius = Vec2::new(ENEMY_HEIGHT as f32, ENEMY_WIDTH as f32).length() / 2.;
@@ -96,5 +96,14 @@ pub fn update_enemy_spawn_rate(
                 / (INITIAL_SPAWN_RATE
                     + SPAWN_RATE_INCREASE * (in_game_time.time().as_secs_f32() / 60.0).floor()),
         );
+    }
+}
+
+pub fn handle_stages_wizard(
+    game_time: Res<InGameTime>,
+    mut stage: ResMut<NextState<components::Stage>>,
+) {
+    if game_time.time() >= WIZARD_SPAWN_TIME {
+        stage.set(components::Stage::Wizard);
     }
 }

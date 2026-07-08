@@ -1,24 +1,18 @@
 mod fire_volley;
 mod ice_spikes;
 
-use std::{
-    f32::consts::{PI, TAU},
-    time::Duration,
-};
+use std::f32::consts::{PI, TAU};
 
 use bevy::prelude::*;
 use fire_volley::{spawn_fire_volley, spawn_fire_volley_spell};
 use ice_spikes::{spawn_ice_spikes, spawn_ice_spikes_spell};
 use rand::prelude::*;
-use test_game::{ENEMY_Z, WIZARD_SPAWN_TIME};
+use test_game::ENEMY_Z;
 
 use crate::{
     characters::components,
     cleanup,
-    mechanics::{
-        cooldown::InGameTime,
-        damage::{Circle, Cone, DealDamageHitbox, TakeDamageHitbox},
-    },
+    mechanics::damage::{Circle, Cone, DealDamageHitbox, TakeDamageHitbox},
     sprites::{Character, SpriteKind, WIZARD_HEIGHT, WIZARD_WIDTH},
     GameRng, GameState, Heading, MovementSpeed,
 };
@@ -55,33 +49,25 @@ fn generate_random_starting_position(pos: Vec2, rng: &mut GameRng) -> Vec2 {
     Vec2::new(pos.x + x, pos.y + y)
 }
 
-#[derive(Resource, Default)]
-pub struct BossSpawned(bool);
-
 /// TODO: This should be a system only run when it has not spawned yet,
 /// and should stop running once it has spawned.
 pub fn spawn_boss(
     mut commands: Commands,
     query: Query<&Transform, With<components::Player>>,
     _time: Res<Time>,
-    mut boss_spawned: ResMut<BossSpawned>,
     mut rng: ResMut<GameRng>,
-    in_game_time: Res<InGameTime>,
 ) {
-    if !boss_spawned.0 && in_game_time.0 >= Duration::from_secs_f32(WIZARD_SPAWN_TIME) {
-        boss_spawned.0 = true;
-        let player = query
-            .single()
-            .expect("Expected a single player!")
-            .translation;
-        let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
-        commands
-            .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
-            .with_children(|spells| {
-                spawn_fire_volley_spell(spells);
-                spawn_ice_spikes_spell(spells);
-            });
-    }
+    let player = query
+        .single()
+        .expect("Expected a single player!")
+        .translation;
+    let enemy_position = generate_random_starting_position(player.xy(), &mut rng);
+    commands
+        .spawn(wizard_bundle(enemy_position.x, enemy_position.y))
+        .with_children(|spells| {
+            spawn_fire_volley_spell(spells);
+            spawn_ice_spikes_spell(spells);
+        });
 }
 
 pub(super) fn check_for_victory(
@@ -95,23 +81,15 @@ pub(super) fn check_for_victory(
     }
 }
 
-pub fn reset_boss_spawn(mut res: ResMut<BossSpawned>) {
-    res.0 = false;
-}
-
 pub(super) struct WizardBossPlugin;
 
 impl Plugin for WizardBossPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (
-                spawn_boss,
-                spawn_fire_volley,
-                spawn_ice_spikes,
-                check_for_victory,
-            )
-                .run_if(in_state(GameState::Running)),
-        );
+        app.add_systems(OnEnter(components::Stage::Wizard), spawn_boss)
+            .add_systems(
+                Update,
+                (spawn_fire_volley, spawn_ice_spikes, check_for_victory)
+                    .run_if(in_state(components::Stage::Wizard)),
+            );
     }
 }

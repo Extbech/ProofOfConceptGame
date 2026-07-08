@@ -68,3 +68,16 @@ pub struct SpawnCooldown(pub CooldownResource);
 
 #[derive(Component)]
 pub struct Enemy;
+
+// <-- BOSS -->
+use bevy::state::state::SubStates;
+
+use crate::GameState;
+
+#[derive(SubStates, Clone, Debug, PartialEq, Eq, Hash, Default)]
+#[source(GameState = GameState::Running)]
+pub enum Stage {
+    #[default]
+    Start,
+    Wizard,
+}

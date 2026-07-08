@@ -29,7 +29,6 @@ use ui::{
 };
 use winit::window::Icon;
 
-use crate::characters::bosses::wizard::BossSpawned;
 use crate::characters::components::{SpawnCooldown, SpawnRate};
 
 fn main() {
@@ -63,7 +62,7 @@ enum AppState {
 }
 
 #[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
-enum GameState {
+pub enum GameState {
     Paused,
     Running,
     LevelUp,
@@ -129,7 +128,6 @@ fn setup(mut commands: Commands, window: Query<&mut Window, With<PrimaryWindow>>
     commands.insert_resource(InGameTime::default());
     commands.insert_resource(SkillTooltips::default());
     commands.insert_resource(DamageTracker::default());
-    commands.insert_resource(BossSpawned::default());
     commands.insert_resource(Stats::get_save().unwrap_or_default());
     commands.insert_resource(SoundVolume::get_save().unwrap_or_default());
     app_window_config(window);

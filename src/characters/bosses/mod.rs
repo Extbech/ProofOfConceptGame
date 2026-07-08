@@ -1,6 +1,5 @@
 use bevy::app::{App, Plugin};
 
-pub mod components;
 pub mod wizard;
 
 pub(super) struct BossesPlugin;

@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 /// Z-value for tile layer 1.
 pub const TILE_LAYER_1_Z: f32 = 1.;
 
@@ -38,7 +40,7 @@ pub const INITIAL_SPAWN_RATE: f32 = 1.0;
 pub const SPAWN_RATE_INCREASE: f32 = 0.2;
 
 /// Time in seconds for the wizard boss to spawn.
-pub const WIZARD_SPAWN_TIME: f32 = 1.0;
+pub const WIZARD_SPAWN_TIME: Duration = Duration::from_secs(10);
 
 /// Scaling factor for xp required to level up.
 pub const XP_SCALING_FACTOR: f32 = 25.0;

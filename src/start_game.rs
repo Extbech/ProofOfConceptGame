@@ -1,5 +1,5 @@
 use crate::{
-    characters::{bosses::wizard::reset_boss_spawn, MobPlugin, PlayerPlugin},
+    characters::{components::Stage, MobPlugin, PlayerPlugin},
     cleanup,
     loot::loot_plugin::LootPlugin,
     map::map_plugin::MapPlugin,
@@ -45,6 +45,7 @@ impl Plugin for GamePlugin {
                 }),
         )
         .insert_state(GameState::NotStarted)
+        .insert_state(Stage::Start)
         .add_plugins((
             TilemapPlugin,
             EguiPlugin::default(),
@@ -61,10 +62,7 @@ impl Plugin for GamePlugin {
             PlayerPlugin,
         ))
         .add_systems(OnEnter(STATE), (reset_ingametime, start_game))
-        .add_systems(
-            OnExit(STATE),
-            (cleanup::<cleanup::ExitGame>, reset_stats, reset_boss_spawn),
-        )
+        .add_systems(OnExit(STATE), (cleanup::<cleanup::ExitGame>, reset_stats))
         .add_systems(Update, (update_health_ui).run_if(in_state(STATE)));
     }
 }
